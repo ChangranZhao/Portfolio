@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#b6bbc5">
+  <meta name="description" content="Changran Zhao’s selected works in digital media art, interactive installations and spatial experiences. Explore an interactive desktop portfolio.">
+  <title>Changran Zhao — Portfolio</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preload" href="assets/background.webp" as="image">
+</head>
+<body>
+  <div class="wallpaper" aria-hidden="true"></div>
+  <header class="menubar">
+    <nav class="menu-left" aria-label="Main navigation">
+      <button id="brand-menu" class="monogram menu-trigger" aria-label="Open portfolio menu" aria-expanded="true">C<span>z</span></button>
+      <button class="brand-name" data-action="about">CHANGRAN DESIGN</button>
+      <button class="menu-secondary" data-action="projects">Digital Media Art</button>
+      <button class="menu-education" data-action="education">Communication University of China</button>
+      <button class="menu-school" data-action="education">School of Animation and Digital Arts</button>
+    </nav>
+    <nav class="menu-right" aria-label="Desktop controls">
+      <button class="status-button battery" data-action="settings" aria-label="Display settings"><svg viewBox="0 0 28 18"><rect x="1" y="3" width="22" height="12" rx="3"/><rect x="4" y="6" width="16" height="6" rx="1" fill="currentColor"/><path d="M26 7v4"/></svg></button>
+      <button class="status-button" data-action="settings" aria-label="Control Center"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="7" rx="3.5"/><circle cx="8" cy="6.5" r="2" fill="currentColor"/><rect x="3" y="14" width="18" height="7" rx="3.5"/><circle cx="16" cy="17.5" r="2" fill="currentColor"/></svg></button>
+      <button class="status-button" data-action="search" aria-label="Search projects"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
+      <button class="status-button wifi" data-action="network" aria-label="About this website"><svg viewBox="0 0 24 24"><path d="M2 8a16 16 0 0 1 20 0M5 12a11 11 0 0 1 14 0M8 16a6 6 0 0 1 8 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg></button>
+      <button id="clock" data-action="calendar" aria-label="Open calendar"></button>
+    </nav>
+  </header>
+  <div id="main-menu" class="dropdown main-menu" role="menu" aria-label="Portfolio menu">
+    <button role="menuitem" data-action="about">About Me</button>
+    <div class="menu-divider"></div>
+    <button role="menuitem" data-action="studio">Lead of Atavism FZ Studio<br><span>Digital Creation and Interaction</span></button>
+    <div class="menu-divider"></div>
+    <button role="menuitem" data-action="projects">Studio’s Work <span class="shortcut">›</span></button>
+    <div class="menu-divider"></div>
+    <button role="menuitem" data-action="experience">THU Design Intern <span class="shortcut">⌥⇧⌘</span></button>
+    <div class="menu-divider"></div>
+    <button role="menuitem" data-action="awards">Lumen Prize Finalist 2025</button>
+    <button role="menuitem" data-action="awards">Muse Creative Awards Golden</button>
+    <button role="menuitem" data-action="awards">London Design Awards Golden</button>
+    <div class="menu-divider"></div>
+    <button role="menuitem" data-action="research">UIST POSTER 2025 <span class="shortcut">⌃⌘</span></button>
+    <button role="menuitem" data-action="research">DRS PAPER 2026 <span class="shortcut">⇧⌘</span></button>
+  </div>
+  <main id="desktop" aria-label="Portfolio desktop"></main>
+  <section id="title-window" class="title-window" aria-label="Portfolio title">
+    <div class="title-grip"><div class="traffic-lights"><button class="light close" aria-label="Close portfolio title">×</button><button class="light minimize" aria-label="Minimize portfolio title">−</button><button class="light maximize" aria-label="Open all projects">+</button></div><span>Changran Zhao (Active)</span></div>
+    <button class="portfolio-word" data-action="projects" aria-label="Browse all portfolio projects"><span>PORTFOLIO</span><i></i></button>
+  </section>
+  <div id="windows"></div>
+  <footer class="dock-container"><nav id="dock" class="dock" aria-label="Applications and minimized windows"></nav></footer>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <dialog id="lightbox" aria-label="Image viewer"><div class="lightbox-bar"><span id="lightbox-caption"></span><div><button id="zoom-image" aria-label="Zoom image">＋</button><a id="original-image" target="_blank" rel="noopener" aria-label="Open full resolution image">↗</a><button id="close-lightbox" aria-label="Close image viewer">×</button></div></div><div class="lightbox-stage"><button class="lightbox-prev" aria-label="Previous image">‹</button><div class="lightbox-image-wrap"><img id="lightbox-image" alt=""></div><button class="lightbox-next" aria-label="Next image">›</button></div><div id="lightbox-count"></div></dialog>
+  <noscript>This interactive portfolio needs JavaScript. Please enable JavaScript to explore the projects.</noscript>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+node_modules/
+.sites-runtime/
+contact-sheet.jpg
+qa/
+*.tar.gz

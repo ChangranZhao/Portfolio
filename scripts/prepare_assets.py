@@ -2,6 +2,9 @@ from pathlib import Path
 from PIL import Image, ImageOps
 from concurrent.futures import ThreadPoolExecutor
 import json, re, shutil
+from pypdf import PdfReader, PdfWriter
+from prepare_identity import prepare_identity
+from optimize_resources import optimize
 
 BASE = Path(__file__).resolve().parents[1]
 SOURCE = BASE.parent / '素材'
@@ -48,20 +51,26 @@ for folder in sorted(SOURCE.glob('Project*'), key=lambda p: natural(p.name)):
     introduction = introfile.read_text(encoding='utf-8-sig').strip() if introfile.exists() else ''
     documents=[]
     for pdf in folder.rglob('*.pdf'):
-        target=OUT / f'p{number}-{pdf.name}'
-        shutil.copy2(pdf,target)
-        documents.append({'name': pdf.name, 'src':'assets/'+target.name})
+        if pdf.stat().st_size > 24_000_000:
+            reader=PdfReader(pdf)
+            for start in range(0,len(reader.pages),10):
+                end=min(start+10,len(reader.pages))
+                target=OUT / f'p{number}-{pdf.stem}-{start+1:02}-{end:02}.pdf'
+                writer=PdfWriter()
+                for page in reader.pages[start:end]: writer.add_page(page)
+                with target.open('wb') as output: writer.write(output)
+                if target.stat().st_size > 24_000_000: raise ValueError(f'PDF section is too large: {target.name}')
+                documents.append({'name':f'{pdf.stem} · pages {start+1}–{end}', 'src':'assets/'+target.name})
+        else:
+            target=OUT / f'p{number}-{pdf.name}'
+            shutil.copy2(pdf,target)
+            documents.append({'name': pdf.name, 'src':'assets/'+target.name})
     projects.append({'id': f'p{number}', 'title': title, 'category': category, 'summary': summary, 'introduction': introduction, 'images':records, 'documents':documents})
     print(f'{number}: {len(records)} images', flush=True)
 
 background=Image.open(SOURCE/'background.png').convert('RGB')
 background.thumbnail((2560,1600)); background.save(OUT/'background.webp',quality=90)
-icons=[]
-for p in sorted(SOURCE.rglob('icons_png/*.png')):
-    name=p.stem.split('_',1)[1]
-    dest='dock-'+name.lower()+'.png'
-    with Image.open(p) as im:
-        im.thumbnail((160,160)); im.save(OUT/dest)
-    icons.append({'name':name,'src':'assets/'+dest})
+icons=prepare_identity(SOURCE, OUT)
+optimize(projects)
 (BASE/'dist'/'data.js').write_text('export const projects = '+json.dumps(projects,ensure_ascii=False)+';\nexport const dockIcons = '+json.dumps(icons)+';\n',encoding='utf-8')
 print(f'Prepared {len(projects)} projects, {sum(len(p["images"]) for p in projects)} images and {len(icons)} Dock icons.')

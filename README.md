@@ -1,38 +1,36 @@
-# Changran Zhao — macOS Portfolio
+# Changran Zhao Portfolio
 
-按提供的 macOS 桌面参考制作，已接入 10 个项目、155 张图片、12 个 Dock 图标和 SPECTRAL FLUID 的 PDF。
+一个模仿 macOS 桌面的互动作品集，包含 10 个项目、155 张作品照片。电脑端为可移动、缩放的窗口与会漂浮的照片桌面；手机端为双列照片流与底部栏目按钮。
 
-## 本地打开
+## 技术与本地预览
 
-在本目录运行 `npm start`，然后访问 http://127.0.0.1:4173 。这是带 JavaScript 模块的静态网站，请通过预览服务打开，不要直接双击 HTML。
+网站使用原生 JavaScript ES Modules、HTML、CSS，**没有使用 React**，也不需要安装前端依赖。运行环境为 Node.js 22 或更新版本。
 
-## 操作
+- `npm start`：开发预览，打开 <http://127.0.0.1:4173/>。
+- `npm test`：检查窗口状态逻辑。
+- `npm run check`：检查 JavaScript 语法、项目数据和所有本地资源。
+- `npm run build`：从 `dist/` 生成发布目录 `site/`。
+- `npm run preview`：预览 `site/`，打开 <http://127.0.0.1:4174/>。
 
-- 单击桌面作品打开窗口；拖动标题栏移动窗口。
-- 红色按钮关闭、黄色按钮最小化到 Dock、绿色按钮最大化或恢复。
-- 窗口中的 Gallery 浏览图片，About 查看项目介绍和文档。
-- 点击大图进入查看器；左右方向键切换图片，Esc 关闭。＋放大，↗打开高清版本。
-- 顶部放大镜或 Ctrl/⌘ + K 搜索作品。
-- 顶部控制中心调整背景亮度、模糊及减少动态效果。
-- Dock 中的软件入口打开相关作品索引，Photos 浏览全部图片；Terminal 支持 help、ls、open p1、about、clear。
-- 手机端作品按网格排列；Dock 可左右滑动。
+不要直接双击 HTML 文件：JavaScript 模块需要由网页服务器提供。`dist/` 是日常编辑的源网站；`site/` 为自动生成文件，已加入 `.gitignore`。
 
-## 更新素材
+## 图片与加载
 
-原始素材位于本目录上一级的“素材”文件夹，网站不会修改原件。项目图片沿用 Project1 至 Project10 的目录归属；项目说明读取 Introduction.txt。
+155 张项目照片各有小图、预览图和高清图。桌面图标、手机照片流选择适合显示尺寸的图片；未进入屏幕的图片延迟加载；展开作品时加载预览图，放大查看时才使用高清图。PDF 仅在打开对应文档时下载，不能从首页预加载。字体 Inter 从本站加载，授权文件见 `dist/assets/Inter-OFL.txt`。发布构建仅收集实际引用的资源，并为文件名添加内容指纹。自建服务器预览提供 gzip、缓存验证及 PDF 分段传输；其他托管商的缓存策略取决于其平台配置。
 
-更新后运行 `scripts/prepare_assets.py`（Python 3 和 Pillow），再刷新本地预览。该脚本制作网页优化图和缩略图，并更新 `dist/data.js`。原件不会自动同步到已发布的网站，发布版本需要重新发布。
+原始素材在上一级 `素材/` 文件夹。更新素材时，先在本机准备 Python 3、Pillow 与 pypdf，再运行 `python scripts/prepare_assets.py`；它更新网页版本，不修改原件。之后运行检查与构建命令。`scripts/optimize_resources.py` 也可单独重新生成不同尺寸的图片。
 
-网页资源最大边长为 3200 像素；原始文件仍在素材目录中。`dist/app.js` 中 entries 管理桌面图标、坐标及图片匹配；修改素材命名后需检查对应关系。尚无文字介绍的项目直接展示已有图像资料；研究与获奖详细资料待补充。
+## 发布到 GitHub Pages
 
-## 文件
+本项目提供 `.github/workflows/pages.yml`，**仅支持手动触发**，不会因推送代码自动发布。本地尚未上传或发布。
 
-- `dist/`：可部署的网站。
-- `scripts/prepare_assets.py`：素材整理。
-- `server.mjs`：本地预览。
-- `tests/state.test.mjs`：窗口状态验证。
-- `qa/`：本地浏览器检查截图与结果，不随网站发布。
+1. 先将本目录的源码及 `dist/` 资源提交并推送到你的 GitHub 仓库。不要只上传 `site/`：工作流会在 GitHub 上重新构建。
+2. 在仓库的 **Settings → Pages → Build and deployment** 中，将来源设为 **GitHub Actions**。
+3. 在仓库的 **Actions → Publish portfolio to GitHub Pages** 中运行工作流。它会执行测试、资源检查、构建，然后发布。
+4. 项目页地址通常是 `https://<用户名>.github.io/<仓库名>/`；构建使用相对资源路径，已在 `/-/` 子目录模拟验证。若之后设置独立域名，再按 GitHub Pages 的设置配置域名。
 
-## 检查
+`site/_headers` 是供支持该文件的托管服务使用的缓存配置，GitHub Pages 会忽略它；GitHub Pages 的缓存时间由 GitHub 控制。`site/.nojekyll` 避免 Jekyll 处理发布文件。
 
-`npm test` 检查窗口状态；`node scripts/verify-assets.mjs` 检查资源。浏览器检查脚本使用当前机器的 Playwright 和 Edge，若换电脑，需要修改脚本中的依赖路径。
+## 交互
+
+顶栏 **ABOUT ME** 打开个人介绍、奖项等资料；**Project Content** 打开作品目录；**Exhibition&Paper** 打开展览和论文。照片可点击打开作品窗口，窗口支持拖动、边缘缩放、最小化和最大化。手机底部栏目可横向滑动，Gallery 回到照片流。桌面无活动窗口、停下操作后照片会缓慢移动；“减少动态效果”可关闭动画。放大镜可搜索，控制中心可调整背景与桌面尺寸。

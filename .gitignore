@@ -3,3 +3,10 @@ node_modules/
 contact-sheet.jpg
 qa/
 *.tar.gz
+__pycache__/
+problem/
+
+site/
+.env
+.env.*
+*.log

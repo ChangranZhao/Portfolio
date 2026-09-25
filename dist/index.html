@@ -8,17 +8,19 @@
   <title>Changran Zhao — Portfolio</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
-  <link rel="preload" href="assets/background.webp" as="image">
+  <link rel="stylesheet" href="profile.css">
+  <link rel="stylesheet" href="responsive.css">
+  <link rel="stylesheet" href="mobile.css">
+  <link rel="preload" href="assets/background.webp" as="image" media="(min-width:701px)">
 </head>
 <body>
   <div class="wallpaper" aria-hidden="true"></div>
   <header class="menubar">
     <nav class="menu-left" aria-label="Main navigation">
-      <button id="brand-menu" class="monogram menu-trigger" aria-label="Open portfolio menu" aria-expanded="true">C<span>z</span></button>
-      <button class="brand-name" data-action="about">CHANGRAN DESIGN</button>
-      <button class="menu-secondary" data-action="projects">Digital Media Art</button>
-      <button class="menu-education" data-action="education">Communication University of China</button>
-      <button class="menu-school" data-action="education">School of Animation and Digital Arts</button>
+      <button id="brand-menu" class="monogram menu-trigger" aria-label="Open portfolio menu" aria-expanded="true"><img src="assets/personal-logo.svg" alt="Changran Zhao"></button>
+      <button class="brand-name" data-action="about">ABOUT ME</button>
+      <button class="menu-secondary" data-action="projects">Project Content</button>
+      <button class="menu-research" data-action="research">Exhibition&amp;Paper</button>
     </nav>
     <nav class="menu-right" aria-label="Desktop controls">
       <button class="status-button battery" data-action="settings" aria-label="Display settings"><svg viewBox="0 0 28 18"><rect x="1" y="3" width="22" height="12" rx="3"/><rect x="4" y="6" width="16" height="6" rx="1" fill="currentColor"/><path d="M26 7v4"/></svg></button>
@@ -41,7 +43,7 @@
     <button role="menuitem" data-action="awards">Muse Creative Awards Golden</button>
     <button role="menuitem" data-action="awards">London Design Awards Golden</button>
     <div class="menu-divider"></div>
-    <button role="menuitem" data-action="research">UIST POSTER 2025 <span class="shortcut">⌃⌘</span></button>
+    <button role="menuitem" data-action="research-poster">UIST POSTER 2025 <span class="shortcut">⌃⌘</span></button>
     <button role="menuitem" data-action="research">DRS PAPER 2026 <span class="shortcut">⇧⌘</span></button>
   </div>
   <main id="desktop" aria-label="Portfolio desktop"></main>

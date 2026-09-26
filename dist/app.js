@@ -1,3 +1,4 @@
+import {initGuide,addGuideSettings} from './user-guide.js';
 import {projects,dockIcons} from './data.js';
 import {createWindow,focusWindow,closeWindow,minimizeWindow,hideAll,restoreAll,setWindowChange,makeDraggable,state} from './windows.js';
 import {createProfileWorkspace} from './profile.js';
@@ -55,7 +56,11 @@ const entries=[
  ['p1','Qi Culture Interactive Hall',42.3,83,8.8,'QI_Culture_Interactive_Hall',12],
  ['p8','GAIA HYPOTHESIS\nInstallation study',40,7,9.1,'3d_model_preview',11],
  ['p2','SPACE CHRONICLES\nExhibition view',8.5,79,8.5,'page_4',11],
- ['p5','Tremulant Oracles\nLight study',92,55,8.3,'exhibit_photo3',11]
+ ['p5','Tremulant Oracles\nLight study',92,55,8.3,'exhibit_photo3',11],
+ ['p11','Path of Light',21,4.5,8.5,'Front_Page.jpg',11],
+ ['p12','Blue Calico Realm',58,32,8.4,'experimental_1',11],
+ ['p13','24 Term Personality\nInteractive Design',69,52,8.4,'Front_page.jpg',11],
+ ['p14','What if Potatoes\nRuled Mars',93,77,6.5,'poster1',14]
 ];
 const desktop=$('#desktop');
 const mobileIntro=element('section','mobile-intro');
@@ -64,7 +69,7 @@ mobileHead.append(element('h1','','Portfolio'),button('↗',()=>openCollection()
 mobileHead.lastElementChild.setAttribute('aria-label','View all projects');
 mobileIntro.append(element('p','mobile-byline','CHANGRAN ZHAO · DIGITAL MEDIA ART'),mobileHead,element('p','mobile-count',`${projects.length} projects / ${entries.length} photographs`));
 const mobileFilters=element('nav','mobile-filters');mobileFilters.setAttribute('aria-label','Filter portfolio cards');
-for(const [label,ids] of [['All',null],['Spatial',['p1','p6','p9']],['Installation',['p2','p4','p5','p8']],['Digital',['p3','p7','p10']]]){
+for(const [label,ids] of [['All',null],['Spatial',['p1','p6','p9','p11']],['Installation',['p2','p4','p5','p8','p12']],['Digital',['p3','p7','p10','p13','p14']]]){
   const filter=button(label,()=>{for(const b of mobileFilters.children)b.setAttribute('aria-pressed',String(b===filter));for(const card of desktop.children)card.classList.toggle('mobile-filtered',!!ids&&!ids.includes(card.dataset.project));});
   filter.setAttribute('aria-pressed',String(!ids));mobileFilters.append(filter);
 }
@@ -82,6 +87,7 @@ entries.forEach(([pid,label,x,y,w,match,h],i)=>{
 });
 
 const projectViews=new Map();
+async function openDetails(project){const {openProjectDetails}=await import('./project-details.js');openProjectDetails(project,{openImage:openLightbox,openGallery:openProject});}
 function openProject(pid,index=0){
   const p=byId(pid);if(!p)return;
   if(state.items.has(pid)){projectViews.get(pid)?.showImage(index);focusWindow(pid);return;}
@@ -93,7 +99,7 @@ function openProject(pid,index=0){
   const toolbar=element('div','project-toolbar'),crumb=element('div','breadcrumb');crumb.append(document.createTextNode('Portfolio  /  '),element('strong','',p.title));
   const switches=element('div','view-switch');
   const gallery=element('div','gallery-view'),overview=element('div','overview');overview.hidden=true;
-  const imageTab=button('Gallery',()=>showMode('gallery'),'active'),aboutTab=button('About',()=>showMode('about'));switches.append(imageTab,aboutTab);toolbar.append(crumb,switches);
+  const imageTab=button('Gallery',()=>showMode('gallery'),'active'),aboutTab=button('View Full Project ↗',()=>openDetails(p),'full-project-button');switches.append(imageTab,aboutTab);toolbar.append(crumb,switches);
   function showMode(mode){gallery.hidden=mode!=='gallery';overview.hidden=mode!=='about';imageTab.classList.toggle('active',mode==='gallery');aboutTab.classList.toggle('active',mode==='about');}
   const heading=element('div','project-heading'),headingText=element('div');headingText.append(element('h1','',p.title),element('p','',p.category));const counter=element('span','counter');heading.append(headingText,counter);
   const stage=element('div','gallery-stage'),mainImage=image('','','gallery-image');
@@ -119,9 +125,10 @@ function openProject(pid,index=0){
 
 let lightboxItems=[],lightboxIndex=0,lightboxTitle='';
 const lightbox=$('#lightbox');
-function openLightbox(items,index,title){lightboxItems=items;lightboxIndex=index;lightboxTitle=title;renderLightbox();if(!lightbox.open)lightbox.showModal();}
+function openLightbox(items,index,title){if(document.fullscreenElement&&!document.fullscreenElement.contains(lightbox))document.fullscreenElement.append(lightbox);lightboxItems=items;lightboxIndex=index;lightboxTitle=title;renderLightbox();if(!lightbox.open)lightbox.showModal();}
 function renderLightbox(){const im=lightboxItems[lightboxIndex];$('#lightbox-image').src=im.src;$('#lightbox-image').alt=lightboxTitle+' — '+im.name;$('#lightbox-caption').textContent=lightboxTitle+' / '+im.name;$('#lightbox-count').textContent=`${lightboxIndex+1} / ${lightboxItems.length}`;$('#original-image').href=im.src;$('.lightbox-image-wrap').classList.remove('zoomed');$('#zoom-image').textContent='＋';}
 function stepLightbox(n){lightboxIndex=(lightboxIndex+n+lightboxItems.length)%lightboxItems.length;renderLightbox();}
+lightbox.addEventListener('close',()=>{if(lightbox.parentElement!==document.body)document.body.append(lightbox);});
 $('#close-lightbox').onclick=()=>lightbox.close();$('.lightbox-prev').onclick=()=>stepLightbox(-1);$('.lightbox-next').onclick=()=>stepLightbox(1);
 $('#zoom-image').onclick=()=>{const zoomed=$('.lightbox-image-wrap').classList.toggle('zoomed');$('#zoom-image').textContent=zoomed?'−':'＋';};
 lightbox.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){e.preventDefault();stepLightbox(1);}if(e.key==='ArrowLeft'){e.preventDefault();stepLightbox(-1);}});
@@ -143,8 +150,8 @@ function openAbout(section='about'){
 }
 
 const toolDescriptions={
- Figma:['Interface & experience design','Explore the interface studies and visual system in Homeward Memories.',['p10']],
- Illustrator:['Visual communication','Explore graphic compositions, exhibition identity and portfolio pages.',['p1','p10']],
+ Figma:['Interface & experience design','Explore interface studies and interactive experiences.',['p10','p13']],
+ Illustrator:['Visual communication','Explore graphic compositions, exhibition identity and portfolio pages.',['p1','p10','p14']],
  Cursor:['Creative coding','Browse the projects and their development material.',['p2','p8']],
  ChatGPT:['Concept & dialogue','Browse interactive projects and conceptual explorations.',['p2','p3']],
  Unity:['Real-time worlds','Explore digital reconstruction assets, rendering processes and immersive environments.',['p6','p1']],
@@ -170,7 +177,7 @@ function openTerminal(){
   const terminal=element('div','terminal'),output=element('div','terminal-output','Changran’s portfolio\nType help for available commands.\n\n');
   const prompt=element('form','terminal-prompt'),input=element('input','terminal-input');input.setAttribute('aria-label','Terminal command');input.autocomplete='off';input.spellcheck=false;prompt.append(element('span','','visitor ~ %'),input);terminal.append(output,prompt);
   prompt.onsubmit=e=>{e.preventDefault();const raw=input.value.trim(),cmd=raw.toLowerCase();input.value='';output.textContent+='visitor ~ % '+raw+'\n';
-    if(cmd==='help')output.textContent+='help             Available commands\nls               List all projects\nopen p1 … p10    Open a project\nabout            About Changran\nclear            Clear this window\n\n';
+    if(cmd==='help')output.textContent+='help             Available commands\nls               List all projects\nopen <ID>        Open a project (use ls for IDs)\nabout            About Changran\nclear            Clear this window\n\n';
     else if(cmd==='ls')output.textContent+=projects.map(p=>p.id.padEnd(5)+p.title).join('\n')+'\n\n';
     else if(cmd==='about'){openAbout();output.textContent+='Opened About Me.\n\n';}
     else if(cmd==='clear')output.textContent='';
@@ -196,7 +203,7 @@ function setDesktopSize(key,value){
 }
 function openSettings(){
   infoWindow('settings','Control Center',page=>{
-    page.append(element('div','eyebrow','DESKTOP'),element('h1','','Make yourself at home'));
+    page.append(element('div','eyebrow','DESKTOP'),element('h1','','Make yourself at home'));addGuideSettings(page);
     for(const [label,key,min,max,value] of [['Wallpaper brightness','--wall-brightness',.5,1.2,1],['Wallpaper blur','--wall-blur',0,12,0]]){
       const row=element('div','settings-row'),lab=element('label','',label),input=element('input');input.type='range';input.min=min;input.max=max;input.step=key==='--wall-blur'?'1':'.05';input.value=parseFloat(document.documentElement.style.getPropertyValue(key))||value;input.setAttribute('aria-label',label);input.oninput=()=>document.documentElement.style.setProperty(key,input.value+(key==='--wall-blur'?'px':''));row.append(lab,input);page.append(row);
     }
@@ -205,7 +212,6 @@ function openSettings(){
       input.id='setting'+key;input.type='range';input.min=min;input.max=max;input.step=5;input.value=desktopSizes[key];input.setAttribute('aria-label',text);label.htmlFor=input.id;
       input.oninput=()=>{setDesktopSize(key,input.value);output.value=input.value+'%';};label.append(output);row.append(label,input);page.append(row);
     }
-    const motion=element('div','settings-row'),label=element('label','','Reduce motion'),toggle=element('input');toggle.type='checkbox';toggle.checked=document.body.classList.contains('reduce-motion');toggle.onchange=()=>document.body.classList.toggle('reduce-motion',toggle.checked);label.append(toggle);motion.append(label);page.append(motion);
     page.append(button('Show desktop',()=>{hideAll();},'action-button'),button('Restore windows',()=>restoreAll(),'action-button secondary-button'));
     page.append(button('Restore title window',()=>{$('#title-window').hidden=false;toast('Portfolio title restored');},'action-button secondary-button'));
   },470,740);
@@ -256,3 +262,6 @@ document.addEventListener('keydown',e=>{
 });
 desktop.addEventListener('click',e=>{if(e.target===desktop){document.querySelectorAll('.desktop-icon.selected').forEach(el=>el.classList.remove('selected'));}});
 setupDesktopDrift(desktop);
+const linkedProject=byId(new URLSearchParams(location.hash.slice(1)).get('project'));if(linkedProject)openDetails(linkedProject);
+
+initGuide({collection:()=>openCollection(),about:()=>openAbout(),research:()=>openAbout("research"),project:()=>openProject("p1"),details:()=>openDetails(byId("p1"))});

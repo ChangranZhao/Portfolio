@@ -46,3 +46,12 @@
 @media(max-width:1200px){.menubar .menu-school{display:none}}
 @media(max-width:950px){.menubar .menu-education{display:none}}
 @media(max-width:700px){.menubar .menu-secondary,.menubar .battery,.menubar .wifi{display:none}}
+/* Window-local wallpaper, with a clear top and progressively blurred lower layer. */
+.profile-window .window-body{--panel-wallpaper:url('assets/about-wallpaper.webp')}
+.research-window .window-body{--panel-wallpaper:url('assets/research-wallpaper.webp')}
+.profile-window .window-body,.research-window .window-body{position:relative;isolation:isolate;background:#101820}
+.profile-window .window-body:before,.research-window .window-body:before,
+.profile-window .window-body:after,.research-window .window-body:after{content:'';position:absolute;inset:-16px;z-index:-1;pointer-events:none;background-image:linear-gradient(#0002,#0005),var(--panel-wallpaper);background-position:center;background-size:cover}
+.profile-window .window-body:after,.research-window .window-body:after{filter:blur(14px);mask-image:linear-gradient(to bottom,transparent 8%,#0003 30%,#0009 58%,#000 90%);-webkit-mask-image:linear-gradient(to bottom,transparent 8%,#0003 30%,#0009 58%,#000 90%)}
+.profile-window .profile-board,.research-window .research-board{background:transparent}
+.profile-window .profile-board:before,.profile-window .profile-board:after,.research-window .research-board:before,.research-window .research-board:after{content:none}

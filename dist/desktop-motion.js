@@ -6,8 +6,8 @@ export function setupDesktopDrift(desktop){
     const angle=.7+i*2.39996,speed=19+(i%6)*2;
     return {el,i,x:0,y:0,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed};
   });
-  let timer,frame=0,running=false,last=0;
-  const disabled=()=>innerWidth<=700||reduced.matches||document.body.classList.contains('reduce-motion')||document.hidden||[...state.items.values()].some(w=>!w.minimized);
+  let timer,frame=0,running=false,last=0,measureFrame=0;
+  const disabled=()=>innerWidth<=700||reduced.matches||document.body.classList.contains('reduce-motion')||document.hidden||document.body.classList.contains('guide-open')||document.body.classList.contains('tour-active')||[...state.items.values()].some(w=>!w.minimized);
   function paint(p){
     // The entrance animation uses translate with fill-mode: both. Override it
     // explicitly so the rendered position, not only the inline value, moves.
@@ -16,8 +16,9 @@ export function setupDesktopDrift(desktop){
   function measure(){
     if(innerWidth<=700){for(const p of icons){p.x=p.y=0;paint(p);}return;}
     const bounds=desktop.getBoundingClientRect();
-    for(const p of icons){
-      const r=p.el.getBoundingClientRect(),left=r.left-p.x,top=r.top-p.y;
+    const rectangles=icons.map(p=>p.el.getBoundingClientRect());
+    for(const [i,p] of icons.entries()){
+      const r=rectangles[i],left=r.left-p.x,top=r.top-p.y;
       p.minX=bounds.left+6-left;p.maxX=Math.max(p.minX,bounds.right-6-left-r.width);
       p.minY=bounds.top+6-top;p.maxY=Math.max(p.minY,bounds.bottom-6-top-r.height);
       p.x=Math.max(p.minX,Math.min(p.maxX,p.x));p.y=Math.max(p.minY,Math.min(p.maxY,p.y));paint(p);
@@ -25,6 +26,7 @@ export function setupDesktopDrift(desktop){
   }
   function animate(now){
     frame=0;if(!running||disabled())return;
+    if(now-last<1000/30){frame=requestAnimationFrame(animate);return;}
     const dt=Math.min((now-last)/1000,.08);last=now;
     for(const p of icons){
       if(p.el.matches(':hover,:focus-visible'))continue;
@@ -51,9 +53,10 @@ export function setupDesktopDrift(desktop){
   for(const event of ['pointerdown','click','keydown','wheel'])document.addEventListener(event,pause,{passive:true,capture:true});
   document.addEventListener('portfolio-windows-changed',pause);
   document.addEventListener('visibilitychange',pause);
-  window.addEventListener('resize',()=>{pause();measure();});
+  function scheduleMeasure(){if(measureFrame)return;measureFrame=requestAnimationFrame(()=>{measureFrame=0;pause();measure()});}
+  window.addEventListener('resize',scheduleMeasure);
   reduced.addEventListener('change',pause);
   new MutationObserver(pause).observe(document.body,{attributes:true,attributeFilter:['class']});
-  for(const p of icons){paint(p);const img=p.el.querySelector('img');if(img&&!img.complete)img.addEventListener('load',measure,{once:true});}
+  for(const p of icons){paint(p);const img=p.el.querySelector('img');if(img&&!img.complete)img.addEventListener('load',scheduleMeasure,{once:true});}
   pause();
 }

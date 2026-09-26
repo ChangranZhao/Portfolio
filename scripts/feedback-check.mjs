@@ -1,5 +1,6 @@
 import {createRequire} from 'node:module';
 import assert from 'node:assert/strict';
+import {projects} from '../dist/data.js';
 import {readFile} from 'node:fs/promises';
 const require=createRequire(import.meta.url);
 const {chromium}=require('C:/Users/20135/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
@@ -26,7 +27,7 @@ await check('About launches only the profile and title windows',async()=>{
 });
 await check('CONTENT reaches all ten actual projects',async()=>{
  await page.getByRole('button',{name:'Browse all portfolio projects',exact:true}).click();
- assert.equal(await page.locator('.project-card').count(),10);
+ assert.equal(await page.locator('.project-card').count(),projects.length);
  await page.locator('.project-card').filter({hasText:'SPACE CHRONICLES'}).click();
  await page.getByRole('dialog',{name:'SPACE CHRONICLES',exact:true}).waitFor();
  await page.getByRole('button',{name:'Close SPACE CHRONICLES',exact:true}).click();

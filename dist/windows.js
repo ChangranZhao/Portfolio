@@ -10,11 +10,11 @@ function sync(){
   document.dispatchEvent(new Event('portfolio-windows-changed'));
 }
 export function focusWindow(id){state.focus(id);const w=windows.get(id);if(w){clearTimeout(w.minimizeTimer);w.el.hidden=false;w.el.classList.remove('minimizing');}sync();w?.el.focus({preventScroll:true});}
-export function closeWindow(id){const win=windows.get(id);if(!win)return;clearTimeout(win.minimizeTimer);win.el.classList.add('closing');setTimeout(()=>win.el.remove(),150);windows.delete(id);state.close(id);sync();win.trigger?.focus({preventScroll:true});}
-export function minimizeWindow(id){const win=windows.get(id);if(!win)return;state.minimize(id);win.el.classList.add('minimizing');const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches||document.body.classList.contains('reduce-motion');win.minimizeTimer=setTimeout(()=>{if(state.items.get(id)?.minimized)win.el.hidden=true;},reduced?0:180);sync();}
+export function closeWindow(id){const win=windows.get(id);if(!win)return;if(document.fullscreenElement===win.el){document.exitFullscreen().then(()=>closeWindow(id));return;}win.el.dispatchEvent(new Event('window-closing'));clearTimeout(win.minimizeTimer);win.el.classList.add('closing');setTimeout(()=>win.el.remove(),150);windows.delete(id);state.close(id);sync();win.trigger?.focus({preventScroll:true});}
+export function minimizeWindow(id){const win=windows.get(id);if(!win)return;if(document.fullscreenElement===win.el){document.exitFullscreen().then(()=>minimizeWindow(id));return;}win.el.classList.remove('case-fullscreen','case-immersive','case-controls-visible');state.minimize(id);win.el.classList.add('minimizing');const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches||document.body.classList.contains('reduce-motion');win.minimizeTimer=setTimeout(()=>{if(state.items.get(id)?.minimized)win.el.hidden=true;},reduced?0:180);sync();}
 export function restoreAll(){for(const id of windows.keys())focusWindow(id);}
 export function hideAll(){for(const id of windows.keys())minimizeWindow(id);}
-export function createWindow({id,title,content,width=950,height=650,className='',bounds}){
+export function createWindow({id,title,content,width=950,height=650,className='',bounds,onMaximize}){
   if(windows.has(id)){focusWindow(id);return {el:windows.get(id).el,existing:true};}
   const el=document.createElement('section');el.className='window opening '+className;el.setAttribute('role','dialog');el.setAttribute('aria-label',title);el.dataset.windowId=id;el.tabIndex=-1;
   el.addEventListener('animationend',e=>{if(e.target===el&&e.animationName==='window-appear')el.classList.remove('opening');});
@@ -22,7 +22,7 @@ export function createWindow({id,title,content,width=950,height=650,className=''
   const lights=document.createElement('div');lights.className='traffic-lights';
   for(const [type,label,mark] of [['close','Close','×'],['minimize','Minimize','−'],['maximize','Maximize','+']]){
     const b=document.createElement('button');b.className='light '+type;b.setAttribute('aria-label',label+' '+title);b.textContent=mark;
-    b.addEventListener('click',()=>{if(type==='close')closeWindow(id);else if(type==='minimize')minimizeWindow(id);else toggleMax();});lights.append(b);
+    b.addEventListener('click',()=>{if(type==='close')closeWindow(id);else if(type==='minimize')minimizeWindow(id);else if(onMaximize)onMaximize(el);else toggleMax();});lights.append(b);
   }
   const titleEl=document.createElement('span');titleEl.className='window-title';titleEl.textContent=title;bar.append(lights,titleEl);
   const body=document.createElement('div');body.className='window-body';body.append(content);el.append(bar,body);
@@ -34,7 +34,7 @@ export function createWindow({id,title,content,width=950,height=650,className=''
   el.addEventListener('pointerdown',()=>{state.focus(id);sync();});
   el.addEventListener('focusin',()=>{if(state.active!==id){state.focus(id);sync();}});
   bar.addEventListener('dblclick',e=>{if(!e.target.closest('button'))toggleMax();});
-  makeDraggable(el,bar,()=>el.classList.contains('maximized'));
+  makeDraggable(el,bar,()=>el.classList.contains('maximized')||el.classList.contains('case-fullscreen'));
   makeResizable(win);
   el.addEventListener('window-moved',()=>{win.normal.x=parseFloat(el.style.left);win.normal.y=parseFloat(el.style.top);});
   sync();el.focus({preventScroll:true});document.dispatchEvent(new Event('portfolio-window-opened'));return {el,body,existing:false};
@@ -79,9 +79,8 @@ function desktopArea(){
   const bottom=Math.min(innerHeight-8,dock.top-10);
   return {top,height:Math.max(80,bottom-top)};
 }
-function fitWindow(el){
+function fitWindow(el,area=desktopArea()){
   const normal=windows.get(el.dataset.windowId)?.normal;if(!normal)return;
-  const area=desktopArea();
   el.style.setProperty('--window-top',area.top+'px');
   el.style.setProperty('--window-height',area.height+'px');
   const w=Math.min(normal.width,Math.max(1,innerWidth-16));
@@ -90,4 +89,5 @@ function fitWindow(el){
   const y=Math.max(area.top,Math.min(normal.y,area.top+area.height-h));
   Object.assign(el.style,{width:w+'px',height:h+'px',left:x+'px',top:y+'px'});
 }
-window.addEventListener('resize',()=>{for(const {el} of windows.values())fitWindow(el);});
+let resizeFrame=0;
+window.addEventListener('resize',()=>{if(resizeFrame)return;resizeFrame=requestAnimationFrame(()=>{resizeFrame=0;const area=desktopArea();for(const {el} of windows.values())fitWindow(el,area);});});

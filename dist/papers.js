@@ -1,0 +1,1 @@
+export const papers = [{id:'path-of-light',title:'Path of Light: Interactive Narrative Design Based on Mix Reality for Silk Road Cultural Perception',venue:'UIST Adjunct 2025',pdf:'assets/papers/path-of-light.pdf',preview:'assets/papers/path-of-light.webp',pages:3}];

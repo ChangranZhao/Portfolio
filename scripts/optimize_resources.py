@@ -17,7 +17,7 @@ def optimize(projects):
         with Image.open(source) as im:
             im = ImageOps.exif_transpose(im).convert('RGB')
             for target, bounds, quality in [(small, (320,320),78), (preview,(1400,1400),83)]:
-                if not target.exists() or target.stat().st_mtime < source.stat().st_mtime:
+                if record.get('_refresh') or not target.exists() or target.stat().st_mtime < source.stat().st_mtime:
                     copy=im.copy();copy.thumbnail(bounds);copy.save(target,'WEBP',quality=quality,method=6)
         with Image.open(small) as im: record['smallWidth']=im.width
         with Image.open(preview) as im: record['previewWidth']=im.width
@@ -25,6 +25,7 @@ def optimize(projects):
         with Image.open(BASE / 'dist' / record['thumb']) as im: record['thumbWidth']=im.width
         record['small']='assets/'+small.name
         record['preview']='assets/'+preview.name
+        record.pop('_refresh',None)
     records=[im for p in projects for im in p['images']]
     with ThreadPoolExecutor(max_workers=4) as pool: list(pool.map(variant,records))
     print(f'Prepared responsive variants for {len(records)} photographs',flush=True)

@@ -1,0 +1,10 @@
+import {createRequire} from 'node:module';
+import path from 'node:path';
+const require=createRequire(import.meta.url);
+const modules=process.env.CULTURE_NODE_MODULES||'C:/Users/20135/Desktop/留学申请/项目整理/齐文化典籍中心/文化球/文化球/node_modules';
+const {build}=require(path.join(modules,'esbuild'));
+await build({entryPoints:['culture-source/main.jsx'],bundle:true,minify:true,format:'esm',outfile:'dist/culture-runtime.js',nodePaths:[modules],external:['./assets/*'],define:{'process.env.NODE_ENV':'"production"'},legalComments:'eof'});
+console.log('Built optimized culture runtime from culture-source.');
+import {readFile,writeFile} from 'node:fs/promises';
+const css=await readFile('dist/culture-runtime.css','utf8');
+await writeFile('dist/culture-runtime.css',css.replace(/url\(([^"'()]+)\)/g,(_,url)=>`url("${url}")`));

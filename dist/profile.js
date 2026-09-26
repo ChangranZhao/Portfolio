@@ -1,3 +1,5 @@
+import {openPaper} from './paper-reader.js';
+import {papers as paperLibrary} from './papers.js';
 import {createWindow,focusWindow,hideAll,state} from './windows.js';
 
 // Transcribed from the user's second desktop reference. No external links were supplied.
@@ -38,7 +40,7 @@ const exhibitions=[
 ];
 const publications=[
  ['Bodystorming through Disruption: AI-assisted Design Improvisation Pedagogy','DRS 2026'],
- ['Path of Light: Interactive Narrative Design Based on Mix Reality for Silk Road Cultural Perception','UIST 2026'],
+ ['Path of Light: Interactive Narrative Design Based on Mix Reality for Silk Road Cultural Perception','UIST Adjunct 2025'],
  ['Echo-Space: Inclusive Orchestral Performance Space with Visual Media','HCII 2025'],
  ['HISTORICAL-IMMERSION — Immersive Memory Re-production System Based on 3D Scanning and Multi-modal Interaction','HCII 2025'],
  ['UIST Poster','UIST 2025']
@@ -88,7 +90,7 @@ export function createProfileWorkspace({projects,cover,openProject,openPhotos,op
     const board=el('div','research-board');board.append(navigation());const cols=el('div','research-columns');
     const exhibition=el('section');exhibition.id='profile-exhibitions';exhibition.append(el('h2','','EXHIBITION'));const list=el('div','exhibition-list');
     exhibitions.forEach(([title,date,place])=>list.append(record(title,date+'   '+place)));exhibition.append(list);
-    const papers=el('section');papers.id='profile-publications';papers.append(el('h2','','PAPER PUBLICATION'));publications.forEach(([title,venue])=>{const row=record(title,venue);if(title==='UIST Poster')row.id='profile-uist-poster';papers.append(row);});
+    const papers=el('section');papers.id='profile-publications';papers.append(el('h2','','PAPER PUBLICATION'));publications.forEach(([title,venue])=>{const paper=paperLibrary.find(p=>p.title===title||title==='UIST Poster'&&p.id==='path-of-light');let row;if(paper){row=btn('',()=>openPaper(paper),'profile-record paper-link');row.append(el('span','record-name',title),el('span','record-meta',paper.venue+' · PDF · '+paper.pages+' pages'),el('span','paper-read','阅读全文 / Read Paper ↗'));}else row=record(title,venue);if(title==='UIST Poster')row.id='profile-uist-poster';papers.append(row);});
     cols.append(exhibition,papers);board.append(cols);
     const win=createWindow({id:'profile-research',title:'Changran Zhao / Exhibitions & Papers',content:board,width:1100,height:440,className:'about-workspace browser-window research-window',bounds:bounds(.225,.043,.67,.285)});decorateBrowser(win);if(section)reveal(section);
   }

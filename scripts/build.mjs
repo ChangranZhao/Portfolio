@@ -34,7 +34,7 @@ async function emit(file){
   await mkdir(path.dirname(path.join(output,target)),{recursive:true});await writeFile(path.join(output,target),contents);
   manifest[file]=target;visiting.delete(file);return target;
 }
-await emit('index.html');await emit('assets/Inter-OFL.txt');
+await emit('index.html');await emit('assets/Inter-OFL.txt');await emit('assets/culture/OFL.txt');
 await writeFile(path.join(output,'.nojekyll'),'');
 await writeFile(path.join(output,'_headers'),'/*\n  Cache-Control: public, max-age=0, must-revalidate\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n');
 await writeFile(path.join(output,'asset-manifest.json'),JSON.stringify(manifest,null,2));

@@ -1,7 +1,8 @@
 import {createWindow,closeWindow} from './windows.js';
 import {archiveAssets} from './culture-assets.js';
 import {nextChapters} from './project-chapters.js';
-import {cultureStories} from './culture-stories.js';
+import {createFieldResearch} from './project-field-research.js';
+import {createSpatialDesign} from './project-spatial-design.js';
 const el=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;};
 const btn=(text,fn,cls='')=>{const node=el('button',cls,text);node.type='button';node.onclick=fn;return node;};
 const photo=(src,alt,cls='')=>{const node=el('img',cls);node.src=src;node.alt=alt;node.loading='lazy';node.decoding='async';return node;};
@@ -57,10 +58,9 @@ export function openProjectDetails(project,{openImage,openGallery}){
   const frame=el('iframe','culture-embed');frame.title='Qi culture research — interactive archives, themes and cultural sphere';frame.loading='lazy';frame.setAttribute('allow','fullscreen');
   frame.src='culture.html';culture.append(frame);
   const sources=el('div','case-sources');sources.append(el('span','','Research sources: '));for(const [label,url] of [['Qi Heritage Museum','https://www.qiheritagemuseum.com/'],['Qi cultural spirit · Zibo','https://hrss.zibo.gov.cn/art/2020/12/7/art_1060_2054972.html']]){const a=el('a','',label+' ↗');a.href=url;a.target='_blank';a.rel='noopener noreferrer';sources.append(a);}culture.append(sources);article.append(culture);
-  const stories=el('section','case-story-bridge');stories.append(el('span','case-kicker','APPLYING THE FRAMEWORK / CULTURAL STORIES'),el('h3','','From cultural stories to design questions'),el('p','','Reform, innovation, openness, pragmatism and inclusiveness provide lenses for reading these cultural stories. The provisional four-quadrant framework connects overlapping themes rather than exclusive categories. Design opportunities are proposals for interpretation, not claims of completed visitor testing.'));
-  const storyGrid=el('div','case-story-grid');
-  for(const story of cultureStories){const card=el('section','case-story-card');const visual=el('div','case-story-image case-story-placeholder');visual.append(el('span','','STORY IMAGE'),el('small','','To be supplied'));const info=el('div','case-story-copy');info.append(el('span','case-kicker','CULTURAL STORY'),el('h4','',story.en),el('p','case-story-chinese',story.title),el('p','',story.summaryEn));const tags=el('div','case-story-tags');for(const index of story.themes){const tag=btn(themes[index][0],()=>{frame.scrollIntoView({behavior:'smooth',block:'start'});frame.contentWindow?.postMessage({type:'portfolio-culture-theme',theme:index},location.origin);});tags.append(tag);}info.append(tags);const detail=el('details');detail.append(el('summary','','Framework reading & sources'),el('p','',story.reasonEn),el('p','','Design opportunity / '+story.opportunityEn),el('p','',story.classic));info.append(detail);card.append(visual,info);storyGrid.append(card);}stories.append(storyGrid);culture.append(stories);
-  for(const chapter of nextChapters){
+  article.append(createFieldResearch(openImage));
+  article.append(createSpatialDesign());
+  for(const chapter of nextChapters.filter(c=>!['case-interview','case-narrative'].includes(c.id))){
    const section=el('section','case-planned-chapter');section.id=chapter.id;
    section.append(el('span','case-kicker',chapter.number+' / '+chapter.nav.toUpperCase()),el('h2','',chapter.title),el('p','case-chapter-question',chapter.question));
    const flow=el('ol','case-chapter-flow');chapter.steps.forEach(step=>flow.append(el('li','',step)));section.append(flow);

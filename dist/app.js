@@ -1,3 +1,4 @@
+import {localizeText} from './localization.js';
 import {initGuide,addGuideSettings} from './user-guide.js';
 import {projects,dockIcons} from './data.js';
 import {createWindow,focusWindow,closeWindow,minimizeWindow,hideAll,restoreAll,setWindowChange,makeDraggable,state} from './windows.js';
@@ -82,8 +83,8 @@ entries.forEach(([pid,label,x,y,w,match,h],i)=>{
   const square=pid==='p8'&&match==='photo_of_the_Installation3';
   const portrait=!square&&im.height/im.width>1.1;
   const pic=image(im.thumb,label.replaceAll('\n',' '),'icon-image'+(square?' square':portrait?' portrait':''));
-  if(innerWidth>700)pic.loading='eager';b.append(pic);
-  const lab=element('span','icon-label');label.split('\n').forEach((s,j)=>{if(j)lab.append(document.createElement('br'));lab.append(document.createTextNode(s));});b.append(lab);desktop.append(b);
+  pic.draggable=false;if(innerWidth>700)pic.loading='eager';b.append(pic);
+  const lab=element('span','icon-label');lab.textContent=label;b.append(lab);desktop.append(b);
 });
 
 const projectViews=new Map();
@@ -140,7 +141,7 @@ function openCollection(search=false){
   const grid=element('div','project-grid');
   if(search){const input=element('input','search-box');input.type='search';input.placeholder='Search projects / 搜索作品';input.setAttribute('aria-label','Search portfolio projects');root.append(input);input.oninput=()=>render(input.value);}
   root.append(grid);
-  function render(q=''){grid.replaceChildren();const matches=projects.filter(p=>(p.title+' '+p.category+' '+p.introduction).toLowerCase().includes(q.toLowerCase()));for(const p of matches)grid.append(projectCard(p));if(!matches.length)grid.append(element('p','empty-message','No matching projects / 没有匹配的作品'));}
+  function render(q=''){grid.replaceChildren();const matches=projects.filter(p=>(p.title+' '+p.category+' '+p.introduction+' '+localizeText(p.title)+' '+localizeText(p.category)).toLowerCase().includes(q.toLowerCase()));for(const p of matches)grid.append(projectCard(p));if(!matches.length)grid.append(element('p','empty-message','No matching projects / 没有匹配的作品'));}
   render();const result=createWindow({id:search?'search':'projects',title:search?'Spotlight — Projects':'Portfolio — Selected works',content:root,width:900,height:680});if(search&&!result.existing)$('input',result.el).focus();
 }
 
@@ -185,7 +186,7 @@ function openTerminal(){
     else if(cmd)output.textContent+='Command not found. Type help.\n\n';terminal.scrollTop=terminal.scrollHeight;
   };const win=createWindow({id:'terminal',title:'Terminal — portfolio',content:terminal,width:650,height:430});if(!win.existing)input.focus();
 }
-function openTrash(){infoWindow('trash','Trash',page=>{page.append(image(dockIcons.find(i=>i.name==='Trash').src,'','tool-icon'),element('h1','','The Trash is empty'),element('p','','All good ideas are still on the desktop. / 所有作品都好好地留在桌面上。'),button('Back to the desktop',()=>{hideAll();},'action-button secondary-button'));},430,350);}
+function openTrash(){infoWindow('trash','Trash',page=>{page.append(image(dockIcons.find(i=>i.name==='Trash').src,'','tool-icon'),element('h1','','The Trash is empty'),element('p','','All good ideas are still on the desktop.'),button('Back to the desktop',()=>{hideAll();},'action-button secondary-button'));},430,350);}
 function openCode(){infoWindow('vscode','Portfolio — Project index',page=>{page.append(image(dockIcons.find(i=>i.name==='VSCode').src,'Visual Studio Code','tool-icon'),element('h1','','Project index'),element('pre','code-view',JSON.stringify(projects.map(p=>({name:p.title,images:p.images.length})),null,2)),button('Open selected works',()=>openCollection(),'action-button'));},580,620);}
 
 const desktopSizeControls=[
@@ -218,7 +219,7 @@ function openSettings(){
 }
 function openCalendar(){
   let month=new Date();const page=element('div','info-page'),head=element('div','calendar-title'),title=element('h2'),grid=element('div','calendar-grid');
-  const render=()=>{title.textContent=month.toLocaleDateString('en',{month:'long',year:'numeric'});grid.replaceChildren();for(const d of ['S','M','T','W','T','F','S'])grid.append(element('span','weekday',d));const first=new Date(month.getFullYear(),month.getMonth(),1).getDay(),days=new Date(month.getFullYear(),month.getMonth()+1,0).getDate();for(let i=0;i<first;i++)grid.append(element('span'));const today=new Date();for(let d=1;d<=days;d++)grid.append(element('span',d===today.getDate()&&month.getMonth()===today.getMonth()&&month.getFullYear()===today.getFullYear()?'today':'',d));};
+  const render=()=>{title.textContent=month.toLocaleDateString(document.documentElement.lang,{month:'long',year:'numeric'});grid.replaceChildren();for(const d of ['S','M','T','W','T','F','S'])grid.append(element('span','weekday',d));const first=new Date(month.getFullYear(),month.getMonth(),1).getDay(),days=new Date(month.getFullYear(),month.getMonth()+1,0).getDate();for(let i=0;i<first;i++)grid.append(element('span'));const today=new Date();for(let d=1;d<=days;d++)grid.append(element('span',d===today.getDate()&&month.getMonth()===today.getMonth()&&month.getFullYear()===today.getFullYear()?'today':'',d));};
   const prev=button('‹',()=>{month=new Date(month.getFullYear(),month.getMonth()-1,1);render();});prev.setAttribute('aria-label','Previous month');const next=button('›',()=>{month=new Date(month.getFullYear(),month.getMonth()+1,1);render();});next.setAttribute('aria-label','Next month');head.append(prev,title,next);page.append(head,grid);render();createWindow({id:'calendar',title:'Calendar',content:page,width:375,height:405});
 }
 
@@ -255,7 +256,7 @@ menuButton.onclick=()=>{menu.hidden=!menu.hidden;menuButton.setAttribute('aria-e
 document.addEventListener('pointerdown',e=>{if(!menu.contains(e.target)&&!menuButton.contains(e.target))closeMenu();});
 menu.addEventListener('keydown',e=>{if(!['ArrowDown','ArrowUp'].includes(e.key))return;e.preventDefault();const options=[...menu.querySelectorAll('button')],index=options.indexOf(document.activeElement);options[(index+(e.key==='ArrowDown'?1:-1)+options.length)%options.length].focus();});
 const titleWindow=$('#title-window');$('.close',titleWindow).onclick=()=>{titleWindow.hidden=true;};$('.minimize',titleWindow).onclick=()=>{titleWindow.hidden=true;toast('Title hidden · Restore it in Control Center');};$('.maximize',titleWindow).onclick=()=>openCollection();makeDraggable(titleWindow,$('.title-grip',titleWindow));
-function updateClock(){const date=new Date();$('#clock').textContent=matchMedia('(max-width:700px)').matches?date.toLocaleTimeString('en',{hour:'numeric',minute:'2-digit'}):date.toLocaleDateString('en',{month:'short',day:'2-digit'})+'  '+date.toLocaleTimeString('en',{hour:'numeric',minute:'2-digit'});}updateClock();setInterval(updateClock,30000);
+function updateClock(){const date=new Date();$('#clock').textContent=matchMedia('(max-width:700px)').matches?date.toLocaleTimeString(document.documentElement.lang,{hour:'numeric',minute:'2-digit'}):date.toLocaleDateString(document.documentElement.lang,{month:'short',day:'2-digit'})+'  '+date.toLocaleTimeString(document.documentElement.lang,{hour:'numeric',minute:'2-digit'});}updateClock();setInterval(updateClock,30000);document.addEventListener('portfolio-preferences',updateClock);
 document.addEventListener('keydown',e=>{
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openCollection(true);}
   if(e.key==='Escape'&&!lightbox.open)closeMenu();

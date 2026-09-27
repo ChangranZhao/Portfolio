@@ -6,12 +6,12 @@ export function setupDesktopDrift(desktop){
     const angle=.7+i*2.39996,speed=19+(i%6)*2;
     return {el,i,x:0,y:0,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed};
   });
-  let timer,frame=0,running=false,last=0,measureFrame=0;
-  const disabled=()=>innerWidth<=700||reduced.matches||document.body.classList.contains('reduce-motion')||document.hidden||document.body.classList.contains('guide-open')||document.body.classList.contains('tour-active')||[...state.items.values()].some(w=>!w.minimized);
+  let timer,frame=0,running=false,last=0,measureFrame=0,hovered=false;
+  const disabled=()=>hovered||innerWidth<=700||reduced.matches||document.body.classList.contains('reduce-motion')||document.hidden||document.body.classList.contains('guide-open')||document.body.classList.contains('tour-active')||[...state.items.values()].some(w=>!w.minimized);
   function paint(p){
-    // The entrance animation uses translate with fill-mode: both. Override it
-    // explicitly so the rendered position, not only the inline value, moves.
-    p.el.style.setProperty('translate',`${p.x.toFixed(2)}px ${p.y.toFixed(2)}px`,'important');
+    // A single transform owns positioning; no competing filled translate animation.
+    if(innerWidth<=700){p.el.style.removeProperty('transform');return;}
+    p.el.style.transform=`translate(calc(-50% + ${p.x.toFixed(2)}px), calc(-5% + ${p.y.toFixed(2)}px))`;
   }
   function measure(){
     if(innerWidth<=700){for(const p of icons){p.x=p.y=0;paint(p);}return;}
@@ -57,6 +57,6 @@ export function setupDesktopDrift(desktop){
   window.addEventListener('resize',scheduleMeasure);
   reduced.addEventListener('change',pause);
   new MutationObserver(pause).observe(document.body,{attributes:true,attributeFilter:['class']});
-  for(const p of icons){paint(p);const img=p.el.querySelector('img');if(img&&!img.complete)img.addEventListener('load',scheduleMeasure,{once:true});}
+  for(const p of icons){p.el.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){hovered=true;pause();}});p.el.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'){hovered=false;pause();}});paint(p);const img=p.el.querySelector('img');if(img&&!img.complete)img.addEventListener('load',scheduleMeasure,{once:true});}
   pause();
 }

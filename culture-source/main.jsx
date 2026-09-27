@@ -82,7 +82,7 @@ function App(){
  }
 
  const [playing,setPlaying]=useState(()=>!window.matchMedia('(prefers-reduced-motion: reduce)').matches),[depth,setDepth]=useState(0.2),[reset,setReset]=useState(0),[category,setCategory]=useState(null),[selected,setSelected]=useState(null);const dialog=useRef();
- useEffect(()=>{const apply=p=>{if(typeof p.motion==='boolean')setPlaying(!p.motion);};try{apply(JSON.parse(localStorage.getItem('portfolio-preferences')||'{}'))}catch{}const handle=e=>{if(e.source===parent&&e.origin===location.origin&&e.data?.type==='portfolio-preferences')apply(e.data)};window.addEventListener('message',handle);return()=>window.removeEventListener('message',handle);},[]);
+ useEffect(()=>{const apply=p=>{if(p.lang)setLang(p.lang==='en'?'en':'zh');if(typeof p.motion==='boolean')setPlaying(!p.motion);};try{apply(JSON.parse(localStorage.getItem('portfolio-preferences')||'{}'))}catch{}const handle=e=>{if(e.source===parent&&e.origin===location.origin&&e.data?.type==='portfolio-preferences')apply(e.data)};window.addEventListener('message',handle);return()=>window.removeEventListener('message',handle);},[]);
  useEffect(()=>{const handle=e=>{if(e.source===parent&&e.origin===location.origin&&e.data?.type==='portfolio-culture-theme'&&Number.isInteger(e.data.theme)&&e.data.theme>=0&&e.data.theme<4)setCategory(e.data.theme);};window.addEventListener('message',handle);return()=>window.removeEventListener('message',handle);},[]);
  useEffect(()=>{if(selected)dialog.current.showModal();else if(dialog.current.open)dialog.current.close()},[selected]);
  const selectedAsset=selected?localizeAsset(selected,lang):null;

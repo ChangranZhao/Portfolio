@@ -3,12 +3,17 @@ import {archiveAssets} from './culture-assets.js';
 import {nextChapters} from './project-chapters.js';
 import {createFieldResearch} from './project-field-research.js';
 import {createSpatialDesign} from './project-spatial-design.js';
+import {createConstructionTimeline} from './project-construction.js';
+import {createExhibitReader} from './project-exhibit-reader.js';
+import {createGanshiDetails} from './ganshi-details.js';
+import {createQizhiweiqiDetails} from './qizhiweiqi-details.js';
 const el=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;};
 const btn=(text,fn,cls='')=>{const node=el('button',cls,text);node.type='button';node.onclick=fn;return node;};
 const photo=(src,alt,cls='')=>{const node=el('img',cls);node.src=src;node.alt=alt;node.loading='lazy';node.decoding='async';return node;};
 const themes=[['VALUING ABILITY & ACHIEVEMENT','Skill · Merit · Creation','Craft and production offer a lens on knowledge, ability and creative achievement.'],['INCLUSIVENESS & OPENNESS','Exchange · Diversity · Connection','Ornaments, transport and urban spaces are linked through exchange and cultural diversity.'],['PRAGMATISM & ADAPTATION','Utility · Change · Innovation','Everyday objects and industrial equipment reveal changing needs and technical adaptation.'],['COMMERCE & INDUSTRY','Trade · Making · Circulation','Coins, measures and industrial archives are brought together around production and exchange.']];
 function panel(title,content){const node=el('section','case-panel');node.append(el('header','case-panel-bar','● ● ●     '+title),content);return node;}
 export function openProjectDetails(project,{openImage,openGallery}){
+ let featuredExhibitReader=null,featuredGanshiReader=null,featuredQizhiweiqiReader=null;
  const id='case-'+project.id,root=el('div','case-reader'),toolbar=el('div','case-browser-toolbar');
  const back=btn('‹',()=>{closeWindow(id);history.replaceState(null,'',location.pathname+location.search);},'case-back');back.setAttribute('aria-label','Back to project gallery');
  const address=el('span','case-address','▣  '+project.title+' / Project details');
@@ -60,11 +65,33 @@ export function openProjectDetails(project,{openImage,openGallery}){
   const sources=el('div','case-sources');sources.append(el('span','','Research sources: '));for(const [label,url] of [['Qi Heritage Museum','https://www.qiheritagemuseum.com/'],['Qi cultural spirit · Zibo','https://hrss.zibo.gov.cn/art/2020/12/7/art_1060_2054972.html']]){const a=el('a','',label+' ↗');a.href=url;a.target='_blank';a.rel='noopener noreferrer';sources.append(a);}culture.append(sources);article.append(culture);
   article.append(createFieldResearch(openImage));
   article.append(createSpatialDesign());
+  article.append(createConstructionTimeline(openImage));
   for(const chapter of nextChapters.filter(c=>!['case-interview','case-narrative'].includes(c.id))){
+   if(chapter.id==='case-delivery')continue;
    const section=el('section','case-planned-chapter');section.id=chapter.id;
    section.append(el('span','case-kicker',chapter.number+' / '+chapter.nav.toUpperCase()),el('h2','',chapter.title),el('p','case-chapter-question',chapter.question));
    const flow=el('ol','case-chapter-flow');chapter.steps.forEach(step=>flow.append(el('li','',step)));section.append(flow);
-   const slots=el('div','case-material-slots');chapter.slots.forEach(([title,description],i)=>{const slot=el('section','case-material-slot');slot.append(el('span','case-slot-number',String(i+1).padStart(2,'0')),el('h3','',title),el('p','',description),el('span','case-pending-note','Materials to be added'));slots.append(slot);});section.append(slots);
+   const slots=el('div','case-material-slots'+(chapter.id==='case-exhibits'?' case-exhibit-slots':''));chapter.slots.forEach(([title,description],i)=>{
+    if(chapter.id==='case-exhibits'&&i===0){
+     const slot=el('a','case-material-slot case-featured-exhibit');slot.href='#exhibit-01';slot.dataset.exhibit='01';slot.setAttribute('aria-haspopup','dialog');
+     slot.append(el('span','case-slot-number','01'),photo('assets/exhibit-01/scene-built.webp','Curved projection wall for Adapt customs, simplify rites','case-featured-image'),el('span','case-featured-zone','UNIT 01 / THE SPIRIT OF QI'),el('h3','',title),el('p','',description),el('span','case-featured-link','View exhibit details ↗'));
+     slot.onclick=e=>{e.preventDefault();featuredExhibitReader??=createExhibitReader();featuredExhibitReader.open('01',slot);};
+     slots.append(slot);return;
+    }
+    if(chapter.id==='case-exhibits'&&i===1){
+     const slot=el('a','case-material-slot case-featured-exhibit');slot.href='#ganshi-details';slot.dataset.case='ganshi';slot.setAttribute('aria-haspopup','dialog');
+     slot.append(el('span','case-slot-number','02'),photo('assets/ganshi/outcome-01.webp','Completed Star Catalogue of Gan and Shi installation','case-featured-image'),el('span','case-featured-zone','CASE 02 / THE STAR CATALOGUE'),el('h3','',title),el('p','',description),el('span','case-featured-link','View exhibit details ↗'));
+     slot.onclick=e=>{e.preventDefault();featuredGanshiReader??=createGanshiDetails();featuredGanshiReader.open(slot);};
+     slots.append(slot);return;
+    }
+    if(chapter.id==='case-exhibits'&&i===2){
+     const slot=el('a','case-material-slot case-featured-exhibit');slot.href='#qizhiweiqi-details';slot.dataset.case='qizhiweiqi';slot.setAttribute('aria-haspopup','dialog');
+     slot.append(el('span','case-slot-number','03'),photo('assets/qizhiweiqi/final-01.webp','Completed immersive mirror hall','case-featured-image'),el('span','case-featured-zone','CASE 03 / IMMERSIVE MIRROR HALL'),el('h3','',title),el('p','',description),el('span','case-featured-link','View exhibit details ↗'));
+     slot.onclick=e=>{e.preventDefault();featuredQizhiweiqiReader??=createQizhiweiqiDetails();featuredQizhiweiqiReader.open(slot);};
+     slots.append(slot);return;
+    }
+    const slot=el('section','case-material-slot');slot.append(el('span','case-slot-number',String(i+1).padStart(2,'0')),el('h3','',title),el('p','',description),el('span','case-pending-note','Materials to be added'));slots.append(slot);
+   });section.append(slots);
    const next=nextChapters[nextChapters.indexOf(chapter)+1];if(next)section.append(btn('Next / '+next.nav+' →',()=>jump(next.id),'case-next-chapter'));article.append(section);
   }
   const originals=el('footer','case-originals');originals.append(el('span','','Original portfolio layouts'),btn('Cover ↗',()=>openImage([{src:'assets/culture/portfolio_design1.webp',name:'Original cover'}],0,project.title)),btn('Family Factors ↗',()=>openImage([{src:'assets/culture/portfolio_design2.webp',name:'Original Family Factors layout'}],0,project.title)));article.append(originals);
@@ -99,6 +126,9 @@ export function openProjectDetails(project,{openImage,openGallery}){
  document.addEventListener('fullscreenchange',update,{signal:controller.signal});
  shell.addEventListener('keydown',e=>{if(e.key==='Tab'){reveal();}if(e.key==='Escape'&&shell.classList.contains('case-fullscreen')){shell.classList.remove('case-fullscreen');update();}});
  shell.addEventListener('window-closing',()=>{clearTimeout(hideTimer);frameObserver?.disconnect();controller.abort();},{once:true});
+ shell.addEventListener('window-closing',()=>featuredExhibitReader?.destroy(),{once:true});
+ shell.addEventListener('window-closing',()=>featuredGanshiReader?.destroy(),{once:true});
+ shell.addEventListener('window-closing',()=>featuredQizhiweiqiReader?.destroy(),{once:true});
  update();
  const url=new URL(location.href);url.hash='project='+project.id;history.replaceState(null,'',url);
  win.el.querySelector('.close').addEventListener('click',()=>{if(location.hash==='#project='+project.id)history.replaceState(null,'',location.pathname+location.search);});

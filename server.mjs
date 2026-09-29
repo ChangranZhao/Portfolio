@@ -9,7 +9,7 @@ const root=fileURLToPath(new URL(production?'./site/':'./dist/',import.meta.url)
 const port=Number(process.env.PORT||(production?4174:4173));
 const base=process.argv.find(arg=>arg.startsWith('--base='))?.slice(7)||'/';
 if(!base.startsWith('/')||!base.endsWith('/'))throw Error('Base must begin and end with /');
-const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.json':'application/json','.txt':'text/plain; charset=utf-8','.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.pdf':'application/pdf','.woff2':'font/woff2'};
+const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.json':'application/json','.txt':'text/plain; charset=utf-8','.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.pdf':'application/pdf','.mp4':'video/mp4','.woff2':'font/woff2'};
 const compressed=new Map();
 const server=http.createServer(async(req,res)=>{
   try{
@@ -23,7 +23,7 @@ const server=http.createServer(async(req,res)=>{
     const etag=`"${info.size.toString(16)}-${Math.trunc(info.mtimeMs).toString(16)}"`;
     const headers={'Content-Type':types[path.extname(file)]||'application/octet-stream','Cache-Control':production&&/\.[a-f0-9]{12}\./.test(file)?'public, max-age=31536000, immutable':'no-cache','ETag':etag,'X-Content-Type-Options':'nosniff'};
     if(req.headers['if-none-match']===etag){res.writeHead(304,headers);res.end();return;}
-    if(path.extname(file)==='.pdf'){
+    if(['.pdf','.mp4'].includes(path.extname(file))){
       headers['Accept-Ranges']='bytes';
       const range=req.headers.range?.match(/^bytes=(\d*)-(\d*)$/);
       let start=0,end=info.size-1;

@@ -76,7 +76,11 @@ const exhibits=[
  ['756','齐事成语','双屏协同互动'],['757','晏子说','可交互对话型数字人'],
  ['758','孔子适齐','圆环形灯箱展示'],['761','面刺寡人之过','高清数字环幕']
 ];
-registerTranslations([['Select a white point to explore the exhibit, photographs and story.','点击白色节点，查看展项介绍与照片。']]);
+registerTranslations([
+ ['Select a white point to explore the exhibit, photographs and story.','点击白色节点，查看展项介绍与照片。'],
+ ['SELECT THE WHITE POINTS','点击白色节点'],
+ ['Open each exhibit’s story and photographs.','查看对应展项的介绍与照片。']
+]);
 function prepareDiagram(onSelect=()=>{},floor=1,onOpen=()=>{}){
  const drawing=floor===1?createSpatialDiagram():createSpatialDiagram2();drawing.classList.add('sp-drawing');drawing.dataset.floor=floor;
  const floorExhibits=floor===1?exhibits:secondExhibits;
@@ -112,7 +116,7 @@ export function createSpatialDesign(){
  const section=document.createElement('section');section.id='case-narrative';section.className='spatial-page';
  section.innerHTML=`<header class="sp-masthead"><span>WIND FROM THE EAST</span><i></i><b>PAGE 05</b><span>SPATIAL DESIGN</span></header>
  <div class="sp-intro"><h2>From field research to a spatial narrative</h2><p>The previous chapter brings together the museum’s communication needs and the conditions of the existing site. Here, cultural stories are arranged into a connected sequence, then placed within the circular building to establish transitions, pauses and moments of participation.</p></div>
- ${[1,2].map(floor=>`<section class="sp-floor" data-floor="${floor}"><div class="sp-diagram-tools"><span>${floor===1?'FIRST':'SECOND'} FLOOR / SPATIAL COMPOSITION</span><button type="button" class="sp-enlarge">Enlarge spatial diagram</button></div><figure class="sp-figure"><div class="sp-diagram" data-no-localize></div><p class="sp-exhibit-caption" aria-live="polite" data-no-localize></p><figcaption>Enlarge to read the exhibit labels. Drag the scrollbars or swipe to explore.</figcaption></figure></section>`).join('')}
+ ${[1,2].map(floor=>`<section class="sp-floor" data-floor="${floor}"><div class="sp-diagram-tools"><span>${floor===1?'FIRST':'SECOND'} FLOOR / SPATIAL COMPOSITION</span><button type="button" class="sp-enlarge">Enlarge spatial diagram</button></div><figure class="sp-figure"><div class="sp-interaction-guide"><span class="sp-guide-point" aria-hidden="true"></span><div><strong>SELECT THE WHITE POINTS</strong><small>Open each exhibit’s story and photographs.</small></div><span class="sp-guide-arrow" aria-hidden="true">↗</span></div><div class="sp-diagram" data-no-localize></div><p class="sp-exhibit-caption" aria-live="polite" data-no-localize></p><figcaption>Enlarge to read the exhibit labels. Drag the scrollbars or swipe to explore.</figcaption></figure></section>`).join('')}
  <section class="sp-reading"><h3>A continuous narrative, distinct experiences</h3><div>${[0,1,2].map(i=>`<article><span>0${i+1}</span><h4>${copy[11+i][0]}</h4><p>${copy[14+i][0]}</p></article>`).join('')}</div></section>
  <section class="sp-sequence"><h3>THE COMPLETE EXHIBITION SEQUENCE</h3><ol>${copy.slice(18,24).map(([en])=>`<li>${en}</li>`).join('')}</ol><p>The two diagrams connect the lobby and first unit on the first floor with units two to four on the second floor.</p></section>
  <footer class="sp-footer"><span>QI CULTURE CLASSICS CENTER</span><a href="#case-delivery">NEXT / CONSTRUCTION & DELIVERY →</a></footer>`;

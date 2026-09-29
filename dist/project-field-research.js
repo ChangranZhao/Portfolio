@@ -1,3 +1,5 @@
+import {registerTranslations} from './localization.js';
+
 const sites = [
  ['assets/field-research/site-01.webp','Open floor'],
  ['assets/field-research/site-02.webp','Daylight & windows'],
@@ -13,14 +15,23 @@ const sites = [
  ['assets/field-research/site-12.webp','Material & atmosphere']
 ];
 const priorities=[['Clear cultural storyline','Connect people, texts and events into a coherent reading of Qi culture.'],['Accessible historical stories','Give audiences a clear entry point into complex historical material.'],['Digital media with a narrative purpose','Choose media that help explain the story and its cultural meaning.']];
+const interviewQuestions=['How do the stories connect?','Where does the visitor begin?','What should digital media do?'];
+registerTranslations([
+ ['DESIGN QUESTIONS / RESPONSES','设计提问 / 回应'],
+ ['How do the stories connect?','故事如何串联？'],
+ ['Where does the visitor begin?','观众从哪里进入？'],
+ ['What should digital media do?','数字媒介承担什么？'],
+ ['Synthesis of interview and site observations','访谈与现场观察的设计归纳'],
+ ['01 / SITE DISCUSSION','01 / 现场讨论'],['02 / CURATOR CONVERSATION','02 / 馆方访谈']
+]);
 export function createFieldResearch(openImage){
  const section=document.createElement('section');section.id='case-interview';section.className='field-page';
  section.innerHTML=`
  <header class="field-masthead"><div>WIND FROM THE EAST<small>Qi Culture Classics Center</small></div><span></span><b>PAGE 04</b><small>PEOPLE<br>PLACE<br>CONTENT</small></header>
  <div class="field-upper">
   <section class="field-interview">
-   <div class="field-person"><span class="field-eyebrow">04 / Field Research</span><h2>FIELD<br>RESEARCH</h2><p class="field-tracking">PEOPLE / PLACE / CONTEXT / INSIGHTS</p><div class="field-portrait"><div class="field-portrait-frame"></div><img src="assets/field-research/curator.webp" alt="Curator reading cultural materials" loading="lazy" decoding="async"><h3>CURATOR<br>INTERVIEW</h3></div><p class="field-portrait-caption">Understanding the museum’s perspective.</p></div>
-   <div class="field-priorities"><p class="field-tracking">THREE KEY NEEDS</p>${priorities.map(([title,copy],i)=>`<article><span>0${i+1}</span><div><h3>${title}</h3><p>${copy}</p></div></article>`).join('')}<small class="field-draft">Proposed brief · pending interview confirmation</small></div>
+   <div class="field-person"><span class="field-eyebrow">04 / Field Research</span><h2>FIELD<br>RESEARCH</h2><p class="field-tracking">PEOPLE / PLACE / CONTEXT / INSIGHTS</p><div class="field-interview-collage" aria-label="Interview and site discussion photographs"><figure class="field-interview-photo field-interview-photo-site"><img src="assets/field-research/interview-site-discussion.jpg" alt="Team discussing the exhibition on site" loading="lazy" decoding="async"><figcaption>01 / SITE DISCUSSION</figcaption></figure><figure class="field-interview-photo field-interview-photo-talk"><img src="assets/field-research/interview-conversation.jpg" alt="Conversation with the museum team" loading="lazy" decoding="async"><figcaption>02 / CURATOR CONVERSATION</figcaption></figure><span class="field-interview-stamp">CURATOR<br>INTERVIEW</span></div><p class="field-portrait-caption">Understanding the museum’s perspective.</p></div>
+   <div class="field-priorities"><p class="field-tracking">DESIGN QUESTIONS / RESPONSES</p>${priorities.map(([title,copy],i)=>`<article class="field-dialogue"><span class="field-dialogue-index">0${i+1}</span><div class="field-dialogue-pair"><p class="field-question"><small>Q</small>${interviewQuestions[i]}</p><div class="field-answer"><small>A</small><h3>${title}</h3><p>${copy}</p></div></div></article>`).join('')}<small class="field-draft">Synthesis of interview and site observations</small></div>
   </section>
   <section class="field-survey"><header><h2>SITE SURVEY</h2><p class="field-tracking">EXISTING CONDITIONS<br>POTENTIALS & CONSTRAINTS</p></header><div class="field-collage"><svg class="field-traces" viewBox="0 0 900 480" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width=".6">${Array.from({length:19},(_,i)=>`<path d="M ${i*47} 460 L ${110+i*31} 50 L ${820-i*19} 420 L ${50+i*29} 100"/>`).join('')}<path d="M0 120H900M0 280H900M0 400H900M100 0V480M420 0V480M760 0V480"/></g></svg></div><p class="field-survey-note">A record of the existing site · Select a photo to explore</p></section>
  </div>

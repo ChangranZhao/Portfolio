@@ -1,6 +1,7 @@
 import {exhibitContent} from './exhibit-content.js';
 import {exhibitMedia} from './exhibit-media.js';
 import {traditional} from './chinese-traditional.js';
+import {createExhibitOneEditorial} from './exhibit-one-editorial.js';
 
 function wording(zh,en){
  const lang=document.documentElement.lang;
@@ -10,6 +11,17 @@ function element(tag,className,text){const el=document.createElement(tag);if(cla
 
 export function createExhibitReader(){
  let dialog=null,current=0,photo=0,trigger=null;
+ function dismissAsset(){dialog?.querySelector('.ex-asset-viewer')?.remove();}
+ function openAsset(src,alt){
+  dismissAsset();
+  const viewer=element('div','ex-asset-viewer');viewer.setAttribute('role','dialog');viewer.setAttribute('aria-label',alt);viewer.tabIndex=-1;
+  const bar=element('div','ex-asset-bar');bar.append(element('span','',alt));
+  const zoom=element('button','',wording('原尺寸查看','View at full size'));zoom.type='button';zoom.onclick=()=>{const enlarged=viewer.classList.toggle('is-zoomed');zoom.textContent=wording(enlarged?'适应窗口':'原尺寸查看',enlarged?'Fit to window':'View at full size');};
+  const back=element('button','',wording('返回展项 ×','Back to exhibit ×'));back.type='button';back.onclick=dismissAsset;
+  bar.append(zoom,back);
+  const stage=element('div','ex-asset-stage'),image=element('img');image.src=src;image.alt=alt;image.decoding='async';stage.append(image);viewer.append(bar,stage);
+  dialog.append(viewer);viewer.focus({preventScroll:true});
+ }
  function close(){
   if(!dialog)return;
   dialog.close();dialog.remove();dialog=null;
@@ -47,8 +59,12 @@ export function createExhibitReader(){
   const info=element('article','ex-info');
   info.append(element('p','ex-eyebrow',wording(...entry.zone)),element('div','ex-number',current<2?wording(current===0?'前厅':'序厅',current===0?'LOBBY':'PREFACE'):'EXHIBIT '+entry.id),element('h2','',wording(...entry.title)),element('h3','',wording('展项介绍','ABOUT THE EXHIBIT')));
   entry.text.forEach((text,i)=>info.append(element('p','ex-description',wording(text,entry.en[i]))));
-  info.append(element('p','ex-source',wording('根据《齐文化典籍中心最终版方案》（260105）第 '+entry.pages.join('、')+' 页整理。','Adapted from the Qi Culture Classics Center proposal (260105), pp. '+entry.pages.join(', ')+'.')));
-  body.append(gallery,info);
+  info.append(element('p','ex-source',wording('历史叙事依据《齐文化典籍中心最终版方案》（260105）第 '+entry.pages.join('、')+' 页；画面与投影规划根据后续展项素材整理。','Historical narrative adapted from the Qi Culture Classics Center proposal (260105), pp. '+entry.pages.join(', ')+'. Visuals and projection planning use later exhibit materials.')));
+  if(entry.id==='01'){
+   body.classList.add('ex-editorial-body');
+   const archive=element('div','ex-editorial-archive');archive.append(gallery,info);
+   body.append(createExhibitOneEditorial(wording,openAsset),archive);
+  }else body.append(gallery,info);
   const footer=element('footer','ex-reader-footer');
   const prev=element('button','',wording('← 上一展项','← Previous exhibit')),next=element('button','',wording('下一展项 →','Next exhibit →'));prev.type=next.type='button';prev.disabled=current===0;next.disabled=current===exhibitContent.length-1;
   const select=element('select','ex-jump');select.setAttribute('aria-label',wording('选择展项','Choose an exhibit'));
@@ -62,8 +78,8 @@ export function createExhibitReader(){
   current=index;photo=0;trigger=opener;
   if(!dialog){
    dialog=element('dialog','ex-reader');dialog.setAttribute('data-no-localize','');
-   dialog.addEventListener('cancel',e=>{e.preventDefault();if(dialog.classList.contains('ex-photo-expanded'))dialog.querySelector('.ex-image-expand').click();else close();});
-   dialog.addEventListener('keydown',e=>{if(e.target.matches('select')||e.altKey||e.ctrlKey||e.metaKey)return;if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();showPhoto(photo+(e.key==='ArrowRight'?1:-1));}});
+   dialog.addEventListener('cancel',e=>{e.preventDefault();if(dialog.querySelector('.ex-asset-viewer'))dismissAsset();else if(dialog.classList.contains('ex-photo-expanded'))dialog.querySelector('.ex-image-expand').click();else close();});
+   dialog.addEventListener('keydown',e=>{if(dialog.querySelector('.ex-asset-viewer')||e.target.matches('select')||e.altKey||e.ctrlKey||e.metaKey)return;if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();showPhoto(photo+(e.key==='ArrowRight'?1:-1));}});
    document.body.append(dialog);render();dialog.showModal();
   }else{dialog.classList.remove('ex-photo-expanded');render();}
  }

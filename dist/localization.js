@@ -359,8 +359,17 @@ Interaction sequence|交互流程
 Implementation|实施方式
 Evidence|研究依据
 Exhibit 01 · to be selected|展项 01 · 待选
+Adapt customs, simplify rites|因其俗，简其礼
+UNIT 01 / THE SPIRIT OF QI|第一单元 / 泱泱齐风
+A curved projection wall translates a historical decision into a responsive sequence: relief base, local trigger and full-screen story.|弧形投影长屏将历史抉择转化为可感知的画面序列：浮雕底图、局部触发与全屏叙事。
+View exhibit details ↗|查看展项详情 ↗
+CASE 02 / THE STAR CATALOGUE|案例 02 / 甘石星经
+Ancient star records become ten layers of glass, light and water in an immersive field of constellations.|古代星官记载被转译为十片玻璃、光与水共同构成的沉浸式星空。
 Exhibit 02 · to be selected|展项 02 · 待选
 Exhibit 03 · optional|展项 03 · 可选
+What Makes Qi, Qi · Immersive Mirror Hall|齐之为齐 · 沉浸式镜厅空间
+CASE 03 / IMMERSIVE MIRROR HALL|案例 03 / 沉浸式镜厅空间
+Three interpretations of Qi become projected images within mirror cubes, refined through material and on-site projection tests.|泉水、麦穗与箭簇三种诠释化为镜面立方体中的影像，并通过材质与现场投影测试不断完善。
 Cultural source, intended audience, interaction steps, diagrams, prototype and completed photographs.|文化来源、目标观众、交互步骤、图解、原型与落地照片。
 A second exhibit demonstrating a different design problem and response.|以第二个展项展示不同的设计问题及回应。
 A third complementary case, with testing or observation where available.|补充第三个案例，并在已有资料范围内呈现测试或观察记录。

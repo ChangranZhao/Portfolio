@@ -1,3 +1,4 @@
+@import url("exhibit-overview.css");
 /* Project case studies use live text and individual images, inside a Safari-style window. */
 .case-window .case-reader{width:100%;min-width:0;flex:1}.case-article{width:100%}
 .view-switch .full-project-button{background:#2775ed;color:#fff;font-weight:700;padding:9px 15px;box-shadow:0 3px 10px #2775ed33;white-space:nowrap}.view-switch .full-project-button:hover{background:#115dcc;transform:translateY(-1px)}
@@ -108,8 +109,11 @@ body:has(.case-window.case-immersive:not([hidden]):not(.closing):not(.minimizing
 .case-chapter-flow{display:flex;flex-wrap:wrap;gap:0;list-style:none;padding:0;margin:35px 0;border-block:1px solid #333;counter-reset:step}
 .case-chapter-flow li{padding:18px 24px 18px 0;margin-right:22px;color:#c8d3da;font-size:12px;counter-increment:step}.case-chapter-flow li:before{content:counter(step,decimal-leading-zero) ' / ';color:#788892}
 .case-material-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+#case-reflection .case-material-slots{grid-template-columns:repeat(2,minmax(0,1fr))}
+#case-reflection .case-material-slot{border-style:solid}
+@container(max-width:800px){#case-reflection .case-material-slots{grid-template-columns:1fr}}
 .case-material-slot{padding:24px;min-height:245px;border:1px dashed #48535a;background:#ffffff03}.case-slot-number{font-size:35px;color:#62717a}.case-material-slot h3{font-size:19px;line-height:1.2}.case-material-slot p{font-size:14px;line-height:1.6;color:#aebac2}.case-pending-note{font-size:11px;color:#9eabb3}
-.case-exhibit-slots{grid-template-columns:1.35fr 1fr 1fr}
+.case-exhibit-slots{grid-template-columns:repeat(2,minmax(0,1fr))}
 .case-featured-exhibit{position:relative;display:flex;flex-direction:column;padding:0 0 18px;border:1px solid #777;background:#151515;color:#eee;text-decoration:none;transition:border-color .2s,transform .2s}
 .case-featured-exhibit:hover{border-color:#eee;transform:translateY(-3px)}.case-featured-exhibit:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .case-featured-exhibit .case-slot-number{position:absolute;z-index:1;top:13px;left:15px;color:#fff;text-shadow:0 2px 12px #000;font-size:22px}
@@ -131,3 +135,5 @@ body:has(.case-window.case-immersive:not([hidden]):not(.closing):not(.minimizing
 @container(max-width:480px){.case-story-card{padding:14px;gap:12px;grid-template-columns:27% 1fr}.case-story-image img{height:150px}.case-story-copy h4{font-size:18px}}
 
 .case-story-placeholder{height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:1px dashed #4a5357;color:#819098;background:#0e1112;cursor:default;font-size:10px;letter-spacing:.08em;text-align:center}.case-story-placeholder small{font-size:10px;letter-spacing:0}
+
+.case-featured-exhibit[data-case=yanzi] .case-featured-image{object-position:50% 30%}

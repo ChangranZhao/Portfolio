@@ -88,9 +88,10 @@ entries.forEach(([pid,label,x,y,w,match,h],i)=>{
 });
 
 const projectViews=new Map();
-async function openDetails(project){const {openProjectDetails}=await import('./project-details.js');openProjectDetails(project,{openImage:openLightbox,openGallery:openProject});}
-function openProject(pid,index=0){
+async function openDetails(project){const {openProjectDetails}=await import('./project-details.js');openProjectDetails(project,{openImage:openLightbox,openGallery:(pid,index=0)=>openProject(pid,index,true)});}
+function openProject(pid,index=0,galleryOnly=false){
   const p=byId(pid);if(!p)return;
+  if(pid==='p3'&&!galleryOnly){openDetails(p);return;}
   if(state.items.has(pid)){projectViews.get(pid)?.showImage(index);focusWindow(pid);return;}
   const layout=element('div','project-layout');
   const sidebar=element('aside','project-sidebar');sidebar.append(element('div','sidebar-label','Selected works'));

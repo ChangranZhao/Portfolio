@@ -2,6 +2,7 @@ node_modules/
 .sites-runtime/
 contact-sheet.jpg
 qa/
+tmp/
 *.tar.gz
 __pycache__/
 problem/

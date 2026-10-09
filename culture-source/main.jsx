@@ -1,3 +1,4 @@
+import {cultureLanguage,cultureText} from './language.js';
 import React, {useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import './style.css';
@@ -11,7 +12,7 @@ const categories = [['工业记忆','Industrial Memory'],['城市发展','Urban 
 import {photos,cardGeometry} from './sphere-layout.js';
 
 function CultureSphere({playing,depth,reset,onSelect,selectedCategory,frozen,pure,lang}){
- const tr=(zh,en)=>lang==='zh'?zh:en;
+ const tr=(zh,en)=>cultureText(zh,en,lang);
  const stage=useRef(), globe=useRef(), rotation=useRef({x:-9,y:18}), drag=useRef(null), velocity=useRef({x:0,y:0}), moved=useRef(false),[scale,setScale]=useState(1);
  useEffect(()=>{const observer=new ResizeObserver(([e])=>setScale(Math.min(e.contentRect.width/720,e.contentRect.height/720)));observer.observe(stage.current);return()=>observer.disconnect()},[pure]);
  useEffect(()=>{rotation.current={x:-9,y:18};velocity.current={x:0,y:0}},[reset]);
@@ -57,9 +58,9 @@ function CultureSphere({playing,depth,reset,onSelect,selectedCategory,frozen,pur
 }
 
 function App(){
- const [lang,setLang]=useState(()=>{try{return localStorage.getItem('culture-language')==='zh'?'zh':'en'}catch{return 'zh'}});
- const tr=(zh,en)=>lang==='zh'?zh:en;
- useEffect(()=>{document.documentElement.lang=lang==='zh'?'zh-CN':'en';document.title=tr('齐文化 · 空间知识图谱','Qi Culture · Spatial Knowledge Atlas');try{localStorage.setItem('culture-language',lang)}catch{}},[lang]);
+ const [lang,setLang]=useState(()=>{try{return cultureLanguage(JSON.parse(localStorage.getItem('portfolio-preferences')||'{}'))}catch{return cultureLanguage({})}});
+ const tr=(zh,en)=>cultureText(zh,en,lang);
+ useEffect(()=>{document.documentElement.lang=lang==='zh'?'zh-CN':lang;document.title=tr('齐文化 · 空间知识图谱','Qi Culture · Spatial Knowledge Atlas');try{localStorage.setItem('culture-language',lang)}catch{}},[lang]);
  const [pure,setPure]=useState(false),[hideNotes,setHideNotes]=useState(false),[saving,setSaving]=useState(false),[notice,setNotice]=useState(null);
  const frozen=useRef(false);
  useEffect(()=>{if(!notice)return;const timer=setTimeout(()=>setNotice(null),5000);return()=>clearTimeout(timer)},[notice]);
@@ -82,13 +83,13 @@ function App(){
  }
 
  const [playing,setPlaying]=useState(()=>!window.matchMedia('(prefers-reduced-motion: reduce)').matches),[depth,setDepth]=useState(0.2),[reset,setReset]=useState(0),[category,setCategory]=useState(null),[selected,setSelected]=useState(null);const dialog=useRef();
- useEffect(()=>{const apply=p=>{if(p.lang)setLang(p.lang==='en'?'en':'zh');if(typeof p.motion==='boolean')setPlaying(!p.motion);};try{apply(JSON.parse(localStorage.getItem('portfolio-preferences')||'{}'))}catch{}const handle=e=>{if(e.source===parent&&e.origin===location.origin&&e.data?.type==='portfolio-preferences')apply(e.data)};window.addEventListener('message',handle);return()=>window.removeEventListener('message',handle);},[]);
+ useEffect(()=>{const apply=p=>{setLang(p.languageMode?cultureLanguage(p):p.lang||cultureLanguage(p));if(typeof p.motion==='boolean')setPlaying(!p.motion);};try{apply({...JSON.parse(localStorage.getItem('portfolio-preferences')||'{}'),languageMode:JSON.parse(localStorage.getItem('portfolio-preferences')||'{}').languageMode||'system'})}catch{}const handle=e=>{if(e.source===parent&&e.origin===location.origin&&e.data?.type==='portfolio-preferences')apply(e.data)};window.addEventListener('message',handle);return()=>window.removeEventListener('message',handle);},[]);
  useEffect(()=>{const handle=e=>{if(e.source===parent&&e.origin===location.origin&&e.data?.type==='portfolio-culture-theme'&&Number.isInteger(e.data.theme)&&e.data.theme>=0&&e.data.theme<4)setCategory(e.data.theme);};window.addEventListener('message',handle);return()=>window.removeEventListener('message',handle);},[]);
  useEffect(()=>{if(selected)dialog.current.showModal();else if(dialog.current.open)dialog.current.close()},[selected]);
  const selectedAsset=selected?localizeAsset(selected,lang):null;
  return <div className={'app '+(pure?'pure-mode ':'')+(hideNotes?'notes-hidden':'')} data-language={lang}>
  <div className="capture-tools" data-capture-exclude="" aria-label={tr('画面工具','View tools')}>
-  <button className="language-toggle" type="button" disabled={saving} aria-label={tr('切换为英文','Switch to Chinese')} onClick={()=>{setLang(lang==='zh'?'en':'zh');setNotice(null)}}>{tr('语言：中文','Language: English')} ↔</button>
+  <button className="language-toggle" type="button" disabled={saving} aria-label={tr('切换为英文','Switch to Chinese')} onClick={()=>{setLang(lang!=='en'?'en':'zh');setNotice(null)}}>{tr('语言：中文','Language: English')} ↔</button>
   <button type="button" className="notes-toggle" disabled={saving||pure} aria-pressed={hideNotes} aria-label={hideNotes?tr('显示说明','Show captions'):tr('隐藏说明','Hide captions')} onClick={()=>{setHideNotes(!hideNotes);setSelected(null);setNotice(null)}}>{hideNotes?tr('显示说明','Show captions'):tr('隐藏说明','Hide captions')}</button>
   <button type="button" aria-label={pure?tr('恢复界面','Restore interface'):tr('纯球模式','Sphere only')} title={pure?tr('恢复界面','Restore interface'):tr('纯球模式','Sphere only')} aria-pressed={pure} disabled={saving} onClick={()=>{setPure(!pure);setSelected(null);setNotice(null)}}>
    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>{pure&&<path d="m3 3 18 18"/>}</svg><span>{pure?tr('恢复界面','Restore interface'):tr('纯球模式','Sphere only')}</span>

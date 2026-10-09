@@ -49,8 +49,6 @@ export function createGanshiDetails(){
   const lang=document.documentElement.lang;
   return lang==='en'?en:lang==='zh-Hant'?[...zh].map(char=>traditional[char]||char).join(''):zh;
  };
- const photo=(name,zh,en,cls='')=>`<button class="ex-gs-photo ${cls}" data-gs-asset="${media[name]}" type="button"><img src="${media[name]}" alt="${t(zh,en)}" loading="lazy"><span>${t(zh,en)} ↗</span></button>`;
- const head=(number,zh,en,subtitle)=>`<div class="ex-gs-section-head"><span>${number} / ${subtitle}</span><h3>${t(zh,en)}</h3></div>`;
  function dismissAsset(){dialog?.querySelector('.ex-asset-viewer')?.remove()}
  function showAsset(src,alt){
   dismissAsset();
@@ -76,7 +74,32 @@ export function createGanshiDetails(){
   dialog.innerHTML=`
    <header class="ex-window-bar"><span>${t('风从东方来 / 展项详情','WIND FROM THE EAST / EXHIBIT DETAILS')}</span><button class="ex-close" type="button">${t('关闭 ×','Close ×')}</button></header>
    <div class="ex-reader-body ex-gs-body">
-    <section class="ex-gs">
+    ${gsMarkup(t)}
+   </div>
+   <footer class="ex-reader-footer ex-gs-footer"><button type="button" class="ex-gs-back">${t('← 返回第 7 页','← Back to page 7')}</button><span>02 / ${t('甘石星经','GAN SHI XING JING')}</span></footer>`;
+  dialog.querySelector('.ex-close').onclick=close;
+  dialog.querySelector('.ex-gs-back').onclick=close;
+  dialog.querySelectorAll('[data-gs-asset]').forEach(button=>button.onclick=()=>{const image=button.querySelector('img');showAsset(button.dataset.gsAsset,image.alt)});
+  mediaObserver=new IntersectionObserver(entries=>entries.forEach(({target,intersectionRatio})=>{
+   if(intersectionRatio>=0.45&&dialog?.open)target.play().catch(()=>{});
+   else target.pause();
+  }),{root:dialog.querySelector('.ex-gs-body'),threshold:[0,0.45]});
+  dialog.querySelectorAll('video').forEach(video=>mediaObserver.observe(video));
+  dialog.querySelectorAll('[data-gs-jump]').forEach(button=>button.onclick=()=>dialog.querySelector('#'+button.dataset.gsJump).scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'start'}));
+ }
+ function open(trigger){
+  opener=trigger;
+  if(!dialog){dialog=document.createElement('dialog');dialog.className='ex-reader ex-gs-reader';dialog.setAttribute('data-no-localize','');dialog.addEventListener('cancel',event=>{event.preventDefault();if(dialog.querySelector('.ex-asset-viewer'))dismissAsset();else close()});document.body.append(dialog);render();dialog.showModal()}
+  else{render();dialog.querySelector('.ex-reader-body').scrollTop=0}
+ }
+ const onPreferences=()=>{if(dialog)render()};document.addEventListener('portfolio-preferences',onPreferences);
+ return {open,close,destroy(){close();document.removeEventListener('portfolio-preferences',onPreferences)}};
+}
+
+function gsMarkup(t){
+ const photo=(name,zh,en,cls='')=>`<button class="ex-gs-photo ${cls}" data-gs-asset="${media[name]}" type="button"><img src="${media[name]}" alt="${t(zh,en)}" loading="lazy"><span>${t(zh,en)} ↗</span></button>`;
+ const head=(number,zh,en,subtitle)=>`<div class="ex-gs-section-head"><span>${number} / ${subtitle}</span><h3>${t(zh,en)}</h3></div>`;
+return `<section class="ex-gs">
      <header class="ex-hi-masthead"><span>WIND FROM THE EAST / QI CULTURE CLASSICS CENTER</span><span>${t('案例 02 · 甘石星经','CASE 02 · GAN SHI XING JING')}</span></header>
      <div class="ex-gs-hero">
       <div class="ex-gs-hero-copy"><span class="ex-hi-kicker">07 / EXHIBIT DETAILS · 02</span><h1>${t('甘石星经','THE STAR CATALOGUE\nOF GAN AND SHI')}</h1><p class="ex-gs-hero-en">FROM ANCIENT STAR RECORDS TO AN IMMERSIVE FIELD OF LIGHT</p><p>${t('以古代星官记载为线索，将文字、星图与空间中的十片玻璃连接起来。光在玻璃、水面和天幕间传递，让观众从阅读走向置身其中。','Ancient star records become a spatial sequence across ten glass panels. Light passes through glass, water and a projected sky, moving the visitor from reading to immersion.')}</p><div class="ex-gs-hero-index"><span>01—03 ${t('研究与定位','RESEARCH')}</span><span>04—07 ${t('转译与落地','TRANSLATION')}</span><span>08—09 ${t('交互与成果','EXPERIENCE')}</span></div></div>
@@ -130,24 +153,15 @@ export function createGanshiDetails(){
       <div class="ex-gs-film-grid"><figure class="ex-gs-video"><video controls autoplay muted loop preload="none" playsinline poster="${media['outcome-01']}"><source src="${media['final-film']}" type="video/mp4"></video><figcaption>${t('最终空间效果 / 静音自动循环','Final installation / muted loop')}</figcaption></figure><figure class="ex-gs-video"><video controls autoplay muted loop preload="none" playsinline poster="${media['outcome-person']}"><source src="${media['glass-film']}" type="video/mp4"></video><figcaption>${t('玻璃光影效果 / 静音自动循环','Glass and light sequence / muted loop')}</figcaption></figure></div>
      </section>
      <footer class="ex-gs-source">${t('素材来源：项目研究页、建模预演、施工记录与落地照片；水槽互动说明据《甘石星经装置解释》整理。','Sources: project research, 3D previews, installation records and completed photographs. Water interaction text is adapted from the supplied installation notes.')}</footer>
-    </section>
-   </div>
-   <footer class="ex-reader-footer ex-gs-footer"><button type="button" class="ex-gs-back">${t('← 返回第 7 页','← Back to page 7')}</button><span>02 / ${t('甘石星经','GAN SHI XING JING')}</span></footer>`;
-  dialog.querySelector('.ex-close').onclick=close;
-  dialog.querySelector('.ex-gs-back').onclick=close;
-  dialog.querySelectorAll('[data-gs-asset]').forEach(button=>button.onclick=()=>{const image=button.querySelector('img');showAsset(button.dataset.gsAsset,image.alt)});
-  mediaObserver=new IntersectionObserver(entries=>entries.forEach(({target,intersectionRatio})=>{
-   if(intersectionRatio>=0.45&&dialog?.open)target.play().catch(()=>{});
-   else target.pause();
-  }),{root:dialog.querySelector('.ex-gs-body'),threshold:[0,0.45]});
-  dialog.querySelectorAll('video').forEach(video=>mediaObserver.observe(video));
-  dialog.querySelectorAll('[data-gs-jump]').forEach(button=>button.onclick=()=>dialog.querySelector('#'+button.dataset.gsJump).scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'start'}));
- }
- function open(trigger){
-  opener=trigger;
-  if(!dialog){dialog=document.createElement('dialog');dialog.className='ex-reader ex-gs-reader';dialog.setAttribute('data-no-localize','');dialog.addEventListener('cancel',event=>{event.preventDefault();if(dialog.querySelector('.ex-asset-viewer'))dismissAsset();else close()});document.body.append(dialog);render();dialog.showModal()}
-  else{render();dialog.querySelector('.ex-reader-body').scrollTop=0}
- }
- const onPreferences=()=>{if(dialog)render()};document.addEventListener('portfolio-preferences',onPreferences);
- return {open,close,destroy(){close();document.removeEventListener('portfolio-preferences',onPreferences)}};
+    </section>`;
+}
+export function createGanshiArticle(t,openAsset){
+ const template=document.createElement('template');template.innerHTML=gsMarkup(t);
+ const article=template.content.firstElementChild;
+ article.querySelectorAll('[data-gs-asset]').forEach(button=>button.onclick=()=>openAsset(button.dataset.gsAsset,button.querySelector('img').alt));
+ article.querySelectorAll('[data-gs-jump]').forEach(button=>button.onclick=()=>article.querySelector('#'+button.dataset.gsJump).scrollIntoView({behavior:'instant',block:'start'}));
+ const observer=new IntersectionObserver(entries=>entries.forEach(({target,intersectionRatio})=>{if(intersectionRatio>=.45&&article.closest('dialog')?.open)target.play().catch(()=>{});else target.pause();}),{threshold:[0,.45]});
+ article.querySelectorAll('video').forEach(video=>observer.observe(video));
+ article.dispose=()=>{observer.disconnect();article.querySelectorAll('video').forEach(video=>video.pause());};
+ return article;
 }

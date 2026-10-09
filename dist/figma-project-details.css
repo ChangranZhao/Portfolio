@@ -1,0 +1,11 @@
+.case-article.figma-article{background:#242424;overscroll-behavior:contain;overflow-x:hidden;scrollbar-width:none}
+.figma-article::-webkit-scrollbar,.figma-reader .case-chapters::-webkit-scrollbar{display:none}
+.figma-reader .case-chapters{scrollbar-width:none}
+.figma-page{margin:0;background:#fff;scroll-margin-top:0!important}
+.figma-page-rail{width:100%;overflow:hidden}
+.figma-page-stage{position:relative;overflow:hidden;width:100%;aspect-ratio:16/9}
+.figma-page-frame{position:absolute;left:0;top:0;width:1920px;height:1080px;max-width:none;border:0;transform-origin:top left;background:#fff}
+.figma-page.is-visible .figma-page-frame{animation:figma-page-reveal .55s ease-out both}
+@keyframes figma-page-reveal{from{opacity:.65}to{opacity:1}}
+body.reduce-motion .figma-page-frame{animation:none}
+@media(prefers-reduced-motion:reduce){.figma-page.is-visible .figma-page-frame{animation:none}}

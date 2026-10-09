@@ -1,3 +1,4 @@
+import {createExhibitOverview} from './exhibit-overview.js';
 import {createWindow,closeWindow} from './windows.js';
 import {archiveAssets} from './culture-assets.js';
 import {nextChapters} from './project-chapters.js';
@@ -6,14 +7,15 @@ import {createSpatialDesign} from './project-spatial-design.js';
 import {createConstructionTimeline} from './project-construction.js';
 import {createExhibitReader} from './project-exhibit-reader.js';
 import {createGanshiDetails} from './ganshi-details.js';
-import {createQizhiweiqiDetails} from './qizhiweiqi-details.js';
+import {createYanziDetails} from './yanzi-details.js';
+import {hasFigmaDetails,figmaChapters,createFigmaDetails} from './figma-project-details.js';
 const el=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;};
 const btn=(text,fn,cls='')=>{const node=el('button',cls,text);node.type='button';node.onclick=fn;return node;};
 const photo=(src,alt,cls='')=>{const node=el('img',cls);node.src=src;node.alt=alt;node.loading='lazy';node.decoding='async';return node;};
 const themes=[['VALUING ABILITY & ACHIEVEMENT','Skill · Merit · Creation','Craft and production offer a lens on knowledge, ability and creative achievement.'],['INCLUSIVENESS & OPENNESS','Exchange · Diversity · Connection','Ornaments, transport and urban spaces are linked through exchange and cultural diversity.'],['PRAGMATISM & ADAPTATION','Utility · Change · Innovation','Everyday objects and industrial equipment reveal changing needs and technical adaptation.'],['COMMERCE & INDUSTRY','Trade · Making · Circulation','Coins, measures and industrial archives are brought together around production and exchange.']];
 function panel(title,content){const node=el('section','case-panel');node.append(el('header','case-panel-bar','● ● ●     '+title),content);return node;}
 export function openProjectDetails(project,{openImage,openGallery}){
- let featuredExhibitReader=null,featuredGanshiReader=null,featuredQizhiweiqiReader=null;
+ let featuredExhibitReader=null,disposeFigma=null;
  const id='case-'+project.id,root=el('div','case-reader'),toolbar=el('div','case-browser-toolbar');
  const back=btn('‹',()=>{closeWindow(id);history.replaceState(null,'',location.pathname+location.search);},'case-back');back.setAttribute('aria-label','Back to project gallery');
  const address=el('span','case-address','▣  '+project.title+' / Project details');
@@ -21,11 +23,13 @@ export function openProjectDetails(project,{openImage,openGallery}){
  const chapters=el('nav','case-chapters');chapters.setAttribute('aria-label','Project chapters');
  const article=el('article','case-article');
  const jump=(target)=>article.querySelector('#'+target)?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
- const chapterList=project.id==='p1'?[['Overview','case-overview'],['Family Factors','case-family'],['Cultural Research','case-culture'],...nextChapters.map(c=>[c.nav,c.id])]:[['Overview','case-overview'],['Project Images','case-images']];
+ const chapterList=hasFigmaDetails(project.id)?figmaChapters(project.id):project.id==='p1'?[['Overview','case-overview'],['Family Factors','case-family'],['Cultural Research','case-culture'],...nextChapters.map(c=>[c.nav,c.id])]:[['Overview','case-overview'],['Project Images','case-images']];
  for(const [label,target] of chapterList)chapters.append(btn(label,()=>jump(target)));
  chapters.append(btn('Project Photos ↗',()=>openGallery(project.id),'case-photos'));
  root.append(toolbar,chapters,status,article);
- if(project.id==='p1'){
+ if(hasFigmaDetails(project.id)){
+  disposeFigma=createFigmaDetails(article,project,{openImage});
+ }else if(project.id==='p1'){
   const find=(term)=>project.images.find(im=>im.path.toLowerCase().includes(term.toLowerCase()))||project.images[0];
   const hero=el('section','case-hero');hero.id='case-overview';
   const backdrop=photo(find('Qi_Culture_Immersive_Mirror').preview||find('Qi_Culture_Immersive_Mirror').src,'Qi Culture immersive mirror hall','case-backdrop');backdrop.loading='eager';hero.append(backdrop);
@@ -81,26 +85,30 @@ export function openProjectDetails(project,{openImage,openGallery}){
     if(chapter.id==='case-exhibits'&&i===1){
      const slot=el('a','case-material-slot case-featured-exhibit');slot.href='#ganshi-details';slot.dataset.case='ganshi';slot.setAttribute('aria-haspopup','dialog');
      slot.append(el('span','case-slot-number','02'),photo('assets/ganshi/outcome-01.webp','Completed Star Catalogue of Gan and Shi installation','case-featured-image'),el('span','case-featured-zone','CASE 02 / THE STAR CATALOGUE'),el('h3','',title),el('p','',description),el('span','case-featured-link','View exhibit details ↗'));
-     slot.onclick=e=>{e.preventDefault();featuredGanshiReader??=createGanshiDetails();featuredGanshiReader.open(slot);};
+     slot.onclick=e=>{e.preventDefault();featuredExhibitReader??=createExhibitReader();featuredExhibitReader.open('16',slot);};
      slots.append(slot);return;
     }
     if(chapter.id==='case-exhibits'&&i===2){
      const slot=el('a','case-material-slot case-featured-exhibit');slot.href='#qizhiweiqi-details';slot.dataset.case='qizhiweiqi';slot.setAttribute('aria-haspopup','dialog');
      slot.append(el('span','case-slot-number','03'),photo('assets/qizhiweiqi/final-01.webp','Completed immersive mirror hall','case-featured-image'),el('span','case-featured-zone','CASE 03 / IMMERSIVE MIRROR HALL'),el('h3','',title),el('p','',description),el('span','case-featured-link','View exhibit details ↗'));
-     slot.onclick=e=>{e.preventDefault();featuredQizhiweiqiReader??=createQizhiweiqiDetails();featuredQizhiweiqiReader.open(slot);};
+     slot.onclick=e=>{e.preventDefault();featuredExhibitReader??=createExhibitReader();featuredExhibitReader.open('preface',slot);};
      slots.append(slot);return;
     }
-    const slot=el('section','case-material-slot');slot.append(el('span','case-slot-number',String(i+1).padStart(2,'0')),el('h3','',title),el('p','',description),el('span','case-pending-note','Materials to be added'));slots.append(slot);
-   });section.append(slots);
+    if(chapter.id==='case-exhibits'&&i===3){
+const slot=el('a','case-material-slot case-featured-exhibit');slot.href='#yanzi-details';slot.dataset.case='yanzi';slot.setAttribute('aria-haspopup','dialog');
+slot.append(el('span','case-slot-number','04'),photo('assets/yanzi/site-05.webp','Visitor in conversation with the digital Yan Zi','case-featured-image'),el('span','case-featured-zone','CASE 04 / CONVERSATIONAL DIGITAL HUMAN'),el('h3','',title),el('p','',description),el('span','case-featured-link','View exhibit details ↗'));
+slot.onclick=e=>{e.preventDefault();featuredExhibitReader??=createExhibitReader();featuredExhibitReader.open('06',slot);};slots.append(slot);return;
+}
+const slot=el('section','case-material-slot');slot.append(el('span','case-slot-number',String(i+1).padStart(2,'0')),el('h3','',title),el('p','',description));if(chapter.id!=='case-reflection')slot.append(el('span','case-pending-note','Materials to be added'));slots.append(slot);
+   });section.append(slots);if(chapter.id==='case-exhibits')section.append(createExhibitOverview());
    const next=nextChapters[nextChapters.indexOf(chapter)+1];if(next)section.append(btn('Next / '+next.nav+' →',()=>jump(next.id),'case-next-chapter'));article.append(section);
   }
-  const originals=el('footer','case-originals');originals.append(el('span','','Original portfolio layouts'),btn('Cover ↗',()=>openImage([{src:'assets/culture/portfolio_design1.webp',name:'Original cover'}],0,project.title)),btn('Family Factors ↗',()=>openImage([{src:'assets/culture/portfolio_design2.webp',name:'Original Family Factors layout'}],0,project.title)));article.append(originals);
  }else{
   const overview=el('section','case-generic');overview.id='case-overview';overview.append(el('span','case-kicker',project.category),el('h1','',project.title));for(const text of (project.introduction||project.summary||'Selected images and project materials.').split(/\r?\n\s*\r?\n/))overview.append(el('p','',text));for(const doc of project.documents){const a=el('a','case-document',doc.name+' ↗');a.href=doc.src;a.target='_blank';a.rel='noopener';overview.append(a);}article.append(overview);
   const images=el('section','case-image-story');images.id='case-images';for(const im of project.images){const b=btn('',()=>openImage([im],0,project.title));b.append(photo(im.preview||im.src,im.name),el('span','',im.name));images.append(b);}article.append(images);
  }
  const win=createWindow({id,title:project.title+' — Full Project',content:root,width:Math.min(1380,innerWidth-40),height:innerHeight-130,className:'case-window',onMaximize:toggleFullscreen});
- if(win.existing)return;
+ if(win.existing){disposeFigma?.();return;}
  const shell=win.el,green=shell.querySelector('.maximize'),bar=shell.querySelector('.window-titlebar');
  bar.querySelector('.window-title').remove();bar.classList.add('case-unified-bar');bar.append(back,address);toolbar.remove();
  const edge=el('div','case-fullscreen-edge');edge.setAttribute('aria-hidden','true');shell.append(edge);
@@ -109,7 +117,7 @@ export function openProjectDetails(project,{openImage,openGallery}){
  let frameVisible=false;
  const notifyCulture=()=>cultureFrame?.contentWindow?.postMessage({type:'portfolio-culture-active',active:frameVisible&&!shell.hidden&&!shell.classList.contains('inactive')&&!shell.classList.contains('minimizing')&&!document.hidden},location.origin);
  const frameObserver=cultureFrame?new IntersectionObserver(([entry])=>{frameVisible=entry.isIntersecting;notifyCulture();},{threshold:0}):null;
- if(cultureFrame){frameObserver.observe(cultureFrame);cultureFrame.addEventListener('load',notifyCulture);}
+ if(cultureFrame){frameObserver.observe(cultureFrame);cultureFrame.addEventListener('load',()=>{notifyCulture();cultureFrame.contentWindow?.postMessage({type:'portfolio-preferences',lang:document.documentElement.lang==='zh-CN'?'zh':document.documentElement.lang,motion:document.body.classList.contains('reduce-motion')},location.origin);});}
  document.addEventListener('portfolio-windows-changed',notifyCulture,{signal:controller.signal});
  document.addEventListener('visibilitychange',notifyCulture,{signal:controller.signal});
 
@@ -127,9 +135,8 @@ export function openProjectDetails(project,{openImage,openGallery}){
  shell.addEventListener('keydown',e=>{if(e.key==='Tab'){reveal();}if(e.key==='Escape'&&shell.classList.contains('case-fullscreen')){shell.classList.remove('case-fullscreen');update();}});
  shell.addEventListener('window-closing',()=>{clearTimeout(hideTimer);frameObserver?.disconnect();controller.abort();},{once:true});
  shell.addEventListener('window-closing',()=>featuredExhibitReader?.destroy(),{once:true});
- shell.addEventListener('window-closing',()=>featuredGanshiReader?.destroy(),{once:true});
- shell.addEventListener('window-closing',()=>featuredQizhiweiqiReader?.destroy(),{once:true});
  update();
  const url=new URL(location.href);url.hash='project='+project.id;history.replaceState(null,'',url);
  win.el.querySelector('.close').addEventListener('click',()=>{if(location.hash==='#project='+project.id)history.replaceState(null,'',location.pathname+location.search);});
 }
+

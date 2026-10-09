@@ -1,5 +1,6 @@
 import {traditional} from './chinese-traditional.js';
 import {projects} from './data.js';
+import {nextChapters} from './project-chapters.js';
 const entries=`
 Wind from the East|风从东方来
 WIND BLOWS FROM THE EAST|风从东方来
@@ -11,10 +12,13 @@ Tianqiyuan Lighting Installation|天齐渊灯光装置
 MIMESIS—The Shape of AI|拟态：人工智能的形态
 MIMESIS — The Shape of AI|拟态：人工智能的形态
 NEURO IMMERSIVE|神经沉浸
-ECHO-SPACE|回响空间
+ECHO-SPACE|映音空间
+ECHO SPACE|映音空间
+Echo Space|映音空间
+EchoSpace|映音空间
 SPACE CHRONICLES|太空纪事
 GAIA HYPOTHESIS|盖亚假说
-SPECTRAL FLUID|光谱流体
+SPECTRAL FLUID|灵韵光谱
 Tremulant Oracles|颤动的神谕
 Tremulant Oracles Light study|颤动的神谕 · 灯光研究
 Digital Reconstruction of Shanxi Suspended Sculptures|山西悬塑数字重建
@@ -441,6 +445,26 @@ Title hidden · Restore it in Control Center|已隐藏标题，可在控制中�
 `.trim().split('\n').map(r=>r.split('|')));
 const imageTerms=[['portfolio design','作品集版面'],['Hardware and coding','硬件与编程'],['Interaction Demo','交互演示'],['product design','产品设计'],['structure design','结构设计'],['Technique Path','技术路径'],['rendered photo','渲染图'],['prototype','原型'],['portfolio','作品集'],['Progress','过程记录'],['progress','过程记录'],['process','过程记录'],['version','版本'],['3D Rebuild','三维重建'],['UE page','UE 页面'],['Post Process in Unity','Unity 后期处理'],['RenderProcess In Unity','Unity 渲染过程'],['scan process','扫描过程'],['Installation Interface','装置界面'],['photo of the Installation','装置照片'],['3d model preview','三维模型预览'],['exhibit photo','展览照片'],['experimental','实验'],['Front Page','封面'],['Front page','封面'],['Frontpage','封面'],['Page','页面'],['page','页面'],['Frame','画面'],['Tech','技术'],['VR view','虚拟现实视图'],['poster','海报'],['DATABANK','资料库'],['Get Started','开始使用'],['HOMEPAGE','主页'],['map','地图'],['MemoryRes','记忆资源'],['Settings & Menu','设置与菜单']];
 for(const p of projects)for(const [index,im] of p.images.entries()){let result=im.name;for(const [en,zh] of imageTerms)result=result.replaceAll(en,zh);if(/^[a-f0-9-]{30,}$/i.test(result))result='项目图像 '+(index+1);registerTranslations([[im.name,result]]);}
+
+const reflectionChapter=nextChapters.find(chapter=>chapter.id==='case-reflection');
+registerTranslations([
+ [reflectionChapter.question,'当文化变得可见、可进入、可互动之后，我该如何判断它真的被观众理解了？'],
+ ...reflectionChapter.steps.map((step,index)=>[step,['文化理解','有意义的参与','真实环境测试','开放后的评估'][index]]),
+ ...reflectionChapter.slots.flatMap(([title,description],index)=>[
+  [title,[
+   '沉浸感能够吸引观众，但文化理解还需要进一步设计。',
+   '互动的意义，需要落实到观众的思考过程。',
+   '现场落地让我重新认识了材料、技术与设计的关系。',
+   '项目交付之后，还需要建立评价文化传播效果的方法。'
+  ][index]],
+  [description,[
+   '在“齐之为齐”中，我将泉水说、麦穗说、箭簇说转化为三个镜面立方体投影装置，让典籍内容获得了空间形态。但令人印象深刻的视觉体验，并不能直接证明文化被理解。未来，我希望通过更清晰的观看顺序、简短提示与离场回顾，帮助观众建立影像与文化含义之间的联系，让视觉吸引力进一步转化为理解。',
+   '多种数字展项的设计让我开始追问：观众的每一次操作，为理解内容带来了什么？触发画面可以吸引参与，而比较观点与作出选择，可能带来更深入的思考。以稷下学宫为例，未来我希望探索让观众围绕同一个问题接触不同观点，并作出自己的选择，使参与行为与思想内容建立更直接的关系。这仍是有待发展的方向。',
+   '“齐之为齐”最初采用外投，现场出现了亮度不足与二次成像的问题。我们随后将投影仪调整至顶部，并通过镜面材料测试完善成像效果。这让我认识到，空间体验需要在真实尺度、真实材料和真实光线中验证。今后，我会更早制作关键部位的实物样机，让投影位置、观看角度与材料测试结果提前参与设计决策。',
+   '完成场馆落地提供了可见的成果，但目前仍缺少足够的观众评估，尚不能据此判断文化理解是否得到提升。未来，我希望通过简短访谈、观看行为观察与参观后的内容回忆，了解观众理解了什么、记住了什么、又在哪里感到困惑，并以这些证据调整不同受众所需的信息层次，让开放后的反馈持续推动设计改进。'
+  ][index]]
+ ])
+]);
 
 registerTranslations([
  ['04 / Field Research','04 / 实地调研'],

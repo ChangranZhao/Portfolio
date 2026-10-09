@@ -6,8 +6,6 @@ const asset=name=>root+name;
 export function createQizhiweiqiDetails(){
  let dialog=null,opener=null;
  const t=(zh,en)=>document.documentElement.lang==='en'?en:document.documentElement.lang==='zh-Hant'?[...zh].map(char=>traditional[char]||char).join(''):zh;
- const photo=(name,zh,en,cls='')=>`<button class="ex-qz-photo ${cls}" type="button" data-qz-asset="${asset(name)}"><img src="${asset(name)}" alt="${t(zh,en)}" loading="lazy"><span>${t(zh,en)} ↗</span></button>`;
- const head=(id,zh,en,subtitle)=>`<header class="ex-qz-section-head"><span>${id} / ${subtitle}</span><h2>${t(zh,en)}</h2></header>`;
  function dismissAsset(){dialog?.querySelector('.ex-asset-viewer')?.remove()}
  function showAsset(src,alt){
   dismissAsset();
@@ -25,7 +23,20 @@ export function createQizhiweiqiDetails(){
   dialog.setAttribute('aria-label',t('展项详情 · 齐之为齐沉浸式镜厅空间','Exhibit details · What Makes Qi, Qi mirror hall'));
   dialog.innerHTML=`
    <header class="ex-window-bar"><span>${t('风从东方来 / 展项详情','WIND FROM THE EAST / EXHIBIT DETAILS')}</span><button class="ex-close" type="button">${t('关闭 ×','Close ×')}</button></header>
-   <div class="ex-reader-body ex-qz-body"><article class="ex-qz">
+   <div class="ex-reader-body ex-qz-body">${qizhiweiqiMarkup(t)}</div><footer class="ex-reader-footer ex-qz-footer"><button type="button" class="ex-qz-back">${t('← 返回第 7 页','← Back to page 7')}</button><span>03 / ${t('齐之为齐','WHAT MAKES QI, QI')}</span></footer>`;
+  dialog.querySelector('.ex-close').onclick=close;dialog.querySelector('.ex-qz-back').onclick=close;
+  dialog.querySelectorAll('[data-qz-asset]').forEach(button=>button.onclick=()=>showAsset(button.dataset.qzAsset,button.querySelector('img').alt));
+  dialog.querySelectorAll('[data-qz-jump]').forEach(button=>button.onclick=()=>dialog.querySelector('#'+button.dataset.qzJump).scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'start'}));
+ }
+ function open(trigger){opener=trigger;if(!dialog){dialog=document.createElement('dialog');dialog.className='ex-reader ex-qz-reader';dialog.setAttribute('data-no-localize','');dialog.addEventListener('cancel',event=>{event.preventDefault();if(dialog.querySelector('.ex-asset-viewer'))dismissAsset();else close()});document.body.append(dialog);render();dialog.showModal()}else{render();dialog.querySelector('.ex-reader-body').scrollTop=0}}
+ const onPreferences=()=>{if(dialog)render()};document.addEventListener('portfolio-preferences',onPreferences);
+ return {open,close,destroy(){close();document.removeEventListener('portfolio-preferences',onPreferences)}};
+}
+
+function qizhiweiqiMarkup(t){
+ const photo=(name,zh,en,cls='')=>`<button class="ex-qz-photo ${cls}" type="button" data-qz-asset="${asset(name)}"><img src="${asset(name)}" alt="${t(zh,en)}" loading="lazy"><span>${t(zh,en)} ↗</span></button>`;
+ const head=(id,zh,en,subtitle)=>`<header class="ex-qz-section-head"><span>${id} / ${subtitle}</span><h2>${t(zh,en)}</h2></header>`;
+ return `<article class="ex-qz">
     <header class="ex-hi-masthead"><span>WIND FROM THE EAST / QI CULTURE CLASSICS CENTER</span><span>${t('案例 03 · 齐之为齐','CASE 03 · WHAT MAKES QI, QI')}</span></header>
     <div class="ex-qz-hero"><div class="ex-qz-hero-copy"><span class="ex-hi-kicker">07 / EXHIBIT DETAILS · 03</span><h1>${t('齐之为齐\n沉浸式镜厅空间','WHAT MAKES QI, QI\nIMMERSIVE MIRROR HALL')}</h1><p class="ex-qz-hero-english">THREE ORIGINS · THREE MIRROR CUBES · ONE FIELD OF REFLECTION</p><p>${t('以泉水、麦穗与箭簇三种关于“齐”的诠释线索为起点，将典籍内容转化为三个镜面立方体中的投影。观众进入镜厅后，图像在镜面之间反复延伸。','Three interpretations of the name Qi—spring water, wheat ears and arrowheads—become projected sequences within three mirror cubes. Their images repeat through reflection as visitors move through the hall.')}</p><div class="ex-qz-hero-rule"><span>01—02 ${t('概念与材料','CONCEPT / MATERIAL')}</span><span>03—04 ${t('搭建与投影','BUILD / PROJECTION')}</span><span>05—06 ${t('影像与现场','CONTENT / OUTCOME')}</span></div></div>${photo('final-01.webp','镜厅落地空间全景','Completed mirror hall','ex-qz-hero-image')}</div>
     <nav class="ex-qz-index" aria-label="${t('案例模块','Case sections')}">${[['01',t('三种线索','Three origins')],['02',t('镜面测试','Mirror tests')],['03',t('现场搭建','Construction')],['04',t('投影迭代','Projection tests')],['05',t('数字内容','Digital content')],['06',t('最终空间','Final space')]].map(([id,label])=>`<button type="button" data-qz-jump="qz-${id}">${id} / ${label}</button>`).join('')}</nav>
@@ -36,12 +47,13 @@ export function createQizhiweiqiDetails(){
     <section class="ex-qz-block" id="qz-05">${head('05','三组数字影像进入镜厅','Three projected visual sequences','DIGITAL CONTENT')}<p>${t('从 A、B、C 三段数字内容中截取代表性画面，呈现不同的形态、文字和光影。以下为处理过水印的静帧；展项页不嵌入原视频。','Representative stills from visual sequences A, B and C show forms, glyphs and light in motion. These frames have been cleaned of the source watermark; the original videos are not embedded here.')}</p><div class="ex-qz-content-grid">${photo('content-a-water.png','数字内容 A：水的形态','Digital sequence A: water form')}${photo('content-b-origin.png','数字内容 B：文字与火光','Digital sequence B: glyphs and fire')}${photo('content-c-qi.png','数字内容 C：齐字图像','Digital sequence C: Qi glyph')}</div></section>
     <section class="ex-qz-block ex-qz-final" id="qz-06">${head('06','最终空间与观众尺度','The completed hall and visitor scale','FINAL INSTALLATION')}<p>${t('三个镜面立方体在暗场中并置。观众靠近时，光影穿过半透的表面，在内部不断反射；从整体空间到近距离观看，装置的尺度与影像深度随视角改变。','Three mirror cubes sit within a darkened room. As visitors approach, light passes through the partially transmitting surfaces and repeats inside. The perceived depth changes between the room-wide view and close observation.')}</p><div class="ex-qz-final-grid">${photo('final-03.webp','镜厅最终空间全景','Final hall, wide view','ex-qz-final-wide')}${photo('final-05.webp','观众与镜面立方体','Visitor and mirror cube','ex-qz-final-tall')}${photo('final-07.webp','镜厅内部成像','Image inside the mirror hall')}${photo('final-08.webp','立方体内部与观众尺度','Cube interior and visitor scale')}${photo('final-06.webp','立方体与暖色影像','Cube with warm-toned image')}${photo('final-04.webp','空间侧向视角','Oblique view of the space')}</div></section>
     <footer class="ex-qz-source">${t('资料来源：项目文件夹中的背景、镜面测试与现场搭建说明，数字内容静帧及最终空间实拍。','Sources: the supplied concept, mirror-material and on-site construction notes, digital-content stills and final installation photographs.')}</footer>
-   </article></div><footer class="ex-reader-footer ex-qz-footer"><button type="button" class="ex-qz-back">${t('← 返回第 7 页','← Back to page 7')}</button><span>03 / ${t('齐之为齐','WHAT MAKES QI, QI')}</span></footer>`;
-  dialog.querySelector('.ex-close').onclick=close;dialog.querySelector('.ex-qz-back').onclick=close;
-  dialog.querySelectorAll('[data-qz-asset]').forEach(button=>button.onclick=()=>showAsset(button.dataset.qzAsset,button.querySelector('img').alt));
-  dialog.querySelectorAll('[data-qz-jump]').forEach(button=>button.onclick=()=>dialog.querySelector('#'+button.dataset.qzJump).scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'start'}));
- }
- function open(trigger){opener=trigger;if(!dialog){dialog=document.createElement('dialog');dialog.className='ex-reader ex-qz-reader';dialog.setAttribute('data-no-localize','');dialog.addEventListener('cancel',event=>{event.preventDefault();if(dialog.querySelector('.ex-asset-viewer'))dismissAsset();else close()});document.body.append(dialog);render();dialog.showModal()}else{render();dialog.querySelector('.ex-reader-body').scrollTop=0}}
- const onPreferences=()=>{if(dialog)render()};document.addEventListener('portfolio-preferences',onPreferences);
- return {open,close,destroy(){close();document.removeEventListener('portfolio-preferences',onPreferences)}};
+   </article>`;
+}
+
+export function createQizhiweiqiArticle(t,openAsset){
+ const template=document.createElement('template');template.innerHTML=qizhiweiqiMarkup(t);
+ const article=template.content.firstElementChild;
+ article.querySelectorAll('[data-qz-asset]').forEach(button=>button.onclick=()=>openAsset(button.dataset.qzAsset,button.querySelector('img').alt));
+ article.querySelectorAll('[data-qz-jump]').forEach(button=>button.onclick=()=>article.querySelector('#'+button.dataset.qzJump).scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'start'}));
+ return article;
 }

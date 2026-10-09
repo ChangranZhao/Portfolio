@@ -2,6 +2,9 @@ import {exhibitContent} from './exhibit-content.js';
 import {exhibitMedia} from './exhibit-media.js';
 import {traditional} from './chinese-traditional.js';
 import {createExhibitOneEditorial} from './exhibit-one-editorial.js';
+import {createQizhiweiqiArticle} from './qizhiweiqi-details.js';
+import {createGanshiArticle} from './ganshi-details.js';
+import {createYanziArticle} from './yanzi-details.js';
 
 function wording(zh,en){
  const lang=document.documentElement.lang;
@@ -10,7 +13,7 @@ function wording(zh,en){
 function element(tag,className,text){const el=document.createElement(tag);if(className)el.className=className;if(text!==undefined)el.textContent=text;return el;}
 
 export function createExhibitReader(){
- let dialog=null,current=0,photo=0,trigger=null;
+ let dialog=null,current=0,photo=0,trigger=null,detail=null;
  function dismissAsset(){dialog?.querySelector('.ex-asset-viewer')?.remove();}
  function openAsset(src,alt){
   dismissAsset();
@@ -24,6 +27,7 @@ export function createExhibitReader(){
  }
  function close(){
   if(!dialog)return;
+  detail?.dispose?.();detail=null;
   dialog.close();dialog.remove();dialog=null;
   if(trigger?.isConnected)trigger.focus({preventScroll:true});
  }
@@ -38,6 +42,7 @@ export function createExhibitReader(){
   for(const [i,b] of [...dialog.querySelectorAll('.ex-thumb')].entries())b.setAttribute('aria-pressed',String(i===photo));
  }
  function render(){
+  detail?.dispose?.();detail=null;
   if(!dialog)return;
   const entry=exhibitContent[current],media=exhibitMedia[entry.id];
   dialog.replaceChildren();dialog.setAttribute('aria-label',wording('展项详情 · '+entry.title[0],'Exhibit details · '+entry.title[1]));
@@ -60,10 +65,11 @@ export function createExhibitReader(){
   info.append(element('p','ex-eyebrow',wording(...entry.zone)),element('div','ex-number',current<2?wording(current===0?'前厅':'序厅',current===0?'LOBBY':'PREFACE'):'EXHIBIT '+entry.id),element('h2','',wording(...entry.title)),element('h3','',wording('展项介绍','ABOUT THE EXHIBIT')));
   entry.text.forEach((text,i)=>info.append(element('p','ex-description',wording(text,entry.en[i]))));
   info.append(element('p','ex-source',wording('历史叙事依据《齐文化典籍中心最终版方案》（260105）第 '+entry.pages.join('、')+' 页；画面与投影规划根据后续展项素材整理。','Historical narrative adapted from the Qi Culture Classics Center proposal (260105), pp. '+entry.pages.join(', ')+'. Visuals and projection planning use later exhibit materials.')));
-  if(entry.id==='01'){
-   body.classList.add('ex-editorial-body');
-   const archive=element('div','ex-editorial-archive');archive.append(gallery,info);
-   body.append(createExhibitOneEditorial(wording,openAsset),archive);
+  const detailed={preface:createQizhiweiqiArticle,'01':createExhibitOneEditorial,'16':createGanshiArticle,'06':createYanziArticle};
+  if(detailed[entry.id]){
+   body.classList.add('ex-qz-combined','ex-combined');
+   detail=detailed[entry.id](wording,openAsset);
+   body.append(gallery,detail);
   }else body.append(gallery,info);
   const footer=element('footer','ex-reader-footer');
   const prev=element('button','',wording('← 上一展项','← Previous exhibit')),next=element('button','',wording('下一展项 →','Next exhibit →'));prev.type=next.type='button';prev.disabled=current===0;next.disabled=current===exhibitContent.length-1;

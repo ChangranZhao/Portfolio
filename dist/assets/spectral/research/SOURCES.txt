@@ -1,0 +1,15 @@
+TeleAbsence research assets — retrieved 2026-10-02
+Primary source: Ishii et al., TeleAbsence: A Vision of Past and Afterlife Telepresence, PRESENCE 34 (2025), 65–95. DOI 10.1162/PRES_a_00441
+MIT-hosted PDF: https://trackr-media.tangiblemedia.org/publishedmedia/Papers/731-MTA3N/Published/PDF
+MIT summary: https://www.media.mit.edu/articles/teleabsence-poetic-encounters-with-the-past/
+
+Original embedded JPEGs extracted without recompression:
+assets/p10-0.jpeg — Figure 2, Presence of Absence: Hiroshima stone steps. Credits in paper: U.S. armed forces / unknown photographer, public domain; Matsushige Yoshito, public domain. No claim about the identity of the shadow is made in this board.
+assets/p12-0.jpeg — Figure 3, Illusory Communication: Wind Phone. Credits in paper: Matthew Komatsu, CC BY-SA 4.0; Kahoku Shimpō (paper text transliteration), CC BY-NC-ND 4.0. Original composite preserved.
+assets/p14-0.jpeg — Figure 4, Materiality of Memory: Impact Steel. Beyond My Ken, CC BY-SA 4.0.
+assets/p15-0.jpeg — Figure 5, Traces of Reflection: Kenji Miyazawa manuscript, courtesy Miyazawa Kenji Memorial Museum. The source has inconsistent dates; the board intentionally omits the date.
+assets/p17-0.jpeg — Figure 6, Remote Time: Notre-Dame interior before the fire. Dennis G. Jarvis, CC BY-SA 4.0. The photo shows the space, not the acoustic simulation apparatus.
+
+The five historical/cultural cases are examples cited by the MIT paper, not five products developed by MIT.
+Spectral Fluid design transfer, proposed extensions and evaluation questions are original project analysis, not MIT claims or verified user-study results.
+Original assets and credits are provided for traceability. The generated board is a visual layout preview; retain these source photographs when implementing the final coded webpage.

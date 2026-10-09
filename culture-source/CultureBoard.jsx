@@ -1,3 +1,4 @@
+import {cultureText} from './language.js';
 import React from 'react';
 import KnowledgeGraph from './KnowledgeGraph.jsx';
 import {archiveAssets} from './archive-assets.js';
@@ -6,7 +7,7 @@ import {cultureThemes,themeCounts,knowledgeSources} from './culture-knowledge.js
 import {themeEnglish} from './localization.js';
 
 export default function CultureBoard({lang,category,setCategory,setSelected,children,playing,setPlaying,depth,setDepth,setReset}){
- const tr=(zh,en)=>lang==='zh'?zh:en;
+ const tr=(zh,en)=>cultureText(zh,en,lang);
  return <>
  <main className="knowledge-board">
  <section className="board-heading intro"><span className="eyebrow">{tr('齐文化 / 空间知识图谱','QI CULTURE / SPATIAL KNOWLEDGE ATLAS')}</span><h1>{tr('齐文化转译 / 信息整合','Cultural translation / information integration')}</h1><p>{tr('将初步提出的四象限框架应用于文物、工业档案和齐文化故事。','Apply the provisional four-quadrant framework to objects, industrial archives and cultural stories.')}<br/>{tr('从多元线索到共同场域，汇聚为一颗持续生长的文化球。','Diverse fragments converge into a shared, evolving cultural sphere.')}</p></section>

@@ -1,10 +1,11 @@
+import {cultureText} from './language.js';
 import React from 'react';
 import {archiveAssets} from './archive-assets.js';
 import {cultureThemes,themeCounts} from './culture-knowledge.js';
 import {localizeAsset,themeEnglish} from './localization.js';
 
 export default function KnowledgeGraph({active,onTheme,onSelect,lang='zh'}){
- const tr=(zh,en)=>lang==='zh'?zh:en;
+ const tr=(zh,en)=>cultureText(zh,en,lang);
  const activate=(e,fn)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fn()}};
  // Two opposing archive planes and a third attribute plane form an open volume.
  const planes=[{x:64,y:300,a:.86,b:-.42},{x:64,y:410,a:.86,b:-.42},{x:48,y:523,a:.78,b:.208},{x:48,y:632,a:.78,b:.208}];
@@ -34,7 +35,7 @@ export default function KnowledgeGraph({active,onTheme,onSelect,lang='zh'}){
     <g transform={`matrix(.9 .24 0 1 465 ${y})`} role="button" tabIndex="0" aria-label={tr('文化属性：','Cultural theme: ')+tr(theme.cn,themeEnglish[i].short)} aria-pressed={active===i} className={'theme-node '+(active===i?'selected':'')} onClick={()=>onTheme(active===i?null:i)} onKeyDown={e=>activate(e,()=>onTheme(active===i?null:i))}>
      <path d="M0 0 H196 V106 H0 Z M196 0 l8 -6 v106 l-8 6" fill="#080a0a" stroke="currentColor" strokeWidth=".8"/>
      <text x="13" y="18" className="theme-order">0{i+1} / {tr('文化精神','CULTURAL SPIRIT')}</text>
-     {lang==='zh'?<text x="13" y="49" className="theme-cn">{theme.cn}</text>:<text x="13" y="41" className="theme-en">{theme.en[0]}<tspan x="13" dy="16">{theme.en[1]}</tspan></text>}
+     {lang!=='en'?<text x="13" y="49" className="theme-cn">{tr(theme.cn,theme.cn)}</text>:<text x="13" y="41" className="theme-en">{theme.en[0]}<tspan x="13" dy="16">{theme.en[1]}</tspan></text>}
      <path d="M13 68 H182" stroke="currentColor" strokeWidth=".4"/>
      <text x="13" y="84" className="theme-tags">{tr(theme.words.join(' · '),themeEnglish[i].tags)}</text>
      <text x="13" y="98" className="theme-tags">{themeCounts[i]} {tr('份关联资料','RELATED ARCHIVES')}</text>

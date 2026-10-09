@@ -1,3 +1,4 @@
+import {cultureText} from './language.js';
 import {archiveAssets} from './archive-assets.js';
 
 const titles=[
@@ -31,10 +32,12 @@ const descriptions={
  49:'Spring and Autumn period. Length 5.5 cm; diameter 0.8 cm. Excavated in 1972 at Eastern Zhou sacrificial burial No. 1, Langjiazhuang, Qidu.',
 };
 const lookup=new Map(archiveAssets.map((a,i)=>[a.src,{title:titles[i],description:descriptions[i]||'Modern industrial archive of Zibo. Original captions are retained within the source image.',source:a.sourceUrl?'Qi Heritage Museum':'User-provided industrial archive'}]));
-export const localizeAsset=(a,lang)=>a.story?(lang==='en'?{...a,title:a.en,description:a.summaryEn+'\nFramework reading: '+a.reasonEn+'\nImage: '+a.captionEn,source:a.credit}:a):lang==='en'?{...a,...lookup.get(a.src)}:a;
+const baseAsset=(a,lang)=>a.story?(lang==='en'?{...a,title:a.en,description:a.summaryEn+'\nFramework reading: '+a.reasonEn+'\nImage: '+a.captionEn,source:a.credit}:a):lang==='en'?{...a,...lookup.get(a.src)}:a;
 export const themeEnglish=[
  {short:'Ability & achievement',tags:'Skill · Merit · Creation',note:'Craft and production offer a lens on knowledge, ability and creative achievement.'},
  {short:'Inclusiveness & openness',tags:'Exchange · Diversity · Connection',note:'Ornaments, transport and urban spaces are linked through exchange and cultural diversity.'},
  {short:'Pragmatism & adaptation',tags:'Utility · Change · Innovation',note:'Everyday objects and industrial equipment reveal changing needs and technical adaptation.'},
  {short:'Commerce & industry',tags:'Trade · Making · Circulation',note:'Coins, measures and industrial archives are brought together around production and exchange.'},
 ];
+
+export function localizeAsset(asset,lang){const result=baseAsset(asset,lang);if(lang!=='zh-Hant')return result;return {...result,...Object.fromEntries(['title','description','source'].filter(key=>typeof result[key]==='string').map(key=>[key,cultureText(result[key],result[key],lang)]))};}

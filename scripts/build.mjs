@@ -1,4 +1,4 @@
-import {readFile,writeFile,readdir,mkdir,rm,cp} from 'node:fs/promises';
+import {readFile,writeFile,readdir,mkdir,rm,cp,stat} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
@@ -44,4 +44,19 @@ for(const directory of runtimeDirectories)await cp(path.join(source,directory),p
 await writeFile(path.join(output,'.nojekyll'),'');
 await writeFile(path.join(output,'_headers'),'/*\n  Cache-Control: public, max-age=0, must-revalidate\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n');
 await writeFile(path.join(output,'asset-manifest.json'),JSON.stringify(manifest,null,2));
+// Cloudflare Pages rejects the entire deployment if any output file exceeds 25 MiB.
+const maxAssetBytes=25*1024*1024;
+const oversized=[];
+async function checkOutputSizes(directory){
+  for(const entry of await readdir(directory,{withFileTypes:true})){
+    const file=path.join(directory,entry.name);
+    if(entry.isDirectory())await checkOutputSizes(file);
+    else if(entry.isFile()){
+      const {size}=await stat(file);
+      if(size>maxAssetBytes)oversized.push(`${path.relative(output,file)} (${(size/1024/1024).toFixed(2)} MiB)`);
+    }
+  }
+}
+await checkOutputSizes(output);
+if(oversized.length)throw new Error('Cloudflare Pages file limit exceeded (25 MiB). Compress these assets before deploying:\n'+oversized.join('\n'));
 console.log(`Built ${Object.keys(manifest).length} referenced files into site/ with content-hashed URLs.`);

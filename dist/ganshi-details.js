@@ -85,7 +85,7 @@ export function createGanshiDetails(){
    else target.pause();
   }),{root:dialog.querySelector('.ex-gs-body'),threshold:[0,0.45]});
   dialog.querySelectorAll('video').forEach(video=>mediaObserver.observe(video));
-  dialog.querySelectorAll('[data-gs-jump]').forEach(button=>button.onclick=()=>dialog.querySelector('#'+button.dataset.gsJump).scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'start'}));
+  dialog.querySelectorAll('[data-gs-jump]').forEach(button=>button.onclick=()=>dialog.querySelector('#'+button.dataset.gsJump).scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches||document.body.classList.contains('reduce-motion')?'instant':'smooth',block:'start'}));
  }
  function open(trigger){
   opener=trigger;

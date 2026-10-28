@@ -90,6 +90,8 @@ function prepareDiagram(onSelect=()=>{},floor=1,onOpen=()=>{}){
  const pointButtons=floorExhibits.map(([id,title,medium],index)=>{
   const point=drawing.querySelector(`[data-node-id="${id.includes(':')?id:'272:'+id}"]`),button=document.createElement('button');
   button.type='button';button.className='sp-point';button.setAttribute('aria-pressed','false');
+  const marker=point.querySelector('img');
+  if(marker){marker.classList.add('sp-blinking-marker');marker.style.setProperty('--sp-blink-delay',`${-(index*.31+floor*.17)}s`);}
   const exhibitId=floor===1?(index===0?'lobby':index===1?'preface':String(index-1).padStart(2,'0')):String(index+9).padStart(2,'0');
   button.dataset.exhibit=exhibitId;button.setAttribute('aria-haspopup','dialog');
   button.onclick=()=>{selected=[title,medium];for(const other of pointButtons)other.setAttribute('aria-pressed',String(other===button));translate();onOpen(exhibitId,button);};

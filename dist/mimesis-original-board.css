@@ -1,0 +1,99 @@
+@font-face{font-family:Cinzel;src:url('assets/figma-fonts/Cinzel.ttf') format('truetype');font-weight:100 900;font-display:swap}
+html,body,.figma-canvas{width:2880px;height:1080px}html,body{background:white}.figma-canvas p{white-space:normal}.figma-canvas{overflow:hidden}
+.figma-canvas [style*="background-clip:text"]{background-clip:text!important;-webkit-background-clip:text!important;color:transparent!important}
+/* Chinese typography follows its own metrics; English keeps Figma's original styles. */
+html[lang^="zh"] .figma-canvas p{font-family:"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",sans-serif!important;letter-spacing:.025em!important;word-spacing:0!important;text-align:left!important;word-break:normal;overflow-wrap:break-word;line-break:strict}
+html[lang^="zh"] .figma-canvas p[data-mi-type="brand"]{font-family:Cinzel,Georgia,serif!important;letter-spacing:0!important}
+html[lang^="zh"] p[data-mi-type="body"]{line-height:1.8!important;font-weight:400!important}
+html[lang^="zh"] p[data-mi-type="body"]+p[data-mi-type="body"]{margin-top:.65em}
+html[lang^="zh"] p[data-mi-type="empty"]{display:none}
+html[lang^="zh"] p[data-mi-type="subtitle"]{font-size:26px!important;line-height:1.45!important;letter-spacing:.12em!important;transform:translateY(20px);white-space:nowrap!important}
+html[lang^="zh"] p[data-mi-type="heading"]{font-size:82px!important;line-height:1.25!important;letter-spacing:.14em!important;font-weight:300!important}
+html[lang^="zh"] p[data-mi-type="label"]{font-size:26px!important;line-height:1.4!important;letter-spacing:.1em!important}
+html[lang^="zh"] p[data-mi-type="vertical"]{font-size:76px!important;line-height:1.25!important;letter-spacing:.16em!important;white-space:nowrap!important;text-align:center!important}
+html[lang^="zh"] p[data-mi-type="hero-subtitle"]{font-size:29px!important;line-height:1.5!important;letter-spacing:.06em!important;white-space:nowrap!important}
+html[lang^="zh"] p[data-mi-type="hero-caption"]{font-size:20px!important;line-height:1.6!important;letter-spacing:.06em!important;width:310px!important;white-space:nowrap!important;transform:translateY(8px)}
+html:has([data-node-id="1:3153"]),body:has([data-node-id="1:3153"]),.figma-canvas:has([data-node-id="1:3153"]){height:1560px!important}
+[data-node-id="1:3153"]{height:1560px!important}
+[data-node-id="1:3153"] [data-node-id="1:3154"] img{opacity:.09!important}
+[data-node-id="1:3162"],[data-node-id="1:3164"],[data-node-id="1:3174"],[data-node-id="1:3167"],[data-node-id="1:3171"],[data-node-id="1:3172"]{display:none!important}
+[data-node-id="1:3163"],[data-node-id="1:3165"],[data-node-id="1:3175"]{padding:28px 32px!important;background:rgba(255,255,255,.94)!important;border:1px solid #d7dce0;border-radius:10px;color:#343e47!important;font-size:26px!important;line-height:1.65!important;white-space:normal!important;box-sizing:border-box}
+[data-node-id="1:3163"] p,[data-node-id="1:3165"] p,[data-node-id="1:3175"] p{font-size:26px!important;line-height:1.65!important;letter-spacing:.01em!important;color:#343e47!important;text-align:left!important;margin:0!important}
+[data-node-id="1:3163"] p+p,[data-node-id="1:3165"] p+p,[data-node-id="1:3175"] p+p{margin-top:18px!important}
+[data-node-id="1:3153"] p[data-mi-type="empty"]{display:none!important}
+[data-node-id="1:3163"]{left:60px!important;top:225px!important;width:1000px!important;height:225px!important}
+[data-node-id="1:3155"]{inset:auto!important;left:60px!important;top:490px!important;width:1000px!important;height:565px!important}
+[data-node-id="1:3157"],[data-node-id="1:3158"]{display:none!important}
+[data-node-id="1:3159"]{inset:0!important;left:0!important;top:0!important;width:100%!important;height:100%!important;mask-image:none!important}
+[data-node-id="1:3165"]{left:60px!important;top:1090px!important;width:1000px!important;height:400px!important}
+[data-node-id="1:3166"]{left:1160px!important;top:35px!important;width:900px!important;font-size:100px!important}
+[data-node-id="1:3176"]{left:1130px!important;top:225px!important;width:900px!important;height:820px!important}
+[data-node-id="1:3168"]{display:none!important}
+[data-node-id="1:3169"]{left:2120px!important;top:60px!important;font-size:30px!important}
+[data-node-id="1:3178"]{left:2120px!important;top:130px!important;width:700px!important;height:394px!important}
+[data-node-id="1:3175"]{left:2120px!important;top:565px!important;width:700px!important;height:555px!important}
+[data-node-id="1:3170"]{left:2120px!important;top:1170px!important;font-size:30px!important}
+[data-node-id="1:3177"]{left:2120px!important;top:1240px!important;width:700px!important;height:260px!important}
+[data-node-id="1:3163"]{height:260px!important}
+[data-node-id="1:3155"]{top:520px!important;height:535px!important}
+[data-node-id="1:3175"]{height:650px!important}
+[data-node-id="1:3170"]{top:1240px!important}
+[data-node-id="1:3177"]{top:1310px!important;height:200px!important}
+/* Maintain readable sizes in all three languages, including the annotations marked by the user. */
+:is([data-node-id="1:3148"],[data-node-id="1:3149"],[data-node-id="1:3150"],[data-node-id="1:3190"],[data-node-id="1:3191"],[data-node-id="1:3192"],[data-node-id="1:3216"],[data-node-id="1:3217"],[data-node-id="1:3219"],[data-node-id="1:3225"],[data-node-id="1:3226"],[data-node-id="1:3263"],[data-node-id="1:3280"]){font-size:30px!important;line-height:1.55!important;color:#35414b!important;text-align:left!important}
+:is([data-node-id="1:3148"],[data-node-id="1:3190"],[data-node-id="1:3191"],[data-node-id="1:3225"]) p{font-size:30px!important;line-height:1.55!important;color:#35414b!important;text-align:left!important;letter-spacing:.015em!important}
+:is([data-node-id="1:3148"],[data-node-id="1:3190"],[data-node-id="1:3191"],[data-node-id="1:3225"]) p+p{margin-top:22px!important}
+.figma-canvas p[data-mi-type="empty"]{display:none!important}
+html:has([data-node-id="1:3138"]),body:has([data-node-id="1:3138"]),.figma-canvas:has([data-node-id="1:3138"]),[data-node-id="1:3138"],html:has([data-node-id="1:3179"]),body:has([data-node-id="1:3179"]),.figma-canvas:has([data-node-id="1:3179"]),[data-node-id="1:3179"]{height:1320px!important}
+[data-node-id="1:3148"]{top:360px!important;width:740px!important;padding:22px 24px;background:#ffffffd9;border-radius:8px}
+[data-node-id="1:3149"]{top:1140px!important;width:740px!important}
+[data-node-id="1:3150"]{top:1240px!important;width:740px!important}
+[data-node-id="1:3140"]{height:1320px!important}
+/* Expand each concept callout rather than squeezing large text into the old capsule. */
+:is([data-node-id="1:3190"],[data-node-id="1:3191"],[data-node-id="1:3192"],[data-node-id="1:3216"],[data-node-id="1:3217"],[data-node-id="1:3219"]){left:1745px!important;width:1060px!important;padding:20px 26px!important;background:#fffffff0;border:1px solid #c5cbd0;border-radius:12px;box-sizing:border-box;height:auto!important}
+[data-node-id="1:3190"]{top:225px!important;min-height:235px}
+[data-node-id="1:3191"]{top:490px!important;min-height:125px}
+[data-node-id="1:3192"]{top:645px!important;min-height:100px}
+[data-node-id="1:3216"]{top:775px!important;min-height:100px}
+[data-node-id="1:3217"]{top:905px!important;min-height:145px}
+[data-node-id="1:3219"]{top:1080px!important;min-height:100px}
+/* Story: retain the imagery while extending its reading column. */
+html:has([data-node-id="1:3221"]),body:has([data-node-id="1:3221"]),.figma-canvas:has([data-node-id="1:3221"]),[data-node-id="1:3221"],html:has([data-node-id="1:3245"]),body:has([data-node-id="1:3245"]),.figma-canvas:has([data-node-id="1:3245"]),[data-node-id="1:3245"]{height:1440px!important}
+[data-node-id="1:3225"]{top:342px!important;width:760px!important;height:auto!important;padding:20px 24px;background:#ffffffd9;border-radius:8px}
+[data-node-id="1:3226"]{top:1220px!important;width:760px!important;height:auto!important;padding:20px 24px;background:#ffffffd9}
+/* Environment: give the enlarged explanation its own deeper panel. */
+[data-node-id="1:3253"]{height:670px!important}
+[data-node-id="1:3263"]{top:325px!important;height:620px!important;width:768px!important;padding:12px 16px;background:#ffffffe6;box-sizing:border-box}
+[data-node-id="1:3265"]{top:1070px!important}
+:is([data-node-id="1:3266"],[data-node-id="1:3267"],[data-node-id="1:3268"],[data-node-id="1:3269"]){top:1098px!important}
+/* Technique note: larger type and a taller frame, with clear separation from screenshots. */
+[data-node-id="1:3279"]{top:195px!important;height:100px!important;width:1108px!important}
+[data-node-id="1:3280"]{left:1630px!important;top:210px!important;width:1060px!important;height:80px!important;transform:none!important;font-size:34px!important;line-height:1.5!important;text-align:center!important;padding:0 14px}
+[data-node-id="1:3275"]{top:330px!important;height:700px!important}
+[data-node-id="1:3284"]{top:355px!important;height:650px!important}
+/* Remove the original narrow capsules beneath the expanded concept panels. */
+:is([data-node-id="1:3187"],[data-node-id="1:3188"],[data-node-id="1:3189"],[data-node-id="1:3193"],[data-node-id="1:3194"],[data-node-id="1:3218"]){visibility:hidden!important}
+/* Reflow enlarged text and artwork together; let each language determine the page height. */
+html:has(.mi-flow-spread),body:has(.mi-flow-spread),.figma-canvas:has(.mi-flow-spread){height:auto!important;min-height:0!important;overflow:hidden}
+.mi-flow-spread{display:grid!important;position:relative!important;height:auto!important;min-height:0!important;box-sizing:border-box;padding:60px!important;gap:60px!important;align-items:start}
+.mi-flow-spread[data-node-id="1:3153"]{grid-template-columns:1000px 820px 820px}
+.mi-flow-spread[data-node-id="1:3221"]{grid-template-columns:1000px 1700px;gap:60px!important;padding:60px!important}
+.mi-flow-spread>.mi-flow-column{display:flex!important;position:relative!important;flex-direction:column;gap:34px;min-width:0;z-index:1}
+.mi-flow-column>[data-node-id]{position:relative!important;inset:auto!important;left:auto!important;top:auto!important;width:100%!important;min-height:0!important;transform:none!important;margin:0!important;box-sizing:border-box}
+.mi-flow-column>p[data-mi-type="brand"]{height:auto!important;line-height:1.1!important}
+.mi-flow-column>p[data-mi-type="subtitle"]{height:auto!important;line-height:1.4!important;margin-top:-25px!important;transform:none!important}
+.mi-flow-column>p[data-mi-type="heading"]{height:auto!important;line-height:1.2!important}
+.mi-flow-column>:is([data-node-id="1:3163"],[data-node-id="1:3165"],[data-node-id="1:3175"],[data-node-id="1:3225"],[data-node-id="1:3226"]){height:auto!important;white-space:normal!important;padding:30px 32px!important;background:#fffffff0!important;border:1px solid #d7dce0;border-radius:10px}
+.mi-flow-column>[data-node-id="1:3155"]{height:auto!important;aspect-ratio:16/9}
+.mi-flow-column>[data-node-id="1:3176"]{height:auto!important;aspect-ratio:931/847;margin-top:50px!important}
+.mi-flow-column>:is([data-node-id="1:3178"],[data-node-id="1:3177"]){height:auto!important;aspect-ratio:16/9}
+.mi-flow-column>:is([data-node-id="1:3178"],[data-node-id="1:3177"]) img{object-fit:contain!important}
+.mi-flow-column>:is([data-node-id="1:3169"],[data-node-id="1:3170"]){height:auto!important;line-height:1.4!important}
+.mi-flow-story-copy>[data-node-id="1:3223"]{font-size:120px!important;margin-bottom:0!important;height:auto!important;line-height:1.1!important}
+.mi-flow-story-copy>[data-node-id="1:3225"]{margin-top:24px!important}
+.mi-flow-story-copy>[data-node-id="1:3226"]{padding:30px 32px!important;border-left:3px solid #bba9ca}
+.mi-flow-story-art{align-self:stretch!important;justify-content:center!important}
+.mi-flow-story-art>[data-node-id="1:3227"]{height:auto!important;aspect-ratio:1880/1056}
+.mi-flow-story-art>[data-node-id="1:3227"] img{object-fit:contain!important}
+/* The original duplicate/border placeholders must not occupy the flow grid. */
+.mi-flow-spread>:not(.mi-flow-column){position:absolute!important;pointer-events:none}

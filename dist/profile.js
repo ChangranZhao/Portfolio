@@ -42,8 +42,7 @@ const publications=[
  ['Bodystorming through Disruption: AI-assisted Design Improvisation Pedagogy','DRS 2026'],
  ['Path of Light: Interactive Narrative Design Based on Mix Reality for Silk Road Cultural Perception','UIST Adjunct 2025'],
  ['Echo-Space: Inclusive Orchestral Performance Space with Visual Media','HCII 2025'],
- ['HISTORICAL-IMMERSION — Immersive Memory Re-production System Based on 3D Scanning and Multi-modal Interaction','HCII 2025'],
- ['UIST Poster','UIST 2025']
+ ['HISTORICAL-IMMERSION — Immersive Memory Re-production System Based on 3D Scanning and Multi-modal Interaction','HCII 2025']
 ];
 
 function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;}
@@ -80,7 +79,7 @@ export function createProfileWorkspace({projects,cover,openProject,openPhotos,op
     right.append(el('h2','','COMMERCIAL PROJECT'));const projectList=el('div','profile-glass');
     commercial.forEach(([title,date,place,pid])=>projectList.append(record(title,date+'   '+place,pid?()=>openProject(pid):undefined)));right.append(projectList);
     columns.append(left,right);board.append(columns);
-    const win=createWindow({id:'profile-about',title:'Changran Zhao / About Me',content:board,width:1000,height:670,className:'about-workspace browser-window profile-window',bounds:bounds(.045,.21,.90,.64)});decorateBrowser(win);if(section)reveal(section);
+    const win=createWindow({id:'profile-about',title:'Changran Zhao / About Me',content:board,width:1000,height:670,className:'about-workspace browser-window profile-window',bounds:bounds(.02,.055,.96,.91)});decorateBrowser(win);if(section)reveal(section);
   }
   function reveal(section){
     requestAnimationFrame(()=>{const node=document.getElementById('profile-'+section);if(node){node.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});node.classList.remove('section-highlight');void node.offsetWidth;node.classList.add('section-highlight');}});

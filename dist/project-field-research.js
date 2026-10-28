@@ -43,5 +43,92 @@ export function createFieldResearch(openImage){
  </div></section><footer class="field-footer"><span>QI CULTURE CLASSICS CENTER</span><span>RESEARCH → NARRATIVE → SPACE</span><a href="#case-narrative">NEXT / NARRATIVE & SPACE →</a></footer>`;
  for(const button of section.querySelectorAll('[data-field-visual]'))button.onclick=()=>openImage([{src:button.querySelector('img').getAttribute('src'),name:button.querySelector('img').alt}],0,'Design concept');
  const collage=section.querySelector('.field-collage');sites.forEach(([src,name],i)=>{const b=document.createElement('button');b.className='field-site field-site-'+i;b.type='button';b.setAttribute('aria-label','View site photo: '+name);b.innerHTML=`<img src="${src}" alt="${name}" loading="lazy" decoding="async"><span>${String(i+1).padStart(2,'0')} / ${name}</span>`;b.onclick=()=>openImage(sites.map(([src,name])=>({src,name})),i,'Site survey');collage.append(b);});
+ // Reveal the conversation once, when its column enters the viewport.
+ const bubbles=[...section.querySelectorAll('.field-question,.field-answer')];
+ const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches||document.body.classList.contains('reduce-motion');
+ let revealObserver=null,animations=[];
+ section.disposeReveal=()=>{revealObserver?.disconnect();animations.forEach(a=>a.cancel());bubbles.forEach(b=>b.style.removeProperty('opacity'));};
+ if(!reduced()){
+  bubbles.forEach(b=>b.style.opacity='0');
+  revealObserver=new IntersectionObserver(([entry])=>{
+   if(!entry.isIntersecting||entry.intersectionRatio<.12)return;
+   revealObserver.disconnect();
+   if(reduced()){section.disposeReveal();return;}
+   animations=bubbles.map((bubble,i)=>bubble.animate([
+    {opacity:0,transform:'translateY(10px)'},
+    {opacity:1,transform:'translateY(0)'}
+   ],{duration:380,delay:120+i*420,easing:'cubic-bezier(.2,.7,.2,1)',fill:'both'}));
+   animations.forEach((animation,i)=>{animation.onfinish=()=>{bubbles[i].style.removeProperty('opacity');animation.cancel();};});
+  },{threshold:[0,.12]});
+  revealObserver.observe(section.querySelector('.field-priorities'));
+ }
+ // Reveal themes, their convergence, and the narrative planes in reading order.
+ const flowSteps=[
+  ...[...section.querySelectorAll('.field-themes > p')].map((element,i)=>({element,delay:120+i*360,move:true})),
+  {element:section.querySelector('.field-convergence'),delay:1600},
+  ...[...section.querySelectorAll('.field-planes > span')].map((element,i)=>({element,delay:2100+i*360,move:true})),
+  {element:section.querySelector('.field-planes > svg'),delay:3640}
+ ];
+ let flowObserver=null;
+ const flowAnimations=[];
+ const disposeConversation=section.disposeReveal;
+ section.disposeReveal=()=>{
+  disposeConversation();flowObserver?.disconnect();
+  flowAnimations.forEach(animation=>animation.cancel());
+  flowSteps.forEach(({element})=>element.style.removeProperty('opacity'));
+ };
+ if(!reduced()){
+  flowSteps.forEach(({element})=>element.style.opacity='0');
+  flowObserver=new IntersectionObserver(([entry])=>{
+   if(!entry.isIntersecting||entry.intersectionRatio<.25)return;
+   flowObserver.disconnect();
+   if(reduced()){flowSteps.forEach(({element})=>element.style.removeProperty('opacity'));return;}
+   flowSteps.forEach(({element,delay,move})=>{
+    // Individual translate preserves the planes' existing axonometric transform.
+    const animation=element.animate([
+     {opacity:0,...(move?{translate:'0 10px'}:{})},
+     {opacity:1,...(move?{translate:'0 0'}:{})}
+    ],{duration:400,delay,easing:'cubic-bezier(.2,.7,.2,1)',fill:'both'});
+    flowAnimations.push(animation);
+    animation.onfinish=()=>{element.style.removeProperty('opacity');animation.cancel();};
+   });
+  },{threshold:[0,.25]});
+  flowObserver.observe(section.querySelector('.field-content-flow'));
+ }
+ const structure=section.querySelector('[data-field-visual="structure"]');
+ const structureImage=structure.querySelector('img');
+ const floorLayers=['upper','lower'].map(name=>{
+  const layer=document.createElement('span');layer.className='field-floor-layer field-floor-'+name;
+  layer.setAttribute('aria-hidden','true');
+  const img=structureImage.cloneNode();img.alt='';img.loading='eager';layer.append(img);structure.append(layer);return layer;
+ });
+ structure.classList.add('field-floor-stack');
+ let floorObserver=null;const floorAnimations=[];
+ const disposeOtherReveals=section.disposeReveal;
+ section.disposeReveal=()=>{
+  disposeOtherReveals();floorObserver?.disconnect();floorAnimations.forEach(a=>a.cancel());
+  structure.classList.remove('field-floors-folded');
+ };
+ if(!reduced()){
+  structure.classList.add('field-floors-folded');
+  floorObserver=new IntersectionObserver(([entry])=>{
+   if(!entry.isIntersecting||entry.intersectionRatio<.25)return;
+   floorObserver.disconnect();
+   if(reduced()){structure.classList.remove('field-floors-folded');return;}
+   floorLayers.forEach((layer,i)=>{
+    const folded=i===0?'20%':'-20%';
+    const animation=layer.animate([
+     {transform:`translateY(${folded})`,offset:0},
+     {transform:`translateY(${folded})`,offset:.25},
+     {transform:'translateY(0)',offset:1}
+    ],{duration:1800,easing:'cubic-bezier(.25,.65,.25,1)',fill:'both'});
+    floorAnimations.push(animation);
+   });
+   Promise.all(floorAnimations.map(a=>a.finished)).then(()=>{
+    structure.classList.remove('field-floors-folded');floorAnimations.forEach(a=>a.cancel());
+   }).catch(()=>{});
+  },{threshold:[0,.25]});
+  floorObserver.observe(structure);
+ }
  section.querySelector('.field-footer a').onclick=e=>{e.preventDefault();section.parentElement.querySelector('#case-narrative')?.scrollIntoView({behavior:'instant',block:'start'});};return section;
 }

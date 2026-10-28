@@ -1,3 +1,4 @@
+import {useThemeCycle} from './use-theme-cycle.js';
 import {cultureLanguage,cultureText} from './language.js';
 import React, {useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
@@ -18,10 +19,10 @@ function CultureSphere({playing,depth,reset,onSelect,selectedCategory,frozen,pur
  useEffect(()=>{rotation.current={x:-9,y:18};velocity.current={x:0,y:0}},[reset]);
  const wake=useRef(()=>{});
  useEffect(()=>{
-  let frame=0,timer=0,last=0,visible=false,hostActive=true,dirty=true;
+  let frame=0,timer=0,last=0,visible=false,hostActive=true,dirty=true,scrolling=false,scrollTimer=0;
   const paint=()=>{globe.current.style.transform=`rotateX(${rotation.current.x}deg) rotateY(${rotation.current.y}deg)`;};
   const stop=()=>{cancelAnimationFrame(frame);clearTimeout(timer);frame=timer=0;last=0;};
-  const active=()=>visible&&hostActive&&!document.hidden;
+  const active=()=>visible&&hostActive&&!scrolling&&!document.hidden;
   function tick(time){
    frame=0;if(!active())return;
    const dt=last?Math.min((time-last)/16.67,3):1;last=time;
@@ -37,8 +38,14 @@ function CultureSphere({playing,depth,reset,onSelect,selectedCategory,frozen,pur
   wake.current=start;paint();
   const observer=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;if(visible)start();else stop();},{threshold:0});observer.observe(stage.current);
   const visibility=()=>{if(document.hidden)stop();else start();};document.addEventListener('visibilitychange',visibility);
-  const message=e=>{if(e.source!==parent||e.origin!==location.origin||e.data?.type!=='portfolio-culture-active')return;hostActive=!!e.data.active;if(hostActive)start();else stop();};window.addEventListener('message',message);
-  return()=>{stop();observer.disconnect();document.removeEventListener('visibilitychange',visibility);window.removeEventListener('message',message);wake.current=()=>{};};
+  const scroll=()=>{scrolling=true;stop();clearTimeout(scrollTimer);scrollTimer=setTimeout(()=>{scrolling=false;start();},180);};
+  const message=e=>{
+   if(e.source!==parent||e.origin!==location.origin)return;
+   if(e.data?.type==='portfolio-culture-scrolling'){scrolling=!!e.data.scrolling;if(scrolling)stop();else start();}
+   if(e.data?.type==='portfolio-culture-active'){hostActive=!!e.data.active;if(hostActive)start();else stop();}
+  };window.addEventListener('message',message);
+  window.addEventListener('scroll',scroll,{passive:true,capture:true});
+  return()=>{stop();clearTimeout(scrollTimer);observer.disconnect();document.removeEventListener('visibilitychange',visibility);window.removeEventListener('message',message);window.removeEventListener('scroll',scroll,true);wake.current=()=>{};};
  },[playing,depth,reset]);
  useEffect(()=>{wake.current()},[reset,depth]);
  const down=e=>{if(frozen.current||e.button!==0)return;drag.current={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY};moved.current=false;velocity.current={x:0,y:0};stage.current.setPointerCapture(e.pointerId);wake.current()};
@@ -83,8 +90,9 @@ function App(){
  }
 
  const [playing,setPlaying]=useState(()=>!window.matchMedia('(prefers-reduced-motion: reduce)').matches),[depth,setDepth]=useState(0.2),[reset,setReset]=useState(0),[category,setCategory]=useState(null),[selected,setSelected]=useState(null);const dialog=useRef();
+ const chooseTheme=useThemeCycle(setCategory,!!selected||pure||hideNotes||saving);
  useEffect(()=>{const apply=p=>{setLang(p.languageMode?cultureLanguage(p):p.lang||cultureLanguage(p));if(typeof p.motion==='boolean')setPlaying(!p.motion);};try{apply({...JSON.parse(localStorage.getItem('portfolio-preferences')||'{}'),languageMode:JSON.parse(localStorage.getItem('portfolio-preferences')||'{}').languageMode||'system'})}catch{}const handle=e=>{if(e.source===parent&&e.origin===location.origin&&e.data?.type==='portfolio-preferences')apply(e.data)};window.addEventListener('message',handle);return()=>window.removeEventListener('message',handle);},[]);
- useEffect(()=>{const handle=e=>{if(e.source===parent&&e.origin===location.origin&&e.data?.type==='portfolio-culture-theme'&&Number.isInteger(e.data.theme)&&e.data.theme>=0&&e.data.theme<4)setCategory(e.data.theme);};window.addEventListener('message',handle);return()=>window.removeEventListener('message',handle);},[]);
+ useEffect(()=>{const handle=e=>{if(e.source===parent&&e.origin===location.origin&&e.data?.type==='portfolio-culture-theme'&&Number.isInteger(e.data.theme)&&e.data.theme>=0&&e.data.theme<4)chooseTheme(e.data.theme);};window.addEventListener('message',handle);return()=>window.removeEventListener('message',handle);},[]);
  useEffect(()=>{if(selected)dialog.current.showModal();else if(dialog.current.open)dialog.current.close()},[selected]);
  const selectedAsset=selected?localizeAsset(selected,lang):null;
  return <div className={'app '+(pure?'pure-mode ':'')+(hideNotes?'notes-hidden':'')} data-language={lang}>
@@ -99,7 +107,7 @@ function App(){
   </button>
  </div>
  {notice&&<div className="capture-notice" data-capture-exclude="" role={notice.error?'alert':'status'}>{notice.text}</div>}
- <CultureBoard {...{lang,category,setCategory,setSelected,playing,setPlaying,depth,setDepth,setReset}}><CultureSphere playing={playing&&!selected} depth={depth} reset={reset} onSelect={pure?()=>{}:setSelected} selectedCategory={category} frozen={frozen} pure={pure} lang={lang}/></CultureBoard>
+ <CultureBoard {...{lang,category,setSelected,playing,setPlaying,depth,setDepth,setReset}} setCategory={chooseTheme}><CultureSphere playing={playing&&!selected} depth={depth} reset={reset} onSelect={pure?()=>{}:setSelected} selectedCategory={category} frozen={frozen} pure={pure} lang={lang}/></CultureBoard>
  <dialog ref={dialog} onCancel={()=>setSelected(null)} onClick={e=>{if(e.target===dialog.current)setSelected(null)}}>{selected&&<div className="detail"><button className="close" aria-label={tr('关闭图片','Close image')} onClick={()=>setSelected(null)}>×</button><img src={selected.src} alt={selectedAsset.title}/><div className="detail-meta"><span>{tr('影像','FRAGMENT')} {String(selected.id+1).padStart(2,'0')} / {photos.length}</span><h2>{selectedAsset.title}</h2><p>{selectedAsset.description}</p><p className="archive-source">{selected.sourceUrl?<a href={selected.sourceUrl} target="_blank" rel="noreferrer">{tr('来源：','Source: ')}{selectedAsset.source} ↗</a>:<>{tr('来源：','Source: ')}{selectedAsset.source}</>}</p></div></div>}</dialog>
  </div>
 }

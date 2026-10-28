@@ -26,7 +26,7 @@ export function createQizhiweiqiDetails(){
    <div class="ex-reader-body ex-qz-body">${qizhiweiqiMarkup(t)}</div><footer class="ex-reader-footer ex-qz-footer"><button type="button" class="ex-qz-back">${t('← 返回第 7 页','← Back to page 7')}</button><span>03 / ${t('齐之为齐','WHAT MAKES QI, QI')}</span></footer>`;
   dialog.querySelector('.ex-close').onclick=close;dialog.querySelector('.ex-qz-back').onclick=close;
   dialog.querySelectorAll('[data-qz-asset]').forEach(button=>button.onclick=()=>showAsset(button.dataset.qzAsset,button.querySelector('img').alt));
-  dialog.querySelectorAll('[data-qz-jump]').forEach(button=>button.onclick=()=>dialog.querySelector('#'+button.dataset.qzJump).scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'start'}));
+  dialog.querySelectorAll('[data-qz-jump]').forEach(button=>button.onclick=()=>dialog.querySelector('#'+button.dataset.qzJump).scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches||document.body.classList.contains('reduce-motion')?'instant':'smooth',block:'start'}));
  }
  function open(trigger){opener=trigger;if(!dialog){dialog=document.createElement('dialog');dialog.className='ex-reader ex-qz-reader';dialog.setAttribute('data-no-localize','');dialog.addEventListener('cancel',event=>{event.preventDefault();if(dialog.querySelector('.ex-asset-viewer'))dismissAsset();else close()});document.body.append(dialog);render();dialog.showModal()}else{render();dialog.querySelector('.ex-reader-body').scrollTop=0}}
  const onPreferences=()=>{if(dialog)render()};document.addEventListener('portfolio-preferences',onPreferences);
@@ -54,6 +54,6 @@ export function createQizhiweiqiArticle(t,openAsset){
  const template=document.createElement('template');template.innerHTML=qizhiweiqiMarkup(t);
  const article=template.content.firstElementChild;
  article.querySelectorAll('[data-qz-asset]').forEach(button=>button.onclick=()=>openAsset(button.dataset.qzAsset,button.querySelector('img').alt));
- article.querySelectorAll('[data-qz-jump]').forEach(button=>button.onclick=()=>article.querySelector('#'+button.dataset.qzJump).scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'start'}));
+ article.querySelectorAll('[data-qz-jump]').forEach(button=>button.onclick=()=>article.querySelector('#'+button.dataset.qzJump).scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches||document.body.classList.contains('reduce-motion')?'instant':'smooth',block:'start'}));
  return article;
 }

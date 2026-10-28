@@ -1,5 +1,20 @@
 @import url("exhibit-overview.css");
 /* Project case studies use live text and individual images, inside a Safari-style window. */
+/* Size this project against its reader window, including floating desktop windows. */
+.case-article.potato-article{container-type:inline-size;display:block}
+.potato-article>.case-generic,.potato-article>.case-image-story{width:100%;max-width:none;box-sizing:border-box;margin-inline:auto;padding:clamp(28px,4cqw,64px) clamp(20px,5cqw,88px)}
+.potato-article>.case-generic>p{max-width:78ch;line-height:1.85}
+.potato-article .potato-story h2{font-size:clamp(26px,3.2cqw,48px);max-width:28ch}
+.potato-article .potato-stills{grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(18px,2.4cqw,36px)}
+.potato-article .potato-steps{grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(20px,2.4cqw,36px)}
+.potato-article .potato-steps>div{min-width:0}
+.potato-article .potato-steps p{line-height:1.8;overflow-wrap:anywhere}
+.potato-article #potato-process>.potato-stills{grid-template-columns:repeat(3,minmax(0,1fr));align-items:start}
+.potato-article #potato-process .potato-stills button{aspect-ratio:16/10;display:grid;place-items:center}
+.potato-article #potato-process .potato-stills img{width:100%;height:100%;object-fit:contain}
+.potato-article .case-image-story img{max-height:85vh}
+@container(max-width:1000px){.potato-article .potato-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.potato-article #potato-process>.potato-stills{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@container(max-width:600px){.potato-article .potato-stills,.potato-article .potato-steps,.potato-article #potato-process>.potato-stills{grid-template-columns:1fr}.potato-article>.case-generic,.potato-article>.case-image-story{padding:28px 20px}.potato-article .case-generic h1{font-size:clamp(30px,8cqw,48px)}}
 .case-window .case-reader{width:100%;min-width:0;flex:1}.case-article{width:100%}
 .view-switch .full-project-button{background:#2775ed;color:#fff;font-weight:700;padding:9px 15px;box-shadow:0 3px 10px #2775ed33;white-space:nowrap}.view-switch .full-project-button:hover{background:#115dcc;transform:translateY(-1px)}
 .case-window .window-body{overflow:hidden;background:#080a0b}.case-window:fullscreen{width:100vw!important;height:100dvh!important;inset:0!important;border-radius:0}.case-window:fullscreen .window-body{height:calc(100dvh - 38px)}
@@ -137,3 +152,8 @@ body:has(.case-window.case-immersive:not([hidden]):not(.closing):not(.minimizing
 .case-story-placeholder{height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:1px dashed #4a5357;color:#819098;background:#0e1112;cursor:default;font-size:10px;letter-spacing:.08em;text-align:center}.case-story-placeholder small{font-size:10px;letter-spacing:0}
 
 .case-featured-exhibit[data-case=yanzi] .case-featured-image{object-position:50% 30%}
+
+.mimesis-project-video{width:100%;aspect-ratio:16/9;background:#000;flex-shrink:0}.mimesis-project-video iframe{display:block;width:100%;height:100%;border:0}
+.potato-story{width:100%;box-sizing:border-box}.potato-story h2{font-size:clamp(26px,3vw,42px);line-height:1.2}.potato-stills,.potato-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px;margin-top:32px}.potato-stills figure{margin:0;min-width:0}.potato-stills button{display:block;width:100%;padding:0;border:0;background:#171717;cursor:zoom-in}.potato-stills img{display:block;width:100%;height:auto}.potato-stills figcaption{font-size:13px;line-height:1.5;padding-top:10px}.potato-steps>div{border-top:1px solid #aaa;padding-top:12px}.potato-steps h3{font-size:18px}.potato-steps p{font-size:15px!important}@media(max-width:650px){.potato-stills,.potato-steps{grid-template-columns:1fr;gap:22px}}
+
+.path-paper-viewer{width:100%}.path-paper-viewer iframe{height:85vh!important;border-radius:0!important}.path-paper-viewer:fullscreen{background:#252525;width:100vw;height:100vh}.path-paper-viewer:fullscreen iframe{height:100vh!important;min-height:0!important;margin:0!important;border:0!important}#case-publication>.case-document{display:inline-block;margin:8px 12px 8px 0}

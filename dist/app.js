@@ -1,3 +1,4 @@
+import {addMusicSettings} from './background-music.js';
 import {localizeText} from './localization.js';
 import {initGuide,addGuideSettings} from './user-guide.js';
 import {projects,dockIcons} from './data.js';
@@ -89,13 +90,13 @@ entries.forEach(([pid,label,x,y,w,match,h],i)=>{
 
 const projectViews=new Map();
 async function openDetails(project){const {openProjectDetails}=await import('./project-details.js');openProjectDetails(project,{openImage:openLightbox,openGallery:(pid,index=0)=>openProject(pid,index,true)});}
-function openProject(pid,index=0,galleryOnly=false){
+function openProject(pid,index=0,galleryOnly=false,reuseId=null){
   const p=byId(pid);if(!p)return;
-  if(pid==='p3'&&!galleryOnly){openDetails(p);return;}
-  if(state.items.has(pid)){projectViews.get(pid)?.showImage(index);focusWindow(pid);return;}
+  if(pid==='p3'&&!galleryOnly&&!reuseId){openDetails(p);return;}
+  if(!reuseId&&state.items.has(pid)){projectViews.get(pid)?.showImage(index);focusWindow(pid);return;}
   const layout=element('div','project-layout');
   const sidebar=element('aside','project-sidebar');sidebar.append(element('div','sidebar-label','Selected works'));
-  for(const project of projects){const b=button('',()=>openProject(project.id),'sidebar-button'+(project.id===pid?' active':''));b.append(image(cover(project).thumb,''),element('span','',project.title));sidebar.append(b);}
+  for(const project of projects){const b=button('',()=>openProject(project.id,0,true,reuseId||pid),'sidebar-button'+(project.id===pid?' active':''));b.append(image(cover(project).thumb,''),element('span','',project.title));sidebar.append(b);}
   sidebar.append(element('div','sidebar-bottom','CHANGRAN ZHAO\nDigital Media Art'));
   const content=element('div','project-content');
   const toolbar=element('div','project-toolbar'),crumb=element('div','breadcrumb');crumb.append(document.createTextNode('Portfolio  /  '),element('strong','',p.title));
@@ -118,11 +119,12 @@ function openProject(pid,index=0,galleryOnly=false){
   else overview.append(element('p','','Browse the exhibition photographs, visual studies and project pages in the gallery. / 项目图像与过程资料请见 Gallery。'));
   if(p.documents.length){for(const doc of p.documents){const a=element('a','doc-link','↗ '+doc.name);a.href=doc.src;a.target='_blank';a.rel='noopener';overview.append(a);}}
   content.append(toolbar,gallery,overview);layout.append(sidebar,content);
-  const win=createWindow({id:pid,title:p.title,content:layout,width:1050,height:710});
+  const win=createWindow({id:reuseId||pid,title:p.title,content:layout,width:1050,height:710});
+  if(reuseId){win.el.querySelector('.window-body').replaceChildren(layout);win.el.querySelector('.window-title').textContent=p.title;win.el.setAttribute('aria-label',p.title);}
   let current=0;
   function setImage(i){current=(i+p.images.length)%p.images.length;const im=p.images[current];setImageSource(mainImage,im.src);mainImage.loading='eager';mainImage.alt=p.title+' — '+im.name;counter.textContent=`${String(current+1).padStart(2,'0')} / ${String(p.images.length).padStart(2,'0')}`;captionName.textContent=im.name;thumbs.forEach((b,j)=>{b.classList.toggle('active',j===current);b.setAttribute('aria-pressed',j===current?'true':'false');});const t=thumbs[current];filmstrip.scrollTo({left:Math.max(0,t.offsetLeft-filmstrip.offsetLeft-filmstrip.clientWidth/2+t.clientWidth/2),behavior:'smooth'});}
-  projectViews.set(pid,{showImage:i=>{showMode('gallery');setImage(i);}});setImage(index);
-  win.el.addEventListener('keydown',e=>{if(e.target.matches('input,textarea'))return;if(e.key==='ArrowRight'){e.preventDefault();setImage(current+1);}if(e.key==='ArrowLeft'){e.preventDefault();setImage(current-1);}});
+  projectViews.set(reuseId||pid,{showImage:i=>{showMode('gallery');setImage(i);}});setImage(index);
+  win.el.onkeydown=e=>{if(e.target.matches('input,textarea'))return;if(e.key==='ArrowRight'){e.preventDefault();setImage(current+1);}if(e.key==='ArrowLeft'){e.preventDefault();setImage(current-1);}};
 }
 
 let lightboxItems=[],lightboxIndex=0,lightboxTitle='';
@@ -205,7 +207,7 @@ function setDesktopSize(key,value){
 }
 function openSettings(){
   infoWindow('settings','Control Center',page=>{
-    page.append(element('div','eyebrow','DESKTOP'),element('h1','','Make yourself at home'));addGuideSettings(page);
+    page.append(element('div','eyebrow','DESKTOP'),element('h1','','Make yourself at home'));addGuideSettings(page);addMusicSettings(page);
     for(const [label,key,min,max,value] of [['Wallpaper brightness','--wall-brightness',.5,1.2,1],['Wallpaper blur','--wall-blur',0,12,0]]){
       const row=element('div','settings-row'),lab=element('label','',label),input=element('input');input.type='range';input.min=min;input.max=max;input.step=key==='--wall-blur'?'1':'.05';input.value=parseFloat(document.documentElement.style.getPropertyValue(key))||value;input.setAttribute('aria-label',label);input.oninput=()=>document.documentElement.style.setProperty(key,input.value+(key==='--wall-blur'?'px':''));row.append(lab,input);page.append(row);
     }

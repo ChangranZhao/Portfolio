@@ -15,6 +15,14 @@ export const figmaPages = [
     "height": 1080
   },
   {
+    "id": "spectral-film",
+    "name": "2_film",
+    "label": "Concept film",
+    "page": "figma-pages/spectral-film.html",
+    "width": 1920,
+    "height": 1080
+  },
+  {
     "id": "33:3433",
     "name": "2_page3",
     "page": "figma-pages/33-3433.html",
@@ -71,6 +79,14 @@ export const figmaPages = [
     "height": 1080
   },
   {
+    "id": "spectral-ui-film",
+    "name": "2_ui_film",
+    "label": "App demonstration",
+    "page": "figma-pages/spectral-ui-film.html",
+    "width": 1920,
+    "height": 1080
+  },
+  {
     "id": "33:2710",
     "name": "2_page11",
     "page": "figma-pages/33-2710.html",
@@ -81,6 +97,14 @@ export const figmaPages = [
     "id": "33:2800",
     "name": "2_page12",
     "page": "figma-pages/33-2800.html",
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "id": "spectral-prototype-film",
+    "name": "2_prototype_film",
+    "label": "Prototype demonstration",
+    "page": "figma-pages/spectral-prototype-film.html",
     "width": 1920,
     "height": 1080
   },

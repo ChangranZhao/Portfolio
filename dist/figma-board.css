@@ -42,3 +42,10 @@ button,a{-webkit-tap-highlight-color:transparent}
 .figma-interactive-image:focus-visible{outline:3px solid #649eff;outline-offset:-3px}
 body.reduce-motion .figma-interactive-image{transition:none}
 @media(prefers-reduced-motion:reduce){.figma-interactive-image{transition:none}}
+
+/* Hide these complete research notes before iframe load/localization can paint. */
+html:not([data-space-type-ready]) .figma-canvas[aria-label="4_page2"] :is([data-node-id="747:22449"],[data-node-id="747:22459"]){visibility:hidden}
+
+html:not([data-space-type-ready]) .figma-canvas[aria-label="4_page3"] :is([data-node-id="747:22508"],[data-node-id="747:22515"],[data-node-id="747:22523"]){visibility:hidden}
+
+html:not([data-space-type-ready]) .figma-canvas[aria-label="4_page1"] :is([data-node-id="747:22388"],[data-node-id="747:22390"],[data-node-id="747:22391"],[data-node-id="747:22393"]) p{visibility:hidden}

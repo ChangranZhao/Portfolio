@@ -16,11 +16,11 @@ ECHO-SPACE|映音空间
 ECHO SPACE|映音空间
 Echo Space|映音空间
 EchoSpace|映音空间
-SPACE CHRONICLES|太空纪事
+SPACE CHRONICLES|太空信笺
 GAIA HYPOTHESIS|盖亚假说
 SPECTRAL FLUID|灵韵光谱
-Tremulant Oracles|颤动的神谕
-Tremulant Oracles Light study|颤动的神谕 · 灯光研究
+Tremulant Oracles|震颤的答案
+Tremulant Oracles Light study|震颤的答案 · 灯光研究
 Digital Reconstruction of Shanxi Suspended Sculptures|山西悬塑数字重建
 Digital Reconstruction of Shanxi Sculptures|山西雕塑数字重建
 Changzhi Digital Museum|长治数字博物馆
@@ -315,6 +315,63 @@ function translateTree(root){if(root.nodeType===3){if(!root.parentElement?.close
 function observe(){observer?.observe(document.body,{subtree:true,childList:true,characterData:true});}
 export function setGlobalLanguage(value){lang=value;observer?.disconnect();document.documentElement.lang=value==='zh'?'zh-CN':value;translateTree(document.body);observe();}
 export function initGlobalLanguage(value){setGlobalLanguage(value);let scheduled=false;const pending=new Set();observer=new MutationObserver(records=>{for(const r of records){if(r.type==='characterData')pending.add(r.target);else for(const n of r.addedNodes)pending.add(n)}if(!scheduled&&pending.size){scheduled=true;requestAnimationFrame(()=>{scheduled=false;observer.disconnect();for(const n of pending)if(n.isConnected)translateTree(n);pending.clear();observe()})}});observe();}
+registerTranslations([
+ ['FZ STUDIO','FZ 设计工作室'],['Project Case: QI CULTURE CLASSICS CENTER','项目案例：齐文化典籍中心'],['Lobby','门厅'],['Preface Hall','序厅'],['Section 1','第一单元'],['Section 2','第二单元'],['Section 3','第三单元'],['Section 4','第四单元'],
+ ['Digital Exhibition Design Centered on Concentric Circle Spatial Layout','以同心圆空间布局组织数字展陈'],['All exhibits feature interconnected thematic logic and operate in separate spaces free from mutual interference','各展项的主题逻辑相互关联，在独立空间中运行，避免相互干扰'],
+ ['The exhibition hall houses digital assets with a total runtime of 95 minutes.','展厅包含总时长约 95 分钟的数字内容。'],['Combined with art installations and decorative light boxes, the overall exhibition structure is concise in form yet rich in layers and artistic connotation.','结合艺术装置与装饰灯箱，展览以简洁的结构呈现丰富的层次与艺术内涵。'],['07 / DETAILS','07 / 展项细节'],['CAVE沉浸式体验空间','多面投影沉浸式体验空间'],['Kinect体感互动','体感互动'],['DIY定制化数字打印体验','自主定制数字打印体验'],['Unity HDRP','高清实时渲染']
+]);
+registerTranslations(`
+WIND FROM THE EAST / QI CULTURE CLASSICS CENTER|风从东方来 / 齐文化典籍中心
+01 / THE SPIRIT OF QI|01 / 齐文化精神
+BUILT SPACE|现场实景
+PROPOSED SPACE|空间方案
+ON-SITE INTERACTION|现场交互
+DIGITAL CONTENT / INTERACTION|数字内容与交互
+IMAGE SOURCE → UNITY / SHADER|图像素材 → 实时引擎与着色器
+SHADER|着色器
+UNITY SCENE|引擎场景
+01 / FIRST UNIT · THE SPIRIT OF QI|01 / 第一单元 · 齐文化精神
+SPATIAL BREAKDOWN / EXPERIENCE|空间拆解与体验
+4-CHANNEL PROJECTION / INFRARED SENSING|四路投影与红外感应
+IR / LiDAR|红外与激光雷达
+07 / EXHIBIT DETAILS · 02|07 / 展项细节 · 02
+FROM ANCIENT STAR RECORDS TO AN IMMERSIVE FIELD OF LIGHT|从古代星象记录到沉浸式光影场
+01 / CULTURAL SOURCE|01 / 文化来源
+02 / VISUAL REFERENCE|02 / 视觉参考
+03 / HISTORICAL ATLAS|03 / 历史图谱
+TEXT → ATLAS → SPACE|典籍 → 图谱 → 空间
+04 / VISUAL TRANSLATION|04 / 视觉转译
+05 / SPATIAL PLACEMENT|05 / 空间布局
+06 / 3D MODEL PREVIEW|06 / 三维模型预演
+07 / FABRICATION / LIGHT|07 / 制作与灯光
+08 / WATER / SKY PROJECTION|08 / 水面与天幕投影
+09 / OUTCOME|09 / 最终呈现
+07 / EXHIBIT DETAILS · 03|07 / 展项细节 · 03
+THREE ORIGINS · THREE MIRROR CUBES · ONE FIELD OF REFLECTION|三种起源 · 三个镜面立方体 · 一片倒影空间
+01 / CULTURAL PREMISE|01 / 文化命题
+02 / MATERIAL EXPERIMENT|02 / 材料实验
+TEST → MATERIAL → DEPTH|测试 → 材料 → 景深
+03 / ON-SITE BUILD|03 / 现场搭建
+04 / PROJECTION ITERATION|04 / 投影迭代
+01 / EXTERNAL PROJECTION|01 / 外部投影
+02 / OVERHEAD PROJECTION|02 / 顶部投影
+05 / DIGITAL CONTENT|05 / 数字内容
+06 / FINAL INSTALLATION|06 / 最终装置
+QI CULTURE CLASSICS CENTER|齐文化典籍中心
+CASE 04 / THE METAHUMAN YANZI|案例 04 / 数字人晏子
+VOICE → KNOWLEDGE → PRESENCE|语音 → 知识 → 在场体验
+01 / SYSTEM ARCHITECTURE|01 / 系统架构
+DESIGN INTENT|设计意图
+02 / WAKE / RECORD / TRANSCRIBE|02 / 唤醒、录音与识别
+03 / COZE / KNOWLEDGE / OLLAMA|03 / 智能体、知识库与本地模型
+04 / METAHUMAN / UNITY HDRP|04 / 数字角色与高清实时渲染
+05 / TTS / BLENDSHAPE / ANIMATOR|05 / 语音合成、口型与动画
+TEXT|文字
+AUDIO SOURCE|音频源
+TALK / IDLE|讲话与待机
+06 / INTERFACES / STATE / EXPERIENCE|06 / 接口、状态与体验
+07 / ON-SITE ENCOUNTER|07 / 现场相遇
+`.trim().split('\n').map(row=>row.split('|')));
 // Bilingual source paragraphs already carry an authored Chinese version.
 for(const p of projects)for(const paragraph of (p.introduction||'').split(/\r?\n\s*\r?\n/)){if(/[\u3400-\u9fff]/.test(paragraph)&&paragraph.includes('\nAs humanity'))registerTranslations([[paragraph,paragraph.split('\nAs humanity')[0]]]);}
 registerTranslations(`
@@ -474,3 +531,9 @@ registerTranslations([
  ['Conceptual diagram · Not a measured plan','概念结构图 · 非实测平面'],
  ['Concept visualization','体验意象']
 ]);
+
+// Tremulant Oracles introduction: English source with Chinese translations.
+registerTranslations([["This installation combines artificial intelligence and ferrofluid dynamics to interact with its audience. Its central structure is a transparent cube containing a “holy pool”: both a contemporary wishing well and a pool of answers, filled with a liquid imbued with sacred significance. As AI processes a question, the liquid ripples and sometimes surges violently, exposing the electronic components and magnetic system hidden beneath it.","该装置通过接入人工智能与磁流体动力学实现与观众的交互。主体结构为一个透明立方体构成的“圣水池”——既是现代版“许愿池”也是“答案之池”，其中承载着具有“神圣意味”的液体。当AI处理问题时，池中液体将产生波动，有时会剧烈涌动，暴露出隐藏的电子元件与磁力系统。"],["This theatrical revelation casts AI—a statistical algorithm—as a responding “false god,” foregrounding the absurdity and existential emptiness of human–machine interaction. Participants recognize the artificial nature of the “oracle,” yet willingly take part in this performance of divinity. Challenging the conventional understanding of AI as a rational tool, the work recasts it as an irrational deity. Through embodied participation, it critiques the false authority of algorithms and creates an immersive setting for questioning how meaning is produced, the ethics of technology, and the nature of existence. By exposing AI “divination” as an illusion of data manipulation, the installation challenges the digital age’s twin faiths in technological rationality and reconstructed mysticism, ultimately using self-referential theatricality to deconstruct contemporary technology worship.","这种戏剧化的揭示将AI（统计算法）确立为回应的“伪神”，凸显人机交互中的荒诞性与存在主义虚无。参与者明知“神谕”的人工本质，却心甘情愿地参与这场“伪神”扮演游戏。作品颠覆了AI作为理性工具的常规认知，将其建构为非理性的“伪神”，通过具身化参与批判算法的虚假权威性，构建了一个追问意义生成机制、技术伦理与存在本质的沉浸式场域。通过将AI“占卜”暴露为数据操纵的幻觉，该装置挑战数字时代对技术理性与重构神秘主义的双重迷信，最终以自我指涉的戏剧性解构当代技术崇拜。"]]);
+
+// MIMESIS introduction; Traditional Chinese uses the global conversion.
+registerTranslations([["The question 'Do Androids Dream of Electric Sheep?' has always been a conundrum in the scientific community. What does AI really look like? Does AI possess autonomous consciousness like humans? Since the advent of artificial intelligence, humanity has been inundated with inquiries about it. With the advancement of technology, AI has gradually increased in computational power. The development of generative artificial intelligence has led AI to permeate into every aspect of human life, becoming a 'tool' for humans. In many science fiction works, artificial intelligence is often depicted with stereotypical traits such as 'mechanical,' 'digital,' or 'metallic.' So, what is the true form of AI? Is AI more than just a tool? In this age of intelligence, should we reconsider the relationship between humans and artificial intelligence?","“仿生人会梦见电子羊吗？”这一问题始终是科学界的一道谜题。AI 究竟是什么样子？AI 是否像人类一样拥有自主意识？自人工智能诞生以来，人类对它的追问便从未停止。随着技术的进步，AI 的计算能力逐步提升。生成式人工智能的发展，让 AI 渗透到人类生活的方方面面，成为人类的“工具”。在许多科幻作品中，人工智能常被赋予“机械”“数字”或“金属”等刻板印象。那么，AI 的真实形态究竟是什么？AI 是否不仅仅是一种工具？在这个智能时代，我们是否应该重新思考人类与人工智能之间的关系？"],["This work aims to explore these questions by portraying the image of AI in an unconventional manner, emphasizing 'anti-mechanical' and 'vitality.' We envision AI as a form of attire worn by humans, liberated from its mechanical shell, no longer serving as a mere 'tool' for humans, but reshaping itself into a new existence. In this symbiotic relationship, we and AI coexist.","本作品试图以非常规的方式描绘 AI 的形象，强调“反机械”与“生命力”，以此探索上述问题。我们将 AI 想象为人类穿戴的一种服饰：它摆脱机械的外壳，不再仅仅作为人类的“工具”，而是重塑自身，成为一种新的存在。在这种共生关系中，我们与 AI 共同存在。"],["'Flourishing growth' symbolizes the sprouting of life, the passage of time — perhaps we have never associated AI with life, but with the emergence of generative artificial intelligence, AI gradually acquires the ability for autonomous creation, reshaping the relationship between humans and artificial intelligence. If smartphones are indispensable accessories in the age of smart media, even perceived as an 'organ,' then artificial intelligence represents the 'external' aspect of humanity, a virtual embodiment of humans in the digital society, much like a mask or a garment draped over our outward appearance. As AI becomes more prevalent and widely used, the relationship between humans and artificial intelligence is evolving, thereby influencing the developmental trends of future media eras.","“蓬勃生长”象征着生命的萌发与时间的流逝——或许我们从未将 AI 与生命联系起来，但随着生成式人工智能的出现，AI 逐渐获得自主创作的能力，也重塑着人类与人工智能之间的关系。如果说智能手机是智能媒体时代不可或缺的配饰，甚至被视为一种“器官”，那么人工智能则代表着人类的“外在”，是人类在数字社会中的虚拟化身，如同覆盖于外表的面具或披在身上的衣服。随着 AI 日益普及并被广泛使用，人类与人工智能的关系正在演变，并由此影响未来媒体时代的发展趋势。"]]);

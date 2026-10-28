@@ -40,9 +40,9 @@ const xy=p=>p.map(n=>n.toFixed(1)).join(',');
 const line=(a,b,cls='')=>`<path class="${cls}" d="M${xy(a)} L${xy(b)}"/>`;
 function ground(){
  let out='';
- for(let u=0;u<=1400;u+=100)out+=line(point(u,-700),point(u,280),u%400===0?'cd-grid-crosswise-solid':'cd-grid-crosswise');
- for(let v=-700;v<=280;v+=50)out+=line(point(0,v),point(1400,v),v%200===0?'cd-grid-major':'');
- return `<g class="cd-grid">${out}</g>`;
+ for(let u=0;u<=1400;u+=100)out+=line(point(u,-700),point(u,280),u%400===0?'ct-grid-crosswise-solid':'ct-grid-crosswise');
+ for(let v=-700;v<=280;v+=50)out+=line(point(0,v),point(1400,v),v%200===0?'ct-grid-major':'');
+ return `<g class="ct-grid">${out}</g>`;
 }
 // All technical guides are drawn behind the photographs and share their projection.
 function photoGuides(photo,index){
@@ -59,21 +59,21 @@ function photoGuides(photo,index){
  const t=(1150-railSlope*(center[0]-50)-center[1])/(.62+railSlope*.83);
  const rail=[center[0]+.83*t,center[1]+.62*t];
  const cross=p=>`${line([p[0]-4,p[1]],[p[0]+4,p[1]])}${line([p[0],p[1]-4],[p[0],p[1]+4])}`;
- return `<g class="cd-guide-set" aria-hidden="true">
-  <g class="cd-guide-vertical">${line(left,a)}${line(right,b)}</g>
-  <g class="cd-guide-footprint"><polygon points="${[a,b,c,d].map(xy).join(' ')}"/>${line(a,c)}${line(b,d)}</g>
-  <g class="cd-guide-link">${line(center,rail)}<circle cx="${rail[0]}" cy="${rail[1]}" r="2.2"/></g>
-  <g class="cd-guide-cross">${cross(a)}${cross(b)}</g>
+ return `<g class="ct-guide-set" aria-hidden="true">
+  <g class="ct-guide-vertical">${line(left,a)}${line(right,b)}</g>
+  <g class="ct-guide-footprint"><polygon points="${[a,b,c,d].map(xy).join(' ')}"/>${line(a,c)}${line(b,d)}</g>
+  <g class="ct-guide-link">${line(center,rail)}<circle cx="${rail[0]}" cy="${rail[1]}" r="2.2"/></g>
+  <g class="ct-guide-cross">${cross(a)}${cross(b)}</g>
  </g>`;
 }
 function frame(u,v,w,d,h){
  const corners=[point(u,v),point(u+w,v),point(u+w,v+d),point(u,v+d)];
  const roof=corners.map(([x,y])=>[x,y-h]);
- return `<g class="cd-frame"><polygon points="${corners.map(xy).join(' ')}"/><polygon points="${roof.map(xy).join(' ')}"/>${corners.map((p,i)=>line(p,roof[i])).join('')}</g>`;
+ return `<g class="ct-frame"><polygon points="${corners.map(xy).join(' ')}"/><polygon points="${roof.map(xy).join(' ')}"/>${corners.map((p,i)=>line(p,roof[i])).join('')}</g>`;
 }
 function person(x,y,s=1,index=0){
  const height=52*s;
- return `<g class="cd-person" aria-hidden="true" transform="translate(${x*1.22+18} ${y*1.24+55})"><ellipse cx="4" cy="-1" rx="${height*.16}" ry="2"/><image href="${people[index%2]}" x="${-height/3}" y="${-height}" width="${height*2/3}" height="${height}"/></g>`;
+ return `<g class="ct-person" aria-hidden="true" transform="translate(${x*1.22+18} ${y*1.24+55})"><ellipse cx="4" cy="-1" rx="${height*.16}" ry="2"/><image href="${people[index%2]}" x="${-height/3}" y="${-height}" width="${height*2/3}" height="${height}"/></g>`;
 }
 function photoPanel(photo,index){
  const {x,y,maxW,maxH,flat,depth,slope}=layout(index);
@@ -83,20 +83,20 @@ function photoPanel(photo,index){
  const transform=flat?`matrix(.94 -.37 .83 .62 ${x} ${y})`:sideFacing?`matrix(.85 .52 0 1 ${x} ${y-w*.5})`:`matrix(1 ${slope} 0 1 ${x} ${y})`;
  const bottom=sideFacing?[x+w*.425,y+h-w*.24]:[x+w/2,y+h+w*slope/2];
  const floorY=Math.min(bottom[1]+(depth==='back'?125:depth==='front'?82:105),1320);
- const drop=flat?'':`${line(bottom,[bottom[0],floorY],'cd-drop')}<path class="cd-contact" d="M${bottom[0]-26},${floorY+8} l52,-16 l24,18 l-52,16 Z"/>`;
+ const drop=flat?'':`${line(bottom,[bottom[0],floorY],'ct-drop')}<path class="ct-contact" d="M${bottom[0]-26},${floorY+8} l52,-16 l24,18 l-52,16 Z"/>`;
  const label=captions[index][0];
  const labelY=flat?y+h*.62+18:y+h+15;
- return `<g class="cd-record cd-depth-${depth}" data-source-id="${photo.id}">${drop}
-  <g class="cd-photo" role="button" tabindex="0" aria-label="${esc(label)}" data-photo-index="${index}" transform="${transform}">
-   <title>${esc(label)}</title><rect class="cd-photo-back" width="${w}" height="${h}"/>
+ return `<g class="ct-record ct-depth-${depth}" data-source-id="${photo.id}">${drop}
+  <g class="ct-photo" role="button" tabindex="0" aria-label="${esc(label)}" data-photo-index="${index}" transform="${transform}">
+   <title>${esc(label)}</title><rect class="ct-photo-back" width="${w}" height="${h}"/>
    <image href="${photo.preview}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid meet"/>
-   <rect class="cd-photo-border" width="${w}" height="${h}"/>
+   <rect class="ct-photo-border" width="${w}" height="${h}"/>
   </g>
-  <text class="cd-photo-id" x="${x}" y="${labelY}">${photo.id}</text>
+  <text class="ct-photo-id" x="${x}" y="${labelY}">${photo.id}</text>
  </g>`;
 }
 function annotation(x,y,toX,toY,text){
- return `<g class="cd-annotation">${line([x,y+9],[toX,toY])}<text x="${x}" y="${y}">${esc(text)}</text></g>`;
+ return `<g class="ct-annotation">${line([x,y+9],[toX,toY])}<text x="${x}" y="${y}">${esc(text)}</text></g>`;
 }
 function drawBoard(){
  const railStart=[50,1150],railEnd=[1870,550];
@@ -107,17 +107,17 @@ function drawBoard(){
  }
  const stageMarkup=stages.map(([title,,date],i)=>{
   const x=[65,690,1325][i];
-  return `<g class="cd-stage"><path d="M${x} 1355 H${x+530}"/><circle cx="${x}" cy="1355" r="3"/><text class="cd-stage-number" x="${x}" y="1390">0${i+1}</text><text class="cd-stage-title" x="${x+43}" y="1388">${title}</text><text class="cd-stage-date" x="${x+43}" y="1415">${date}</text></g>`;
+  return `<g class="ct-stage"><path d="M${x} 1355 H${x+530}"/><circle cx="${x}" cy="1355" r="3"/><text class="ct-stage-number" x="${x}" y="1390">0${i+1}</text><text class="ct-stage-title" x="${x+43}" y="1388">${title}</text><text class="ct-stage-date" x="${x+43}" y="1415">${date}</text></g>`;
  }).join('');
- return `<svg class="cd-canvas" viewBox="0 0 1920 1440" xmlns="http://www.w3.org/2000/svg" aria-label="Construction timeline">
- <defs><clipPath id="cd-ground-clip"><rect x="22" y="125" width="1876" height="1203"/></clipPath></defs>
- <text class="cd-title" x="40" y="45">CONSTRUCTION</text><text class="cd-subtitle" x="40" y="72">Qi Culture Classics Center</text><text class="cd-page" x="1865" y="45">06</text>
- <g clip-path="url(#cd-ground-clip)">${ground()}
+ return `<svg class="ct-canvas" viewBox="0 0 1920 1440" xmlns="http://www.w3.org/2000/svg" aria-label="Construction timeline">
+ <defs><clipPath id="ct-ground-clip"><rect x="22" y="125" width="1876" height="1203"/></clipPath></defs>
+ <text class="ct-title" x="40" y="45">CONSTRUCTION</text><text class="ct-subtitle" x="40" y="72">Qi Culture Classics Center</text><text class="ct-page" x="1865" y="45">06</text>
+ <g clip-path="url(#ct-ground-clip)">${ground()}
  ${[[280,-380,160,85,60],[650,-370,170,90,110],[820,-360,70,70,150],[1170,-220,140,65,80],[350,-280,10,10,90],[600,-200,12,12,130],[1000,-380,10,10,115],
  [270,-120,180,70,65],[440,-180,95,60,110],[760,-130,130,80,80],[1080,-100,150,75,110],[620,110,160,60,70],[1120,130,140,75,85]].map(args=>frame(...args)).join('')}
  ${constructionPhotos.map(photoGuides).join('')}
- <g class="cd-stage-guides">${[65,690,1325].map(x=>{const y=1150-(x-50)*600/1820;return `${line([x,y],[x,1340])}<circle cx="${x}" cy="${y}" r="4"/>${line([x-7,1339],[x+7,1339])}`;}).join('')}</g></g>
- <g class="cd-rail">${line(railStart,railEnd)}${line([68,1175],[1888,575],'cd-rail-secondary')}${ticks}<path d="M57 1143 L50 1150 L61 1149 M1861 549 L1870 550 L1864 558"/></g>
+ <g class="ct-stage-guides">${[65,690,1325].map(x=>{const y=1150-(x-50)*600/1820;return `${line([x,y],[x,1340])}<circle cx="${x}" cy="${y}" r="4"/>${line([x-7,1339],[x+7,1339])}`;}).join('')}</g></g>
+ <g class="ct-rail">${line(railStart,railEnd)}${line([68,1175],[1888,575],'ct-rail-secondary')}${ticks}<path d="M57 1143 L50 1150 L61 1149 M1861 549 L1870 550 L1864 558"/></g>
  ${[[125,726,1.15],[204,514,.8],[380,707,1.1],[487,501,.8],[591,664,1],[667,581,.85],[799,864,1.2],[929,400,.7],[1054,622,.9],[1105,295,.65],[1270,774,1.1],[1450,425,.75]].map((args,i)=>person(...args,i)).join('')}
  ${constructionPhotos.map(photoPanel).join('')}
  ${annotation(175,171,175,277,'Existing interior')}${annotation(475,211,475,358,'Site conditions')}${annotation(740,172,740,296,'Curved wall framing')}${annotation(1040,110,1040,230,'Stair installation')}${annotation(1425,102,1425,171,'Feature wall installation')}${annotation(1650,130,1650,216,'Material verification')}
@@ -125,13 +125,13 @@ function drawBoard(){
  </svg>`;
 }
 export function createConstructionTimeline(openImage){
- const section=document.createElement('section');section.className='cd-section';section.id='case-delivery';
+ const section=document.createElement('section');section.className='ct-section';section.id='case-delivery';
  section.setAttribute('aria-label','Construction timeline');
- section.innerHTML=`<h2 class="cd-sr-only">CONSTRUCTION</h2>
-  <div class="cd-toolbar"><span>33 SITE RECORDS</span><span class="cd-help">Click a photograph to view the original.</span><div class="cd-controls"><button type="button" data-zoom="out" aria-label="Zoom out construction timeline">−</button><button type="button" data-zoom="reset" aria-label="Reset construction view">100%</button><button type="button" data-zoom="in" aria-label="Zoom in construction timeline">+</button></div></div>
-  <p class="cd-mobile-hint">Scroll sideways to explore the timeline.</p>
-  <div class="cd-viewport" tabindex="0" role="region" aria-label="Construction timeline">${drawBoard()}</div>
-  <footer class="cd-footer"><div><span class="cd-role-label">MY ROLE</span><span>On-site design · Material selection · Design coordination · Exhibition execution</span></div><a href="#case-exhibits">NEXT / EXHIBIT DETAILS →</a></footer>`;
+ section.innerHTML=`<h2 class="ct-sr-only">CONSTRUCTION</h2>
+  <div class="ct-toolbar"><span>33 SITE RECORDS</span><span class="ct-help">Click a photograph to view the original.</span><div class="ct-controls"><button type="button" data-zoom="out" aria-label="Zoom out construction timeline">−</button><button type="button" data-zoom="reset" aria-label="Reset construction view">100%</button><button type="button" data-zoom="in" aria-label="Zoom in construction timeline">+</button></div></div>
+  <p class="ct-mobile-hint">Scroll sideways to explore the timeline.</p>
+  <div class="ct-viewport" tabindex="0" role="region" aria-label="Construction timeline">${drawBoard()}</div>
+  <footer class="ct-footer"><div><span class="ct-role-label">MY ROLE</span><span>On-site design · Material selection · Design coordination · Exhibition execution</span></div><a href="#case-exhibits">NEXT / EXHIBIT DETAILS →</a></footer>`;
  const gallery=constructionPhotos.map((photo,index)=>({src:photo.src,name:captions[index][0]}));
  section.querySelectorAll('[data-photo-index]').forEach(button=>{
   const open=()=>openImage(gallery,Number(button.dataset.photoIndex),'Construction & Delivery');
@@ -139,17 +139,17 @@ export function createConstructionTimeline(openImage){
   button.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();open();}});
  });
  let zoom=1;
- const viewport=section.querySelector('.cd-viewport');
+ const viewport=section.querySelector('.ct-viewport');
  section.querySelectorAll('[data-zoom]').forEach(button=>button.addEventListener('click',()=>{
   zoom=button.dataset.zoom==='reset'?1:Math.max(1,Math.min(2,zoom+(button.dataset.zoom==='in'?.25:-.25)));
-  viewport.style.setProperty('--cd-zoom',zoom);
+  viewport.style.setProperty('--ct-zoom',zoom);
   section.querySelector('[data-zoom="reset"]').textContent=Math.round(zoom*100)+'%';
   section.querySelector('[data-zoom="out"]').disabled=zoom===1;
   section.querySelector('[data-zoom="in"]').disabled=zoom===2;
   if(zoom===1)viewport.scrollLeft=0;
  }));
  section.querySelector('[data-zoom="out"]').disabled=true;
- section.querySelector('.cd-footer a').addEventListener('click',event=>{event.preventDefault();section.parentElement?.querySelector('#case-exhibits')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'start'});});
+ section.querySelector('.ct-footer a').addEventListener('click',event=>{event.preventDefault();section.parentElement?.querySelector('#case-exhibits')?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'start'});});
  return section;
 }
 

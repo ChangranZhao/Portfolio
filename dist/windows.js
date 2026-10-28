@@ -90,4 +90,4 @@ function fitWindow(el,area=desktopArea()){
   Object.assign(el.style,{width:w+'px',height:h+'px',left:x+'px',top:y+'px'});
 }
 let resizeFrame=0;
-window.addEventListener('resize',()=>{if(resizeFrame)return;resizeFrame=requestAnimationFrame(()=>{resizeFrame=0;const area=desktopArea();for(const {el} of windows.values())fitWindow(el,area);});});
+window.addEventListener('resize',()=>{if(resizeFrame||!windows.size)return;resizeFrame=requestAnimationFrame(()=>{resizeFrame=0;if(!windows.size)return;const area=desktopArea();for(const {el} of windows.values())fitWindow(el,area);});});

@@ -1,0 +1,6 @@
+.mimesis-article{background:#fff!important}.mi-original-page{position:relative;width:100%;aspect-ratio:8/3;overflow:hidden;flex-shrink:0;background:#fff}.mi-original-frame{display:block;position:absolute;left:0;top:0;width:2880px;height:1080px;border:0;transform-origin:top left;background:white}.mimesis-article .mimesis-project-video{margin:0!important}.case-reader:has(.mimesis-article) .case-chapters{background:#fff;color:#555f68;border-bottom:1px solid #e4e5e6}.case-reader:has(.mimesis-article) .case-chapters button{color:#555f68}.case-reader:has(.mimesis-article) .case-chapters button.active{background:#eef0f2}
+/* Content spread: dedicate enough space to readable annotations instead of shrinking type. */
+.mi-readable-content{aspect-ratio:24/13}.mi-readable-content .mi-original-frame{height:1560px}
+/* Larger annotations requested across cover, concept, story, design and technique. */
+.mi-large-copy-0,.mi-large-copy-2{aspect-ratio:24/11}.mi-large-copy-0 .mi-original-frame,.mi-large-copy-2 .mi-original-frame{height:1320px}
+.mi-large-copy-3,.mi-large-copy-5{aspect-ratio:2/1}.mi-large-copy-3 .mi-original-frame,.mi-large-copy-5 .mi-original-frame{height:1440px}

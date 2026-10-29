@@ -1,4 +1,5 @@
 import {registerTranslations} from './localization.js';
+import {runtimeImages} from './runtime-image-assets.js';
 const copy=[
 ['What if consciousness could be uploaded?','假如，意识可以上传？'],
 ['A vision of digital eternity. A question of freedom.','一个关于数字永生的畅想，一次关于自由的追问。'],
@@ -27,7 +28,17 @@ const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className
 export const neuroChapters=[['Overview','neuro-overview'],['Design fiction','neuro-fiction'],['Interaction','neuro-experience'],['Technical system','neuro-system'],['Exhibition','neuro-installation']];
 export function createNeuroProject(article,{openImage}){
  article.classList.add('neuro-article');
- const figure=(file,caption,wide=false)=>{const f=el('figure',wide?'neuro-figure neuro-wide':'neuro-figure');const b=el('button','neuro-image-button');b.type='button';b.setAttribute('aria-label','Enlarge image: '+caption);const img=el('img');img.src='assets/neuro/'+file;img.alt=caption;img.loading='lazy';img.decoding='async';b.append(img);b.onclick=()=>openImage([{src:img.src,name:caption}],0,'NEURO IMMERSIVE');f.append(b,el('figcaption','',caption));return f;};
+ const figure=(file,caption,wide=false)=>{
+  const asset=runtimeImages.neuro[file],f=el('figure',wide?'neuro-figure neuro-wide':'neuro-figure'),b=el('button','neuro-image-button'),img=el('img');
+  b.type='button';b.setAttribute('aria-label','Enlarge image: '+caption);
+  img.alt=caption;img.loading='lazy';img.decoding='async';
+  if(asset.width){img.width=asset.width;img.height=asset.height;}
+  img.addEventListener('load',()=>{img.decode().catch(()=>{}).then(()=>img.classList.add('is-ready'));});
+  img.addEventListener('error',()=>{b.classList.add('image-failed');b.setAttribute('aria-label','Image unavailable — click to retry');});
+  img.src=asset.preview||asset.src;b.append(img);
+  b.onclick=()=>{if(b.classList.contains('image-failed')){b.classList.remove('image-failed');b.setAttribute('aria-label','Enlarge image: '+caption);img.src=asset.preview||asset.src;return;}openImage([{src:asset.src,name:caption}],0,'NEURO IMMERSIVE');};
+  f.append(b,el('figcaption','',caption));return f;
+ };
  const section=(id,kicker,title,body)=>{const s=el('section','neuro-section');s.id=id;s.append(el('span','neuro-kicker',kicker),el('h2','',title));if(body)s.append(el('p','neuro-lead',body));article.append(s);return s;};
  const hero=section('neuro-overview','NEURO IMMERSIVE / DEVICE NO. 42',t(0),t(2));hero.classList.add('neuro-intro');hero.prepend(el('p','neuro-tags',t(3)));hero.append(el('p','neuro-subtitle',t(1)),el('p','neuro-credit',copy.at(-1)[0]));
  const fiction=section('neuro-fiction',t(4),t(5),t(6));const cols=el('div','neuro-columns');for(const [a,b] of [[7,8],[9,10]]){const block=el('div');block.append(el('h3','',t(a)),el('p','',t(b)),figure(a===7?'0d429.png':'93586.png',t(a)));cols.append(block);}fiction.append(cols);

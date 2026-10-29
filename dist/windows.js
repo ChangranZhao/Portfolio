@@ -31,7 +31,7 @@ export function createWindow({id,title,content,width=950,height=650,className=''
   Object.assign(el.style,{width:w+'px',height:h+'px',left:pos.x+'px',top:pos.y+'px'});
   const win={el,title,trigger:document.activeElement,normal:{width:bounds?.width??width,height:bounds?.height??height,x:pos.x,y:pos.y}};windows.set(id,win);state.open(id);container.append(el);fitWindow(el);
   function toggleMax(){el.classList.toggle('maximized');fitWindow(el);const maximized=el.classList.contains('maximized');lights.querySelector('.maximize').setAttribute('aria-label',(maximized?'Restore ':'Maximize ')+title);lights.querySelector('.maximize').setAttribute('aria-pressed',String(maximized));}
-  el.addEventListener('pointerdown',()=>{state.focus(id);sync();});
+  el.addEventListener('pointerdown',()=>{if(state.active!==id){state.focus(id);sync();}});
   el.addEventListener('focusin',()=>{if(state.active!==id){state.focus(id);sync();}});
   bar.addEventListener('dblclick',e=>{if(!e.target.closest('button'))toggleMax();});
   makeDraggable(el,bar,()=>el.classList.contains('maximized')||el.classList.contains('case-fullscreen'));

@@ -3,6 +3,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {optimizeImage} from './image-optimization.mjs';
+import {bundleSite} from './bundle-site.mjs';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const source=path.join(root,'dist'),output=path.join(root,'site');
 // Only the dedicated generated output directory is cleaned.
@@ -45,6 +46,7 @@ await emit('index.html');await emit('assets/Inter-OFL.txt');await emit('assets/c
 await emit('cultural-digitalization.html');await emit('changzhi.html');await emit('zibo.html');
 // Preserve explicit asset-directory references whose filenames are composed at runtime.
 for(const directory of runtimeDirectories)await cp(path.join(source,directory),path.join(output,directory),{recursive:true});
+await bundleSite(output,manifest);
 await writeFile(path.join(output,'.nojekyll'),'');
 await writeFile(path.join(output,'_headers'),'/*\n  Cache-Control: public, max-age=0, must-revalidate\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n');
 await writeFile(path.join(output,'asset-manifest.json'),JSON.stringify(manifest,null,2));

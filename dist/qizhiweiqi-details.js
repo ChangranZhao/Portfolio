@@ -1,7 +1,7 @@
 import {traditional} from './chinese-traditional.js';
 
-const root='assets/qizhiweiqi/';
-const asset=name=>root+name;
+import {runtimeImages} from './runtime-image-assets.js';
+const asset=name=>runtimeImages.qizhiweiqi[name].src;
 
 export function createQizhiweiqiDetails(){
  let dialog=null,opener=null;

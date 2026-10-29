@@ -10,11 +10,19 @@ test('publication images are bounded, smaller and retain transparency',async()=>
   const original=await sharp({create:{width:4000,height:2000,channels:4,background:'#3399aa80'}}).png({compressionLevel:0}).toBuffer();
   const result=await optimizeImage(original,'large.png');
   const meta=await sharp(result).metadata();
-  assert.equal(meta.width,2560);assert.equal(meta.height,1280);
+  assert.equal(meta.width,1920);assert.equal(meta.height,960);
   assert.equal(meta.hasAlpha,true);assert.ok(result.length<original.length*.9);
 });
 test('small image assets are left unchanged',async()=>{
   assert.equal(await optimizeImage(Buffer.alloc(100),'icon.png'),null);
+});
+test('medium images are optimized and tall diagrams keep their aspect ratio',async()=>{
+  const medium=await sharp({create:{width:300,height:200,channels:3,background:'#8899aa'}}).png({compressionLevel:0}).toBuffer();
+  assert.ok(medium.length<180*1024);
+  assert.ok(await optimizeImage(medium,'medium.png'));
+  const tall=await sharp({create:{width:1000,height:7000,channels:3,background:'#ffffff'}}).png({compressionLevel:0}).toBuffer();
+  const meta=await sharp(await optimizeImage(tall,'diagram.png')).metadata();
+  assert.equal(meta.width,1000);assert.equal(meta.height,7000);
 });
 test('startup releases the screen in five seconds even if app modules never load',async()=>{
   const html=await readFile(new URL('../dist/index.html',import.meta.url),'utf8');

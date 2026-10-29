@@ -67,10 +67,10 @@ html:has([data-node-id="1:3221"]),body:has([data-node-id="1:3221"]),.figma-canva
 [data-node-id="1:3265"]{top:1070px!important}
 :is([data-node-id="1:3266"],[data-node-id="1:3267"],[data-node-id="1:3268"],[data-node-id="1:3269"]){top:1098px!important}
 /* Technique note: larger type and a taller frame, with clear separation from screenshots. */
-[data-node-id="1:3279"]{top:195px!important;height:100px!important;width:1108px!important}
-[data-node-id="1:3280"]{left:1630px!important;top:210px!important;width:1060px!important;height:80px!important;transform:none!important;font-size:34px!important;line-height:1.5!important;text-align:center!important;padding:0 14px}
-[data-node-id="1:3275"]{top:330px!important;height:700px!important}
-[data-node-id="1:3284"]{top:355px!important;height:650px!important}
+[data-node-id="1:3279"]{display:none!important}
+.figma-canvas [data-node-id="1:3272"] [data-node-id="1:3280"]{left:1609px!important;top:205px!important;width:1108px!important;height:auto!important;min-height:112px;box-sizing:border-box;transform:none!important;font-size:34px!important;line-height:1.4!important;text-align:center!important;padding:14px 24px;margin:0!important;border:1px solid #a9adb0;background:#ffffffed;display:flex;align-items:center;justify-content:center}
+[data-node-id="1:3275"]{top:355px!important;height:675px!important}
+[data-node-id="1:3284"]{top:380px!important;height:625px!important}
 /* Remove the original narrow capsules beneath the expanded concept panels. */
 :is([data-node-id="1:3187"],[data-node-id="1:3188"],[data-node-id="1:3189"],[data-node-id="1:3193"],[data-node-id="1:3194"],[data-node-id="1:3218"]){visibility:hidden!important}
 /* Reflow enlarged text and artwork together; let each language determine the page height. */

@@ -2,6 +2,7 @@ import {readFile,writeFile,readdir,mkdir,rm,cp,stat} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
+import {optimizeImage} from './image-optimization.mjs';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const source=path.join(root,'dist'),output=path.join(root,'site');
 // Only the dedicated generated output directory is cleaned.
@@ -14,6 +15,7 @@ async function list(dir=''){
 }
 await list();await rm(output,{recursive:true,force:true});await mkdir(output,{recursive:true});
 const manifest={},visiting=new Set(),runtimeDirectories=new Set();
+let imageBytesBefore=0,imageBytesAfter=0,optimizedImages=0;
 async function emit(file){
   if(manifest[file])return manifest[file];if(visiting.has(file))throw Error('Circular build dependency: '+file);
   const stablePage=['cultural-digitalization.html','changzhi.html','zibo.html'].includes(file);
@@ -32,8 +34,10 @@ async function emit(file){
     }
     contents=Buffer.from(text);
   }
+  const optimized=await optimizeImage(contents,file);
+  if(optimized){imageBytesBefore+=contents.length;imageBytesAfter+=optimized.length;optimizedImages++;contents=optimized;}
   const ext=path.posix.extname(file),hash=createHash('sha256').update(contents).digest('hex').slice(0,12);
-  const target=file==='index.html'||stablePage||file.endsWith('OFL.txt')?file:file.slice(0,-ext.length)+'.'+hash+ext;
+  const target=file==='index.html'||stablePage||file.endsWith('OFL.txt')?file:file.slice(0,-ext.length)+'.'+hash+(optimized?'.webp':ext);
   await mkdir(path.dirname(path.join(output,target)),{recursive:true});await writeFile(path.join(output,target),contents);
   manifest[file]=target;visiting.delete(file);return target;
 }
@@ -60,3 +64,4 @@ async function checkOutputSizes(directory){
 await checkOutputSizes(output);
 if(oversized.length)throw new Error('Cloudflare Pages file limit exceeded (25 MiB). Compress these assets before deploying:\n'+oversized.join('\n'));
 console.log(`Built ${Object.keys(manifest).length} referenced files into site/ with content-hashed URLs.`);
+console.log(`Optimized ${optimizedImages} images: ${(imageBytesBefore/1048576).toFixed(1)} → ${(imageBytesAfter/1048576).toFixed(1)} MiB; source images preserved.`);

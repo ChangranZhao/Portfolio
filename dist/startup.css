@@ -1,0 +1,8 @@
+#startup-screen{position:fixed;inset:0;z-index:2147483647;background:#101217;color:#f4f5f7;display:grid;place-items:center;font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif}
+.startup-panel{width:min(360px,76vw)}
+.startup-brand{font-size:30px;letter-spacing:.12em;font-weight:600;margin-bottom:32px}
+.startup-label{font-size:13px;color:#c0c6d1;margin-bottom:15px}
+.startup-track{height:3px;background:#313742;overflow:hidden;border-radius:4px}
+#startup-fill{height:100%;width:0;background:#c6d7fa;transition:width .18s linear}
+#startup-percent{display:block;margin-top:12px;text-align:right;font-size:11px;color:#929dad;font-variant-numeric:tabular-nums}
+@media(prefers-reduced-motion:reduce){#startup-fill{transition:none}}

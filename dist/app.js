@@ -269,3 +269,5 @@ setupDesktopDrift(desktop);
 const linkedProject=byId(new URLSearchParams(location.hash.slice(1)).get('project'));if(linkedProject)openDetails(linkedProject);
 
 initGuide({collection:()=>openCollection(),about:()=>openAbout(),research:()=>openAbout("research"),project:()=>openProject("p1"),details:()=>openDetails(byId("p1"))});
+window.creativeOSReady=true;
+window.dispatchEvent(new Event('creativeos-ready'));

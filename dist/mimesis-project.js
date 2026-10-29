@@ -1,4 +1,5 @@
 import {registerTranslations} from './localization.js';
+import {createBoardScheduler} from './board-performance.js';
 registerTranslations([['Content','内容'],['Concept','概念'],['Story','故事'],['Details','细节'],['Design','设计'],['Technique','制作技术']]);
 import {mimesisPages} from './mimesis-page-data.js';
 import {traditional} from './chinese-traditional.js';
@@ -10,7 +11,7 @@ const labels=['Overview','Content','Concept','Story','Details','Design','Techniq
 const ids=['case-overview','mimesis-content','mimesis-concept','mimesis-story','mimesis-details','mimesis-design','mimesis-technique'];
 export const mimesisChapters=labels.map((label,i)=>[label,ids[i]]);
 export function createMimesis(article,project,{openImage}){
- article.classList.add('mimesis-article');const frames=[];
+ article.classList.add('mimesis-article');const frames=[],scheduler=createBoardScheduler(article);
  const language=()=>{const value=document.documentElement.lang.toLowerCase();return value.startsWith('zh')?(/hant|tw|hk|mo/.test(value)?'zh-Hant':'zh'):'en';};
  function localize(frame){const doc=frame.contentDocument;if(!doc)return;for(const p of doc.querySelectorAll('p')){p.dataset.original??=p.textContent;const original=p.dataset.original;const lang=language();doc.documentElement.lang=lang==='zh'?'zh-CN':lang;const key=original.replace(/\s+/g,' ').trim();p.dataset.miType=key==='MIMESIS'?'brand':key==='DIGITAL-CLOTH DESIGN'?'subtitle':key==='CLOTH & SCENE'?'vertical':key==='The Shape of AI'?'hero-subtitle':key==='CONCEPT DESIGN & DIGITAL CLOTH'?'hero-caption':key==='BASIC PREVIEW'?'label':/^(CONTENT|CONCEPT|STORY|DETAILS|DESIGN|TECHNICH)$/.test(key)?'heading':/[\u3400-\u9fff]/.test(key)?'body':key.replace(/[\s\u200b]/g,'')===''?'empty':'other';const chinese=mimesisChinese[key]||original;p.textContent=lang==='en'?(mimesisEnglish[key]||original):lang==='zh-Hant'?toHant(chinese):chinese;}
  // Fit translated paragraphs within their authored boxes without changing the composition.
@@ -26,6 +27,6 @@ export function createMimesis(article,project,{openImage}){
  }
  const listener=()=>frames.forEach(frame=>{localize(frame);arrange(frame);});document.addEventListener('portfolio-preferences',listener);const languageObserver=new MutationObserver(listener);languageObserver.observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
  const observer=new ResizeObserver(entries=>{for(const entry of entries){const stage=entry.target;stage.querySelector('iframe').style.transform='scale('+entry.contentRect.width/2880+')';}});
- mimesisPages.forEach((page,i)=>{const section=document.createElement('section');section.className='mi-original-page';section.id=ids[i];if(i===1)section.classList.add('mi-readable-content');if([0,2,3,5].includes(i))section.classList.add('mi-large-copy-'+i);const frame=document.createElement('iframe');frame.src=page.page;frame.title='MIMESIS / '+labels[i];frame.className='mi-original-frame';frame.setAttribute('scrolling','no');frame.loading=i===0?'eager':'lazy';section.append(frame);article.append(section);frames.push(frame);observer.observe(section);frame.onload=()=>{localize(frame);arrange(frame);for(const img of frame.contentDocument.images){const visible=img.getBoundingClientRect();if(visible.width<80||visible.height<80||parseFloat(frame.contentWindow.getComputedStyle(img).opacity)<.5)continue;img.style.cursor='zoom-in';img.style.pointerEvents='auto';img.onclick=()=>openImage([{src:img.src,name:project.title}],0,project.title);}};});
- return()=>{observer.disconnect();languageObserver.disconnect();document.removeEventListener('portfolio-preferences',listener);};
+ mimesisPages.forEach((page,i)=>{const section=document.createElement('section');section.className='mi-original-page';section.id=ids[i];if(i===1)section.classList.add('mi-readable-content');if([0,2,3,5].includes(i))section.classList.add('mi-large-copy-'+i);const frame=document.createElement('iframe');frame.title='MIMESIS / '+labels[i];frame.className='mi-original-frame';frame.setAttribute('scrolling','no');frame.loading='eager';section.append(frame);article.append(section);frames.push(frame);observer.observe(section);scheduler.observe(frame,section,page.page,i===0);frame.onload=()=>{localize(frame);arrange(frame);for(const img of frame.contentDocument.images){const visible=img.getBoundingClientRect();if(visible.width<80||visible.height<80||parseFloat(frame.contentWindow.getComputedStyle(img).opacity)<.5)continue;img.style.cursor='zoom-in';img.style.pointerEvents='auto';img.onclick=()=>openImage([{src:img.src,name:project.title}],0,project.title);}};});
+ return()=>{scheduler.dispose();observer.disconnect();languageObserver.disconnect();document.removeEventListener('portfolio-preferences',listener);};
 }

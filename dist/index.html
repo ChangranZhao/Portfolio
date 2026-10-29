@@ -8,6 +8,7 @@
   <title>Changran Zhao — Portfolio</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="startup.css">
   <link rel="stylesheet" href="user-guide.css">
   <link rel="stylesheet" href="profile.css">
   <link rel="stylesheet" href="responsive.css">
@@ -30,6 +31,12 @@
   <link rel="stylesheet" href="chinese-fonts.css">
 </head>
 <body>
+  <div id="startup-screen" aria-label="正在启动CREATIVEOS系统…"><div class="startup-panel"><div class="startup-brand">CREATIVEOS</div><div class="startup-label">正在启动CREATIVEOS系统…</div><div class="startup-track" role="progressbar" aria-label="首屏资源加载进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="startup-fill"></div></div><output id="startup-percent">0%</output></div></div>
+  <script>
+    // Independent of module/image loading: even a failed request cannot trap visitors.
+    window.finishCreativeOSStartup=function(){document.getElementById('startup-screen')?.remove();window.dispatchEvent(new Event('creativeos-startup-finished'));};
+    setTimeout(window.finishCreativeOSStartup,5000);
+  </script>
   <div class="wallpaper" aria-hidden="true"></div>
   <header class="menubar">
     <nav class="menu-left" aria-label="Main navigation">
@@ -74,5 +81,6 @@
   <noscript>This interactive portfolio needs JavaScript. Please enable JavaScript to explore the projects.</noscript>
   <link rel="stylesheet" href="changzhi-project.css">
   <script type="module" src="app.js"></script>
+  <script type="module" src="startup.js"></script>
 </body>
 </html>

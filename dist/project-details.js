@@ -60,7 +60,7 @@ export function openProjectDetails(project,{openImage,openGallery,mount}){
  for(const [label,target] of chapterList)chapters.append(btn(label,()=>jump(target)));
  chapters.append(btn('Project Photos ↗',()=>openGallery(project.id),'case-photos'));
  root.append(toolbar,chapters,status,article);
- if(project.id==='p7'){createMimesis(article,project,{openImage});
+ if(project.id==='p7'){disposeFigma=createMimesis(article,project,{openImage});
  }else if(project.id==='p12'){
   createBlueCalico(article,project,openImage);
  }else if(project.id==='p9'){

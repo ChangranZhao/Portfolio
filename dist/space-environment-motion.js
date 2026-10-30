@@ -1,5 +1,7 @@
+import {createActivityClock} from './runtime-scheduling.js';
 // The environment board retains its imported geometry; animate independent layers.
 export function setupEnvironmentMotion(doc,section,article,signal,reduced){
+ const clock=createActivityClock(doc,signal);
  const isLanguage=!!doc.querySelector('[aria-label="4_page6"]');
  if(!isLanguage&&!doc.querySelector('[aria-label="4_page5"]'))return;
  const scheduled=new Map(),animations=[],timers=new Set(),wrappers=[];
@@ -90,13 +92,13 @@ export function setupEnvironmentMotion(doc,section,article,signal,reduced){
  const original=new Map();
  for(const el of scheduled.keys()){original.set(el,el.style.opacity);el.style.opacity='0';}
  doc.documentElement.setAttribute('data-lines-ready','');
- const restore=()=>{for(const cue of scheduled.values())for(const path of cue.paths||[])path.style.strokeDashoffset='0';for(const timer of timers)clearTimeout(timer);timers.clear();for(const a of animations)a.cancel();animations.length=0;for(const [el,value] of original)el.style.opacity=value;for(const wrapper of wrappers)if(wrapper.isConnected)wrapper.replaceWith(...wrapper.childNodes);};
+ const restore=()=>{for(const cue of scheduled.values())for(const path of cue.paths||[])path.style.strokeDashoffset='0';for(const timer of timers)clock.clearTimeout(timer);timers.clear();for(const a of animations)a.cancel();animations.length=0;for(const [el,value] of original)el.style.opacity=value;for(const wrapper of wrappers)if(wrapper.isConnected)wrapper.replaceWith(...wrapper.childNodes);};
  let played=false;
  const observer=new IntersectionObserver(entries=>{
   if(played||!entries.some(e=>e.isIntersecting&&e.intersectionRatio>=.35))return;
   played=true;observer.disconnect();if(reduced()){restore();return;}
   for(const [el,{time,kind,duration,paths}] of scheduled){
-   const timer=setTimeout(()=>{
+   const timer=clock.setTimeout(()=>{
     timers.delete(timer);if(signal.aborted)return;
     if(paths?.length){
      el.style.opacity='1';

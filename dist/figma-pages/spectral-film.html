@@ -16,14 +16,16 @@
     footer{text-align:center;margin-top:22px;font-size:18px;color:#777}
     a{color:inherit;text-underline-offset:4px}
   </style>
+<link rel="stylesheet" href="../video-facade.css">
 </head>
 <body>
   <main>
     <header><h1>SPECTRAL FLUID</h1><span>Concept film</span></header>
     <div class="player">
-      <iframe src="https://www.youtube-nocookie.com/embed/XwmRzzJwvQw" title="Spectral Fluid — Product Concept Video" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      <div data-youtube-src="https://www.youtube-nocookie.com/embed/XwmRzzJwvQw" data-title="Spectral Fluid — Product Concept Video" data-poster="../assets/spectral/product.png"></div>
     </div>
     <footer><a href="https://youtu.be/XwmRzzJwvQw" target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a></footer>
   </main>
+<script type="module">import {mountYouTubeFacades} from '../video-facade.js';mountYouTubeFacades();</script>
 </body>
 </html>

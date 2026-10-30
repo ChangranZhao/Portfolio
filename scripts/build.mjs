@@ -4,6 +4,7 @@ import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {optimizeImage} from './image-optimization.mjs';
 import {bundleSite} from './bundle-site.mjs';
+import sharp from 'sharp';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const source=path.join(root,'dist'),output=path.join(root,'site');
 // Only the dedicated generated output directory is cleaned.
@@ -16,6 +17,7 @@ async function list(dir=''){
 }
 await list();await rm(output,{recursive:true,force:true});await mkdir(output,{recursive:true});
 const manifest={},visiting=new Set(),runtimeDirectories=new Set();
+const imageDimensions=new Map();
 let imageBytesBefore=0,imageBytesAfter=0,optimizedImages=0;
 async function emit(file){
   if(manifest[file])return manifest[file];if(visiting.has(file))throw Error('Circular build dependency: '+file);
@@ -33,12 +35,23 @@ async function emit(file){
       if(value.startsWith('./'))replacement='./'+replacement;
       text=text.slice(0,match.index)+quote+replacement+quote+text.slice(match.index+match[0].length);
     }
+    // srcset descriptors must match the published pixels, not source originals.
+    if(file==='data.js')text=text.replace(/^export const projects = (.*);$/m,(_,json)=>{
+      const projects=JSON.parse(json);
+      for(const project of projects)for(const image of project.images){
+        for(const [key,widthKey] of [['src','fullWidth'],['preview','previewWidth'],['small','smallWidth'],['thumb','thumbWidth']]){
+          const dims=imageDimensions.get(image[key]);if(dims){image[widthKey]=dims.width;if(key==='src'){image.width=dims.width;image.height=dims.height;}}
+        }
+      }
+      return 'export const projects = '+JSON.stringify(projects)+';';
+    });
     contents=Buffer.from(text);
   }
   const optimized=await optimizeImage(contents,file);
   if(optimized){imageBytesBefore+=contents.length;imageBytesAfter+=optimized.length;optimizedImages++;contents=optimized;}
   const ext=path.posix.extname(file),hash=createHash('sha256').update(contents).digest('hex').slice(0,12);
   const target=file==='index.html'||stablePage||file.endsWith('OFL.txt')?file:file.slice(0,-ext.length)+'.'+hash+(optimized?'.webp':ext);
+  if(/\.(png|jpe?g|webp)$/i.test(file)){const {width,height}=await sharp(contents).metadata();imageDimensions.set(target,{width,height});}
   await mkdir(path.dirname(path.join(output,target)),{recursive:true});await writeFile(path.join(output,target),contents);
   manifest[file]=target;visiting.delete(file);return target;
 }

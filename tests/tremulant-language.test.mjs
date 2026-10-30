@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {projects} from '../dist/data.js';
 import {localizeText,setGlobalLanguage} from '../dist/localization.js';
 
-test('Tremulant introduction follows English, simplified and traditional language settings',()=>{
+test('Tremulant introduction follows English, simplified and traditional language settings',async()=>{
  globalThis.document={documentElement:{},body:{nodeType:0}};
  const paragraphs=projects.find(p=>p.id==='p5').introduction.split(/\r?\n\s*\r?\n/);
  assert.equal(paragraphs.length,2);
@@ -16,5 +16,7 @@ test('Tremulant introduction follows English, simplified and traditional languag
   }else if(language==='zh')assert.match(text,/该装置通过接入人工智能/);
   else assert.match(text,/該裝置通過接入人工智能/);
  }
+ // Language traversal now yields between batches; let the scheduled fixture job finish.
+ await new Promise(resolve=>setTimeout(resolve,0));
  delete globalThis.document;
 });

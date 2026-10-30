@@ -27,8 +27,16 @@ for(const [source,target] of Object.entries(manifest)){
  const meta=await sharp(contents).metadata();
  assert.ok(meta.width>0&&meta.height>0,`Unreadable image: ${target}`);
  // Newly converted images follow the publication policy; existing tiny assets are retained.
- if(/\.(png|jpe?g)$/i.test(source)&&target.endsWith('.webp'))assert.ok(meta.width<=1920&&meta.height<=8192,source);
+ if(/\.(png|jpe?g)$/i.test(source)&&target.endsWith('.webp'))assert.ok(meta.width<=(meta.height>meta.width?1920:1600)&&meta.height<=8192,source);
  imageCount++;imageBytes+=contents.length;if(contents.length>500*1024)largeImages++;
 }
+const {projects}=await import(new URL(manifest['data.js'],output));
+let descriptors=0;
+for(const project of projects)for(const image of project.images)for(const [key,widthKey] of [['src','fullWidth'],['preview','previewWidth'],['small','smallWidth'],['thumb','thumbWidth']]){
+ if(!image[key]||!image[widthKey])continue;
+ const meta=await sharp(await readFile(new URL(image[key],output))).metadata();
+ assert.equal(image[widthKey],meta.width,`${project.id}: ${key} must advertise its actual published width`);descriptors++;
+}
+console.log(`Verified ${descriptors} responsive image width descriptors against published files.`);
 console.log(`All ${imageCount} publication images readable: ${(imageBytes/1048576).toFixed(2)} MiB; ${largeImages} over 500 KiB.`);
 console.log(`Production checked: one stylesheet, bundled scripts, ${previews} complete NEURO previews (${(bytes/1048576).toFixed(2)} MiB), no raw 17 MB PNG.`);

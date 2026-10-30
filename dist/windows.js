@@ -1,11 +1,12 @@
 import {WindowState,clampPosition} from './state.mjs';
+import {createFrameBatch} from './runtime-scheduling.js';
 export const state=new WindowState();
 const container=document.querySelector('#windows');
 const windows=new Map();
 let onChange=()=>{};
 export function setWindowChange(fn){onChange=fn;}
 function sync(){
-  for(const [id,win] of windows){const item=state.items.get(id);win.el.classList.toggle('inactive',state.active!==id);win.el.style.zIndex=item.z;}
+  for(const [id,win] of windows){const item=state.items.get(id);win.el.classList.toggle('inactive',state.active!==id);win.el.dataset.suspended=String(item.minimized||state.active!==id);win.el.style.zIndex=item.z;}
   onChange([...state.items.values()].map(s=>({...s,title:windows.get(s.id).title})));
   document.dispatchEvent(new Event('portfolio-windows-changed'));
 }
@@ -41,12 +42,14 @@ export function createWindow({id,title,content,width=950,height=650,className=''
 }
 export function makeDraggable(el,handle,disabled=()=>false){
   let drag;
+  const move=createFrameBatch(point=>{if(!drag)return;const pos=clampPosition(drag.left+point.x-drag.x,drag.top+point.y-drag.y,drag.width,drag.height,innerWidth,innerHeight);drag.position=pos;el.style.translate=`${pos.x-drag.left}px ${pos.y-drag.top}px`;});
   handle.addEventListener('pointerdown',e=>{
     if(e.button!==0||e.target.closest('button')||disabled()||matchMedia('(max-width:700px)').matches)return;
-    const rect=el.getBoundingClientRect();drag={x:e.clientX,y:e.clientY,left:rect.left,top:rect.top};handle.setPointerCapture(e.pointerId);el.classList.add('dragging');e.preventDefault();
+    const rect=el.getBoundingClientRect();drag={x:e.clientX,y:e.clientY,left:rect.left,top:rect.top,width:rect.width,height:rect.height,translate:el.style.translate};handle.setPointerCapture(e.pointerId);el.classList.add('dragging');e.preventDefault();
   });
-  handle.addEventListener('pointermove',e=>{if(!drag)return;const pos=clampPosition(drag.left+e.clientX-drag.x,drag.top+e.clientY-drag.y,el.offsetWidth,el.offsetHeight,innerWidth,innerHeight);el.style.left=pos.x+'px';el.style.top=pos.y+'px';el.style.right='auto';});
-  const end=()=>{if(drag)el.dispatchEvent(new Event('window-moved'));drag=null;el.classList.remove('dragging');};handle.addEventListener('pointerup',end);handle.addEventListener('lostpointercapture',end);
+  handle.addEventListener('pointermove',e=>{if(drag)move.push({x:e.clientX,y:e.clientY});});
+  const end=()=>{if(!drag)return;move.flush();if(drag.position){el.style.left=drag.position.x+'px';el.style.top=drag.position.y+'px';el.style.right='auto';}el.style.translate=drag.translate;drag=null;el.classList.remove('dragging');el.dispatchEvent(new Event('window-moved'));};
+  handle.addEventListener('pointerup',end);handle.addEventListener('pointercancel',end);handle.addEventListener('lostpointercapture',end);el.addEventListener('window-closing',()=>{move.cancel();drag=null;});
 }
 function makeResizable(win){
   const {el}=win;
@@ -55,21 +58,23 @@ function makeResizable(win){
     let drag;
     handle.addEventListener('pointerdown',e=>{
       if(e.button!==0||el.classList.contains('maximized')||innerWidth<=700)return;
-      const r=el.getBoundingClientRect();drag={x:e.clientX,y:e.clientY,left:r.left,top:r.top,right:r.right,bottom:r.bottom};
+      const r=el.getBoundingClientRect();drag={x:e.clientX,y:e.clientY,left:r.left,top:r.top,right:r.right,bottom:r.bottom,area:desktopArea(),minW:Math.min(el.classList.contains('workspace-sticker')?180:320,innerWidth-16)};
       handle.setPointerCapture(e.pointerId);el.classList.add('resizing');e.preventDefault();
     });
-    handle.addEventListener('pointermove',e=>{
+    const resize=createFrameBatch(e=>{
       if(!drag)return;
-      const area=desktopArea(),dx=e.clientX-drag.x,dy=e.clientY-drag.y;
-      const minW=Math.min(el.classList.contains('workspace-sticker')?180:320,innerWidth-16),minH=Math.min(el.classList.contains('workspace-sticker')?80:240,area.height);
+      const area=drag.area,dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+      const minW=drag.minW,minH=Math.min(el.classList.contains('workspace-sticker')?80:240,area.height);
       let {left,top,right,bottom}=drag;
       if(edge.includes('e'))right=Math.max(left+minW,Math.min(innerWidth-8,right+dx));
       if(edge.includes('w'))left=Math.min(right-minW,Math.max(8,left+dx));
       if(edge.includes('s'))bottom=Math.max(top+minH,Math.min(area.top+area.height,bottom+dy));
       if(edge.includes('n'))top=Math.min(bottom-minH,Math.max(area.top,top+dy));
-      win.normal={x:left,y:top,width:right-left,height:bottom-top};fitWindow(el);
+      win.normal={x:left,y:top,width:right-left,height:bottom-top};fitWindow(el,area);
     });
-    const end=()=>{drag=null;el.classList.remove('resizing');};
+    handle.addEventListener('pointermove',e=>{if(drag)resize.push({clientX:e.clientX,clientY:e.clientY});});
+    const end=()=>{resize.flush();drag=null;el.classList.remove('resizing');};
+    el.addEventListener('window-closing',()=>{resize.cancel();drag=null;});
     handle.addEventListener('pointerup',end);handle.addEventListener('pointercancel',end);handle.addEventListener('lostpointercapture',end);
   }
 }

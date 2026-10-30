@@ -15,7 +15,7 @@ function pauseCultureWhileScrolling(frame,signal){
 import {createBlueCalico,blueChapters} from './blue-calico.js';
 import {createNeuroProject,neuroChapters} from './neuro-project.js';
 import {addPotatoStory} from './potato-story.js';
-import {connectYouTube} from './background-music.js';
+import {createYouTubeFacade} from './video-facade.js';
 import {registerTranslations} from './localization.js';
 import {papers} from './papers.js';
 import {createExhibitOverview} from './exhibit-overview.js';
@@ -52,7 +52,7 @@ export function openProjectDetails(project,{openImage,openGallery,mount}){
   const frame=el('iframe');frame.src='https://www.youtube-nocookie.com/embed/Ctcd_OK9tAo';frame.title='MIMESIS — The Shape of AI';frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';
   if(project.id==='p14'){frame.src='https://www.youtube-nocookie.com/embed/8b1TP04Dqwg';frame.title='What if Potatoes Ruled Mars — Project Video';}
   if(project.id==='p9'){frame.src='https://www.youtube-nocookie.com/embed/AzF4V8WeWqg';frame.title='NEURO IMMERSIVE — Concept Film';}
-  video.append(frame);article.append(video);connectYouTube(frame);
+  video.append(createYouTubeFacade(frame,{poster:project.images[0]?.preview||project.images[0]?.src}));article.append(video);
  }
 
  const jump=(target)=>article.querySelector('#'+target)?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches||document.body.classList.contains('reduce-motion')?'instant':'smooth',block:'start'});
@@ -82,7 +82,7 @@ export function openProjectDetails(project,{openImage,openGallery,mount}){
   const copy=el('div','case-intro-copy');for(const text of project.introduction.split(/\r?\n\s*\r?\n/).slice(0,2))copy.append(el('p','',text));intro.append(title,copy);hero.append(intro);article.append(hero);
   const projectVideo=el('section','mimesis-project-video');projectVideo.id='case-project-video';
   const projectVideoFrame=el('iframe');projectVideoFrame.src='https://www.youtube-nocookie.com/embed/Jj-pVt7dwis';projectVideoFrame.title='Wind Blows from the East — Project Video';projectVideoFrame.loading='lazy';projectVideoFrame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';projectVideoFrame.allowFullscreen=true;projectVideoFrame.referrerPolicy='strict-origin-when-cross-origin';
-  projectVideo.append(projectVideoFrame);article.append(projectVideo);connectYouTube(projectVideoFrame);
+  projectVideo.append(createYouTubeFacade(projectVideoFrame,{poster:project.images[0]?.preview||project.images[0]?.src}));article.append(projectVideo);
   const family=el('section','case-family');family.id='case-family';
   const collage=el('div','case-collage');collage.append(el('h2','case-label case-family-label','FAMILY FACTORS.'));
   const familyText=el('div','case-family-copy');familyText.append(el('h3','',"Family’s Customs and Traditions"),el('h4','','#Grow up in a Shandong Family'),el('p','','Growing up in Shandong shaped my interest in Qi culture. During field research in Zibo, I collected local industrial archives and read them alongside the city’s cultural history. These first-hand materials and my personal perspective informed a provisional four-quadrant framework, to be explored and refined through further cultural analysis.'));

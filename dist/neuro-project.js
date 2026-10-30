@@ -1,3 +1,4 @@
+import {createYouTubeFacade} from './video-facade.js';
 import {registerTranslations} from './localization.js';
 import {runtimeImages} from './runtime-image-assets.js';
 const copy=[
@@ -50,6 +51,6 @@ export function createNeuroProject(article,{openImage}){
  const data=module('neuro-data','02 / Python → OSC');data.append(figure('c3c74.png',t(29)));const osc=el('div','neuro-osc');osc.append(figure('db24f.png',t(30)),figure('acc05.png',t(30)));data.append(osc);
  const control=module('neuro-control','03 / PS2 → Arduino → TouchDesigner');for(const file of ['97a68.png','5f477.png','24571.png','860ee.png'])control.append(figure(file,t(31)));
  tech.append(visual,data,control);system.append(tech);
- const installationVideo=el('section','mimesis-project-video');const frame=el('iframe');frame.src='https://www.youtube-nocookie.com/embed/TDY263vojzw';frame.title='NEURO IMMERSIVE — Installation Film';frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';installationVideo.append(frame);article.append(installationVideo);
+ const installationVideo=el('section','mimesis-project-video');const frame=el('iframe');frame.src='https://www.youtube-nocookie.com/embed/TDY263vojzw';frame.title='NEURO IMMERSIVE — Installation Film';frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';installationVideo.append(createYouTubeFacade(frame,{poster:runtimeImages.neuro['0d429.png'].preview||runtimeImages.neuro['0d429.png'].src}));article.append(installationVideo);
  const final=section('neuro-installation',t(23),t(24),t(25));const gallery=el('div','neuro-gallery');for(const file of ['0d429.png','cbe9d.png','0c408.png','e264d.png','a4e56.png','95b6b.png','97475.png','e4e5d.png','d855d.png','899f1.png'])gallery.append(figure(file,t(32)));final.append(gallery);
 }

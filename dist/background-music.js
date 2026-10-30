@@ -12,14 +12,11 @@ audio.loop=true;audio.preload='none';
 let enabled=localStorage.getItem('portfolio-music-enabled')!=='false';
 audio.volume=Math.max(0,Math.min(1,Number(localStorage.getItem('portfolio-music-volume')??.2)));
 const playing=new Set();
-let apiPromise;
 function sync(){if(enabled&&!playing.size)audio.play().catch(()=>{});else audio.pause();}
 document.addEventListener('pointerdown',()=>{if(enabled&&audio.paused)sync();});
-function api(){if(window.YT?.Player)return Promise.resolve();return apiPromise??=new Promise(resolve=>{const previous=window.onYouTubeIframeAPIReady;window.onYouTubeIframeAPIReady=()=>{previous?.();resolve();};const script=document.createElement('script');script.src='https://www.youtube.com/iframe_api';document.head.append(script);});}
-export function connectYouTube(frame){
- const url=new URL(frame.src);url.searchParams.set('enablejsapi','1');url.searchParams.set('origin',location.origin);frame.src=url.href;
- api().then(()=>{if(!frame.isConnected)return;new window.YT.Player(frame,{events:{onStateChange(event){if(event.data===1||event.data===3)playing.add(frame);else playing.delete(frame);sync();},onError(){playing.delete(frame);sync();}}});});
-}
+function videoState(frame,state){if(state===1||state===3)playing.add(frame);else playing.delete(frame);sync();}
+document.addEventListener('portfolio-video-state',e=>videoState(e.detail.frame,e.detail.state));
+window.addEventListener('message',e=>{if(e.origin!==location.origin||e.data?.type!=='portfolio-video-state')return;const frame=[...document.querySelectorAll('iframe')].find(f=>f.contentWindow===e.source);if(frame)videoState(frame,e.data.state);});
 new MutationObserver(()=>{let changed=false;for(const frame of playing)if(!frame.isConnected){playing.delete(frame);changed=true;}if(changed)sync();}).observe(document.documentElement,{childList:true,subtree:true});
 export function addMusicSettings(page){
  const title=document.createElement('h2');title.textContent='Background music';page.append(title);

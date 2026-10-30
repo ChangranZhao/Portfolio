@@ -1,3 +1,4 @@
+import {createActivityClock} from './runtime-scheduling.js';
 import {setupEnvironmentMotion} from './space-environment-motion.js';
 import {setupCaptionTypewriter} from './space-caption-typewriter.js';
 // Photographs are interactive; exported paths, icons and connectors are decoration.
@@ -5,6 +6,7 @@ export function spaceImageIsContent(img){
  return !/\.svg(?:[?#]|$)/i.test(img.src)&&!img.closest('.space-planet');
 }
 export function setupSpaceMotion(doc,section,article,signal,reduced){
+ const clock=createActivityClock(doc,signal);
  doc.body.classList.add('space-motion');
  setupEnvironmentMotion(doc,section,article,signal,reduced);
  setupCaptionTypewriter(doc,section,article,signal,reduced);
@@ -74,12 +76,12 @@ export function setupSpaceMotion(doc,section,article,signal,reduced){
  doc.documentElement.setAttribute('data-space-type-ready','');
  if(!roots.length)return;
  let played=false,raf=0;const overlays=[];
- const finish=()=>{cancelAnimationFrame(raf);for(const p of pending)p.classList.remove('space-type-pending');for(const [p,overlay,old] of overlays){overlay.remove();p.style.color=old;}overlays.length=0;};
+ const finish=()=>{clock.cancelAnimationFrame(raf);for(const p of pending)p.classList.remove('space-type-pending');for(const [p,overlay,old] of overlays){overlay.remove();p.style.color=old;}overlays.length=0;};
  const observer=new IntersectionObserver(entries=>{
   if(played||!entries.some(e=>e.isIntersecting&&e.intersectionRatio>=.35))return;played=true;observer.disconnect();if(reduced()){finish();return;}
   const paragraphs=candidates().sort((a,b)=>{const x=a.getBoundingClientRect(),y=b.getBoundingClientRect();return Math.abs(x.top-y.top)>14?x.top-y.top:x.left-y.left;});let total=0;
   for(const p of paragraphs){const text=p.textContent;const r=p.getBoundingClientRect();const overlay=doc.createElement('div');const css=doc.defaultView.getComputedStyle(p);overlay.style.cssText=`position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;pointer-events:none;white-space:${css.whiteSpace};text-align:${css.textAlign};letter-spacing:${css.letterSpacing};font:${css.font};line-height:${css.lineHeight};color:${css.color};overflow-wrap:${css.overflowWrap};`;overlay.setAttribute('aria-hidden','true');doc.body.append(overlay);overlays.push([p,overlay,p.style.color,Array.from(text),total]);total+=Array.from(text).length;p.classList.add('space-type-pending');}
-  const start=performance.now();const tick=now=>{if(signal.aborted||reduced()){finish();return;}const count=Math.floor(Math.min(1,(now-start)/10000)*total);for(const [,overlay,,chars,offset] of overlays)overlay.textContent=chars.slice(0,Math.max(0,count-offset)).join('');if(now-start>=10000)finish();else raf=requestAnimationFrame(tick);};raf=requestAnimationFrame(tick);
+  let lastCount=-1;const start=clock.now();const tick=now=>{if(signal.aborted||reduced()){finish();return;}const count=Math.floor(Math.min(1,(now-start)/10000)*total);if(count!==lastCount){lastCount=count;for(const [,overlay,,chars,offset] of overlays)overlay.textContent=chars.slice(0,Math.max(0,count-offset)).join('');}if(now-start>=10000)finish();else raf=clock.requestAnimationFrame(tick);};raf=clock.requestAnimationFrame(tick);
  },{root:article,threshold:.35});observer.observe(section);
  const preference=()=>{finish();if(!played&&!reduced()){pending.splice(0,pending.length,...candidates());for(const p of pending)p.classList.add('space-type-pending');}};document.addEventListener('portfolio-preferences',preference,{signal});
  signal.addEventListener('abort',()=>{observer.disconnect();finish();},{once:true});

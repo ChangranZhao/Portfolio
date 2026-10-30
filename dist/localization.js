@@ -1,3 +1,4 @@
+import {createTaskQueue} from './runtime-scheduling.js';
 import {traditional} from './chinese-traditional.js';
 import {projects} from './data.js';
 import {nextChapters} from './project-chapters.js';
@@ -312,10 +313,28 @@ let replacements;let lang='zh';const originals=new WeakMap();const attrOriginals
 export function localizeText(value){if(lang==='en')return value;const cacheKey=lang+'\0'+value;if(translationCache.has(cacheKey))return translationCache.get(cacheKey);const key=norm(value);let translated=dictionary.get(key);if(translated===undefined){translated=key;for(const [a,b] of (replacements??=[...dictionary].filter(([a])=>a.length>5).sort((a,b)=>b[0].length-a[0].length))){if(translated.includes(a))translated=translated.replaceAll(a,b)}translated=translated.replace(/\b(\d+) projects\b/g,'$1 个项目').replace(/\b(\d+) images\b/g,'$1 张图片').replace(/\b(\d+) pages\b/g,'$1 页').replace(/\bNext \/ /g,'下一章 / ').replace(/\bpage[ _]?(\d+)/gi,'页面 $1').replace(/\bexhibit photo[ _]?(\d+)/gi,'展览照片 $1');}
 const result=translated===key?value:translated;const output=lang==='zh-Hant'?[...result].map(c=>traditional[c]||c).join(''):result;if(translationCache.size>=3000)translationCache.clear();translationCache.set(cacheKey,output);return output;}
 function translateNode(node){const current=node.nodeValue;const record=originals.get(node);const source=record&&current===record.last?record.source:current;const translated=localizeText(source);if(current!==translated)node.nodeValue=translated;originals.set(node,{source,last:translated});node.parentElement?.classList.toggle('contains-chinese',[...node.parentElement.childNodes].some(n=>n.nodeType===3&&/[\u3400-\u9fff]/.test(n.nodeValue)));}
-function translateTree(root){if(root.nodeType===3){if(!root.parentElement?.closest('script,style,pre,code,textarea,select,[data-no-localize]'))translateNode(root);return;}if(root.nodeType!==1||root.closest('script,style,pre,code,textarea,select,[data-no-localize]'))return;const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let node;while(node=walker.nextNode())if(!node.parentElement.closest('script,style,pre,code,textarea,select,[data-no-localize]'))translateNode(node);for(const el of [root,...root.querySelectorAll('[title],[aria-label],[placeholder],[data-label]')]){let record=attrOriginals.get(el)||{};for(const attr of ['title','aria-label','placeholder','data-label']){if(!el.hasAttribute(attr))continue;const current=el.getAttribute(attr),old=record[attr],source=old&&old.last===current?old.source:current;const next=localizeText(source);if(next!==current)el.setAttribute(attr,next);record[attr]={source,last:next}}attrOriginals.set(el,record)}}
-function observe(){observer?.observe(document.body,{subtree:true,childList:true,characterData:true});}
-export function setGlobalLanguage(value){lang=value;observer?.disconnect();document.documentElement.lang=value==='zh'?'zh-CN':value;translateTree(document.body);observe();}
-export function initGlobalLanguage(value){setGlobalLanguage(value);let scheduled=false;const pending=new Set();observer=new MutationObserver(records=>{for(const r of records){if(r.type==='characterData')pending.add(r.target);else for(const n of r.addedNodes)pending.add(n)}if(!scheduled&&pending.size){scheduled=true;requestAnimationFrame(()=>{scheduled=false;observer.disconnect();for(const n of pending)if(n.isConnected)translateTree(n);pending.clear();observe()})}});observe();}
+function* translationSteps(root){
+ if(root.nodeType===3){if(!root.parentElement?.closest('script,style,pre,code,textarea,select,[data-no-localize]'))translateNode(root);return;}
+ if(root.nodeType!==1||root.closest('script,style,pre,code,textarea,select,[data-no-localize]'))return;
+ const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let node;
+ while((node=walker.nextNode())){if(!root.isConnected)return;if(!node.parentElement.closest('script,style,pre,code,textarea,select,[data-no-localize]'))translateNode(node);yield;}
+ for(const el of [root,...root.querySelectorAll('[title],[aria-label],[placeholder],[data-label]')]){
+  if(!root.isConnected)return;const record=attrOriginals.get(el)||{};
+  for(const attr of ['title','aria-label','placeholder','data-label']){if(!el.hasAttribute(attr))continue;const current=el.getAttribute(attr),old=record[attr],source=old&&old.last===current?old.source:current;const next=localizeText(source);if(next!==current)el.setAttribute(attr,next);record[attr]={source,last:next};}
+  attrOriginals.set(el,record);yield;
+ }
+}
+function observe(){if(document.body)observer?.observe(document.body,{subtree:true,childList:true,characterData:true});}
+const translationQueue=createTaskQueue({before:()=>observer?.disconnect(),after:observe});
+export function setGlobalLanguage(value){lang=value;observer?.disconnect();translationQueue.clear();document.documentElement.lang=value==='zh'?'zh-CN':value;if(document.body)translationQueue.add(translationSteps(document.body));observe();}
+export function initGlobalLanguage(value){
+ setGlobalLanguage(value);
+ observer=new MutationObserver(records=>{
+  const roots=new Set();for(const r of records){if(r.type==='characterData')roots.add(r.target);else for(const n of r.addedNodes)roots.add(n);}
+  for(const node of roots){if(!node.isConnected)continue;let ancestor=node.parentNode,covered=false;while(ancestor){if(roots.has(ancestor)){covered=true;break;}ancestor=ancestor.parentNode;}if(!covered)translationQueue.add(translationSteps(node));}
+ });observe();
+}
+
 registerTranslations([
  ['FZ STUDIO','FZ 设计工作室'],['Project Case: QI CULTURE CLASSICS CENTER','项目案例：齐文化典籍中心'],['Lobby','门厅'],['Preface Hall','序厅'],['Section 1','第一单元'],['Section 2','第二单元'],['Section 3','第三单元'],['Section 4','第四单元'],
  ['Digital Exhibition Design Centered on Concentric Circle Spatial Layout','以同心圆空间布局组织数字展陈'],['All exhibits feature interconnected thematic logic and operate in separate spaces free from mutual interference','各展项的主题逻辑相互关联，在独立空间中运行，避免相互干扰'],

@@ -1,3 +1,4 @@
+import {createYouTubeFacade} from './video-facade.js';
 import {gaiaPages} from './gaia-pages.js';
 import {localizeGaia} from './gaia-language.js';
 import {setupSpaceCrosshair} from './space-crosshair.js';
@@ -46,7 +47,7 @@ export function createFigmaDetails(article,project,{openImage}){
    const doc=frame.contentDocument;if(!doc||!frame.getAttribute('src')||doc.URL==='about:blank')return;doc.body.classList.toggle('reduce-motion',reduced());
    localize(doc,language());
    if(project.id==='p2')setupSpaceMotion(doc,section,article,controller.signal,reduced);
-   const images=[...doc.images].filter(img=>project.id==='p8'?/\.(?:png|webp)(?:$|[?#])/.test(img.src):project.id!=='p2'||spaceImageIsContent(img));
+   const images=[...doc.images].filter(img=>!img.closest('.video-facade')&&(project.id==='p8'?/\.(?:png|webp)(?:$|[?#])/.test(img.src):project.id!=='p2'||spaceImageIsContent(img)));
    const items=images.map((img,n)=>({src:img.currentSrc||img.src,name:img.closest('[data-name]')?.dataset.name||`${label} · ${n+1}`}));
    images.forEach((img,n)=>{img.tabIndex=0;img.setAttribute('role','button');img.setAttribute('aria-label','Enlarge image: '+items[n].name);img.setAttribute('aria-haspopup','dialog');img.style.pointerEvents='auto';img.classList.add('figma-interactive-image');
     const open=()=>project.id==='p8'?setTimeout(()=>openImage(items,n,project.title+' / '+label),0):openImage(items,n,project.title+' / '+label);
@@ -60,7 +61,7 @@ export function createFigmaDetails(article,project,{openImage}){
    if(project.id==='p3'&&p.id==='33:3665')setupSpectralMockups(doc,section,article,controller.signal,reduced);
    // Captions and transparent collage layers may sit above the photograph.
    doc.addEventListener('click',e=>{
-    if(doc.getSelection()?.toString())return;
+    if(e.target.closest?.('.video-facade')||doc.getSelection()?.toString())return;
     const img=doc.elementsFromPoint(e.clientX,e.clientY).find(el=>el.matches('img.figma-interactive-image'));
     if(img)openImage(items,images.indexOf(img),project.title+' / '+label);
    },{signal:controller.signal});
@@ -71,7 +72,7 @@ export function createFigmaDetails(article,project,{openImage}){
   if(project.id==='p8'&&p.id==='2009:2'){
    const video=document.createElement('section');video.className='mimesis-project-video';video.id='gaia-project-video';
    const player=document.createElement('iframe');player.src='https://www.youtube-nocookie.com/embed/arpZAWx3yNw';player.title='GAIA HYPOTHESIS — Project Video';player.loading='lazy';player.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';player.allowFullscreen=true;player.referrerPolicy='strict-origin-when-cross-origin';
-   video.append(player);article.append(video);
+   video.append(createYouTubeFacade(player,{poster:project.images[0]?.preview||project.images[0]?.src}));article.append(video);
   }
  }
  const resize=()=>{for(const {rail,stage,frame} of boards){const width=rail.clientWidth;if(!width)continue;const scale=width/1920;stage.style.width=width+'px';stage.style.height=1080*scale+'px';frame.style.transform=`scale(${scale})`;}};

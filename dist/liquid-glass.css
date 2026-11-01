@@ -1,0 +1,117 @@
+/* Liquid Glass is an independent material layer, not an artwork theme. */
+html[data-material=liquid]{--lg-ink:#f5f5f5;--lg-muted:#d3d3d3;--lg-base:rgba(25,25,25,var(--lg-opacity,.32));--lg-panel:rgba(42,42,42,calc(var(--lg-opacity,.32) * .5625));--lg-field:rgba(255,255,255,calc(var(--lg-opacity,.32) * .203125));--lg-line:rgba(255,255,255,.13);--lg-shine:rgba(255,255,255,.42);--lg-shadow:0 22px 60px -14px #00000055,0 2px 8px #0002;--lg-inset:inset 0 1px 0 #ffffff24,inset 0 -1px 0 #00000018;--lg-selected:rgba(210,210,210,.18);--lg-tint:linear-gradient(135deg,#ffffff09,transparent 45%,#ffffff05);--lg-edge:linear-gradient(155deg,#ffffff60 0%,#ffffff25 18%,#ffffff0a 48%,#00000024 72%,#ffffff26 100%)}
+html[data-material=liquid][data-theme=light]{--lg-ink:#142237;--lg-muted:#3b4b62;--lg-base:rgba(244,248,255,var(--lg-opacity,.32));--lg-panel:rgba(235,242,255,calc(var(--lg-opacity,.32) * .625));--lg-field:rgba(255,255,255,calc(var(--lg-opacity,.32) * .5625));--lg-line:rgba(255,255,255,.28);--lg-shine:rgba(255,255,255,.65);--lg-shadow:0 22px 60px -14px #16325430,0 2px 8px #18375115;--lg-inset:inset 0 1px 0 #ffffff75,inset 0 -1px 0 #24354d12;--lg-selected:rgba(75,143,235,.19);--lg-tint:linear-gradient(135deg,#ffffff16,transparent 45%,#d2e4ff0c);--lg-edge:linear-gradient(155deg,#ffffffc0 0%,#ffffff60 18%,#ffffff18 48%,#24354d30 72%,#ffffff70 100%)}
+/* Bounded optical layers supplied by liquid-glass-react. They never receive input. */
+.liquid-lens{position:absolute;inset:0;z-index:-1;pointer-events:none!important;border-radius:inherit;overflow:hidden}
+.liquid-lens *{pointer-events:none!important}.liquid-lens>.liquid-optic-frame{isolation:auto;transition:none!important}
+.liquid-optic-frame>.glass{width:100%!important;height:100%!important;box-shadow:none!important;transition:none!important}
+.liquid-optic-frame>.glass>div{display:none}.liquid-lens>div:not(.liquid-optic-frame),.liquid-lens>span{display:none}
+html[data-material=liquid] .liquid-optical{isolation:isolate}
+html[data-material=liquid] .menubar{background:var(--lg-panel);color:var(--lg-ink);border-bottom:1px solid var(--lg-line);box-shadow:inset 0 1px 0 #ffffff25;backdrop-filter:blur(var(--lg-blur,10px)) saturate(1.5);text-shadow:none}
+html[data-material=liquid] .menubar button{color:inherit;border-radius:7px}
+html[data-material=liquid] .menubar button:is(:hover,[aria-expanded=true]){background:var(--lg-field);box-shadow:inset 0 0 0 1px var(--lg-line)}
+html[data-material=liquid] :where(.dropdown,.system-control-center,#toast){background:var(--lg-base);background-image:var(--lg-tint);color:var(--lg-ink);border:1px solid var(--lg-line);box-shadow:var(--lg-shadow),var(--lg-inset);backdrop-filter:blur(var(--lg-blur,10px)) saturate(1.55);border-radius:20px}
+html[data-material=liquid] .dropdown{padding:6px;border-radius:14px}
+html[data-material=liquid] .dropdown button{border-radius:9px;min-height:30px}
+html[data-material=liquid] .dropdown button:is(:hover,:focus-visible){background:var(--lg-selected);color:var(--lg-ink);box-shadow:inset 0 0 0 1px var(--lg-line)}
+html[data-material=liquid] .menu-divider{background:var(--lg-line)}
+html[data-material=liquid] .window{background:var(--lg-base);border:1px solid var(--lg-line);border-radius:20px;box-shadow:var(--lg-shadow),var(--lg-inset);backdrop-filter:blur(var(--lg-blur,10px)) saturate(1.35);color:var(--lg-ink)}
+html[data-material=liquid] .window.inactive{box-shadow:0 12px 30px -12px #0004,var(--lg-inset);border-color:var(--lg-line)}
+html[data-material=liquid] .window>.window-titlebar{background:var(--lg-panel);background-image:var(--lg-tint);border-bottom:1px solid var(--lg-line);color:var(--lg-ink)}
+html[data-material=liquid] .window-titlebar .window-title{color:var(--lg-ink)}
+html[data-material=liquid] .title-window{background:var(--lg-panel);border:1px solid var(--lg-line);border-radius:20px;box-shadow:var(--lg-shadow),var(--lg-inset);backdrop-filter:blur(var(--lg-blur,10px)) saturate(1.5);color:var(--lg-ink)}
+html[data-material=liquid] .title-grip{background:var(--lg-field);color:var(--lg-muted)}
+html[data-material=liquid] .dock{border-radius:var(--dock-radius,18px)}
+html[data-material=liquid] .dock::before{background:rgba(45,45,45,calc(var(--lg-opacity,.32) * .625));background-image:linear-gradient(180deg,#ffffff0c,transparent 45%);border-color:transparent;box-shadow:0 5px 19px #00000066,0 2px 10px #0000004d,inset 0 1px 0 #ffffff40,inset 0 -1px 0 #00000033;backdrop-filter:blur(var(--lg-blur,10px)) saturate(1.2)}
+html[data-material=liquid][data-theme=light] .dock::before{background-color:rgba(238,238,242,var(--lg-opacity,.32));box-shadow:0 5px 19px #00000035,0 2px 10px #00000020,inset 0 1px 0 #ffffff80,inset 0 -1px 0 #00000025}
+html[data-material=liquid] .dock.liquid-optical::before{backdrop-filter:none}
+html[data-material=liquid] .dock>.liquid-lens{inset:0 calc(0px - var(--dock-expand,0px));border-radius:inherit;z-index:-2}
+html[data-material=liquid] .dock-item:after{background:rgba(37,38,42,.92);color:#f7f7fa;border-color:#ffffff30;box-shadow:0 5px 18px #0002,var(--lg-inset);border-radius:8px}
+html[data-material=liquid][data-theme=light] .dock-item:after{background:rgba(248,248,250,.94);color:#29292d;border-color:#ffffff80}
+html[data-material=liquid] .dock-separator{background:var(--lg-line)}
+/* One continuous directional rim replaces stacked CSS and library outlines.
+   Optical surfaces sample the scene directly, without a second ancestor blur. */
+html[data-material=liquid] :is(.window,.title-window,.dropdown,.system-control-center){border-color:transparent;box-shadow:var(--lg-shadow),var(--lg-inset)}
+html[data-material=liquid] .window.inactive{border-color:transparent;box-shadow:0 12px 30px -12px #0003}
+html[data-material=liquid] :is(.window,.title-window,.dropdown,.system-control-center,.dock,.user-guide)::after{content:'';position:absolute;inset:0;z-index:10;pointer-events:none;border-radius:inherit;padding:1px;background:var(--lg-edge);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+/* The Dock rim belongs to its background, below every magnified icon. */
+html[data-material=liquid] .dock::after{inset:0 calc(0px - var(--dock-expand,0px));z-index:-1;background:linear-gradient(180deg,#ffffff85 0%,#ffffff30 35%,#ffffff18 65%,#ffffff3d 100%)}
+html[data-material=liquid] :is(.window,.menubar,.dropdown,.system-control-center).liquid-optical{backdrop-filter:none;-webkit-backdrop-filter:none}
+/* Shared application tokens cover About, Finder, Photos, Figma, Code and Studio. */
+html[data-material=liquid] .os-app{--os-bg:transparent;--os-panel:var(--lg-panel);--os-sidebar:transparent;--os-field:var(--lg-field);--os-ink:var(--lg-ink);--os-muted:var(--lg-muted);--os-line:var(--lg-line);--os-selection:var(--lg-selected);--os-shadow:0 2px 5px #10224312,inset 0 1px 0 #ffffff30;background:transparent}
+html[data-material=liquid] :is(.os-main,.os-code-main){background:transparent}
+html[data-material=liquid] .os-sidebar{background:var(--lg-panel);background-image:var(--lg-tint);border-color:var(--lg-line);box-shadow:inset -1px 0 0 #ffffff0d}
+html[data-material=liquid] :is(.os-toolbar,.os-status,.os-code-breadcrumb,.os-side-footer,.os-page-list,.os-code-rail,.os-inspector){background:var(--lg-panel);border-color:var(--lg-line);color:var(--lg-muted)}
+html[data-material=liquid] .os-toolbar{color:var(--lg-ink)}
+html[data-material=liquid] .os-side-item{border:1px solid transparent;border-radius:10px;min-height:32px;padding:6px 8px}
+html[data-material=liquid] .os-side-item:is(:hover,.selected),html[data-material=liquid] .window.inactive .os-side-item.selected{background:var(--lg-selected);border-color:var(--lg-line);box-shadow:inset 0 1px 0 #ffffff30,0 2px 5px #0000000a;color:var(--lg-ink)}
+html[data-material=liquid] .os-side-item.selected svg{color:var(--os-accent)}
+html[data-material=liquid] :is(.os-search,.os-button,.os-select,.os-segmented,.os-icon-button[aria-pressed=true],.os-note-field textarea){background:var(--lg-field);border:1px solid var(--lg-line);border-radius:10px;box-shadow:var(--lg-inset);color:var(--lg-ink)}
+html[data-material=liquid] .os-search{backdrop-filter:none}
+html[data-material=liquid] :is(.os-button,.os-icon-button,.os-segmented button,.os-text-button){transition:background-color 140ms ease,box-shadow 140ms ease,translate 140ms ease}
+html[data-material=liquid] :is(.os-button,.os-icon-button,.os-segmented button):hover{background:var(--lg-selected);box-shadow:inset 0 1px 0 var(--lg-shine)}
+html[data-material=liquid] .os-primary{border-radius:10px;background:linear-gradient(160deg,#6db8ff,#3375db);border-color:#a7d5ff80;box-shadow:inset 0 1px 0 #ffffff70,0 3px 8px #2462bf33;color:#fff}
+html[data-material=liquid] :is(.os-info-group,.os-account,.os-project-card.selected,.os-featured-projects button,.os-file-cover,.os-photo-tile,.os-notebook-page>img){border-radius:14px;border-color:var(--lg-line)}
+html[data-material=liquid] .os-info-group{background:var(--lg-panel);box-shadow:inset 0 1px 0 #ffffff25}
+html[data-material=liquid] .os-project-card:hover{background:var(--lg-field)}
+html[data-material=liquid] :is(.os-page-list button.selected,.os-source-file.selected,.os-asset-tray button.selected){background:var(--lg-selected);border-radius:8px;box-shadow:inset 0 0 0 1px var(--lg-line)}
+/* Reading surfaces retain enough density to keep photos, source and boards legible. */
+html[data-material=liquid] :is(.os-code-scroll,.os-notebook-page,.os-scene-view,.os-canvas-column){background:rgba(27,27,27,.84)}
+html[data-material=liquid][data-theme=light] :is(.os-code-scroll,.os-notebook-page,.os-scene-view,.os-canvas-column){background:rgba(248,250,255,.88)}
+html[data-material=liquid] :is(.os-asset-tray,.os-canvas-controls){background:var(--lg-panel);border-color:var(--lg-line)}
+html[data-material=liquid] .terminal{background:rgba(27,27,27,.84);color:var(--lg-ink)}
+html[data-material=liquid][data-theme=light] .terminal{background:rgba(248,250,255,.88)}
+html[data-material=liquid] .terminal-input{color:var(--lg-ink);caret-color:var(--lg-ink)}
+/* Native gallery and utilities; editorial content inside Full Project stays untouched. */
+html[data-material=liquid] :is(.project-sidebar,.project-content,.collection,.info-page){background:var(--lg-panel);color:var(--lg-ink);border-color:var(--lg-line)}
+html[data-material=liquid] .sidebar-button{border:1px solid transparent;border-radius:10px;color:var(--lg-ink)}
+html[data-material=liquid] .sidebar-button:is(:hover,.active){background:var(--lg-selected);border-color:var(--lg-line);box-shadow:var(--lg-inset);color:var(--lg-ink)}
+html[data-material=liquid] :is(.project-heading h1,.info-page h1,.info-page h2,.info-page h3,.collection-header h1,.project-card strong){color:var(--lg-ink)}
+html[data-material=liquid] :is(.sidebar-label,.sidebar-bottom,.breadcrumb,.project-heading p,.image-caption,.counter,.info-page p,.info-page .eyebrow){color:var(--lg-muted)}
+html[data-material=liquid] :is(.project-toolbar .view-switch,.browser-window>.window-titlebar .window-title,.case-address,.browser-controls button,.case-back,.guide-preferences,.settings-row input:not([type=range]),.info-page select){background:var(--lg-field);border-color:var(--lg-line);border-radius:10px;box-shadow:var(--lg-inset);color:var(--lg-ink)}
+html[data-material=liquid] .project-toolbar .view-switch button.active{background:var(--lg-selected);color:var(--lg-ink);border-radius:8px}
+html[data-material=liquid] :is(.guide-preferences,.guide-choices button,.info-page .settings-row,.calendar-grid,.calendar-title){border-color:var(--lg-line);color:var(--lg-ink)}
+html[data-material=liquid] :is(.calendar-title button,.lightbox-bar button,.lightbox-bar a,.lightbox-prev,.lightbox-next){background:var(--lg-field);border:1px solid var(--lg-line);border-radius:10px;color:var(--lg-ink);box-shadow:var(--lg-inset)}
+html[data-material=liquid] :is(.user-guide,.guide-tour,#lightbox){background:var(--lg-base);color:var(--lg-ink);border:1px solid var(--lg-line);border-radius:24px;box-shadow:var(--lg-shadow),var(--lg-inset);backdrop-filter:blur(var(--lg-blur,8px)) saturate(1.4)}
+html[data-material=liquid] :is(.user-guide header,.user-guide footer,.lightbox-bar){background:var(--lg-panel);border-color:var(--lg-line);color:var(--lg-ink)}
+html[data-material=liquid] :is(.user-guide button,.user-guide select,.action-button.secondary-button){background:var(--lg-field);color:var(--lg-ink);border:1px solid var(--lg-line);border-radius:10px}
+html[data-material=liquid] .system-control-center{border-radius:28px}
+html[data-material=liquid] :is(.cc-card,.cc-actions>.cc-tile){background:var(--lg-field);border-color:var(--lg-line);box-shadow:var(--lg-inset);border-radius:18px}
+html[data-material=liquid] .cc-tile:hover{background:var(--lg-selected)}
+html[data-material=liquid] .cc-track{background:#8998ae40;box-shadow:inset 0 1px 3px #0002}
+html[data-material=liquid] .cc-track:before{background:linear-gradient(#fff,#eaf2ff);box-shadow:inset 0 1px 0 white,0 2px 6px #0002}
+.material-choices{display:flex;gap:6px}.material-choices button{flex:1;padding:9px 12px;border-radius:10px;border:1px solid var(--shell-line);background:#8881;font:inherit;color:inherit}.material-choices button[aria-pressed=true]{background:#4384dd25;box-shadow:inset 0 0 0 1px #68a4ff80}.material-choices button[data-material-option=liquid]{background-image:linear-gradient(135deg,#ffffff60,#a3caff20 48%,#ffffff55)}
+.material-setting>span{display:block;font-size:12px;font-weight:600;margin-bottom:8px}.cc-material{padding:12px;margin-top:8px}.cc-material .material-choices button{font-size:11px;padding:7px 8px}
+html[data-material=liquid] .info-page .guide-preferences :is(label,small){color:var(--lg-ink)}
+html[data-material=liquid] .mobile-bottom-nav{background:var(--lg-base);border-color:var(--lg-line);backdrop-filter:blur(var(--lg-blur,10px));color:var(--lg-ink);box-shadow:var(--lg-inset)}
+html[data-material=liquid] .mobile-bottom-nav button.active{background:var(--lg-selected);border-radius:12px;color:var(--lg-ink)}
+@media(max-width:700px){html[data-material=liquid] .window{border-radius:16px}html[data-material=liquid] .react-window>.window-titlebar{background:var(--lg-base)!important}html[data-material=liquid] .os-inspector{background:var(--lg-base)}}
+@media(prefers-reduced-motion:reduce){.liquid-lens .glass__warp{filter:none!important}html[data-material=liquid] .os-app button{transition:none}}
+.reduce-motion .liquid-lens .glass__warp{filter:none!important}
+@media(forced-colors:active){.liquid-lens{display:none}html[data-material=liquid] :is(.window,.menubar,.dropdown,.system-control-center,.os-sidebar){background:Canvas;color:CanvasText;border:1px solid CanvasText;backdrop-filter:none}}
+
+/* A shared control hierarchy: highlight, selection and keyboard focus are distinct. */
+html[data-material=liquid] :is(.os-button,.os-select,.os-search,.os-icon-button,.sys-segment,.guide-material-options button){border-radius:10px}
+html[data-material=liquid] :is(.sys-segment,.os-segmented){padding:3px;border:1px solid var(--lg-line);background:var(--lg-field);box-shadow:var(--lg-inset)}
+html[data-material=liquid] :is(.sys-segment,.os-segmented) button{border-radius:7px}
+html[data-material=liquid] :is(.sys-segment,.os-segmented) button[aria-pressed=true]{background:#347bd8;color:white;box-shadow:inset 0 1px 0 #ffffff38,0 1px 3px #0002}
+html[data-material=liquid] .os-info-group{overflow:hidden;border-radius:14px;box-shadow:var(--lg-inset)}
+html[data-material=liquid] .sys-setting-row{padding:16px 18px;min-height:58px}
+html[data-material=liquid] .sys-setting-row strong{font-weight:550}
+html[data-material=liquid] :is(.os-app,.dropdown,.system-control-center) :is(button,input,select,a,textarea):focus-visible{outline:2px solid #5099f5;outline-offset:2px}
+html[data-material=liquid] :is(.os-app,.dropdown,.system-control-center) button:disabled{opacity:.38;box-shadow:none;cursor:default}
+html[data-material=liquid] .application-menu button{display:flex;align-items:center;gap:16px}
+html[data-material=liquid] .application-menu .shortcut{float:none;margin-left:auto;color:var(--lg-muted);font-variant-numeric:tabular-nums}
+html[data-material=liquid] .os-side-item{border-radius:9px}
+html[data-material=liquid] .os-side-item:hover:not(.selected){background:var(--lg-field);box-shadow:none;border-color:transparent}
+html[data-material=liquid] .os-side-item.selected{box-shadow:inset 0 1px 0 #ffffff30,0 1px 2px #00000010}
+
+/* Neutral dark glass: retain scene colors without adding a blue surface tint. */
+html[data-material=liquid][data-theme=dark] .os-app{--os-shadow:0 2px 5px #00000012,inset 0 1px 0 #ffffff30}
+html[data-material=liquid][data-theme=dark] .cc-track{background:#99999940}
+html[data-material=liquid][data-theme=dark] .cc-track:before{background:linear-gradient(#fff,#eeeeee)}
+
+
+/* Keep the glass surface while a window moves; avoid resampling SVG displacement
+   for every translated pixel. The same lens resumes without mounting a new one. */
+html[data-material=liquid] .window:is(.dragging,.resizing) .liquid-lens .glass__warp{filter:none!important}

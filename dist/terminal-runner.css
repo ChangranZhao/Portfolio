@@ -1,0 +1,38 @@
+/* A text-only playground. No remote assets, fonts, or game engine. */
+.react-terminal .os-app{background:#0b1110;--os-accent:#8ee6b4;--os-ink:#d5ebdf;--os-muted:#7d9e8b;--os-line:#a6e7c31a}
+html body .react-terminal .terminal-playground,html body .react-terminal .terminal-playground *{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace!important}
+.terminal-playground{width:100%;height:100%;display:flex;flex-direction:column;min-height:0;background:#0b1110;color:#d5ebdf;font-size:12px}
+.react-terminal>.window-titlebar{width:95px!important;height:44px!important;min-height:44px!important}
+.react-terminal .runner-toolbar{height:44px;min-height:44px;padding:0 14px 0 96px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#111a16;border-bottom:1px solid #a6e7c31a;color:#8fac9c;font-size:11px}
+.runner-toolbar>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.runner-toolbar b{font-weight:400;color:#5b7c68;margin-left:7px}
+.runner-toolbar>div{display:flex;gap:3px;flex:none}.runner-toolbar button{padding:5px 9px;border-radius:5px;color:#8fac9c;font-size:11px;background:transparent}
+.runner-toolbar button[aria-pressed=true]{color:#bcefd1;background:#8ee6b416}.runner-toolbar button:hover{background:#8ee6b41e}
+.runner-game{flex:1;min-height:0;display:flex;flex-direction:column;position:relative}
+.runner-hud{display:flex;align-items:center;gap:20px;padding:11px 18px;flex:none;font-size:10px;letter-spacing:.5px;color:#6e9680;border-bottom:1px solid #8ee6b410}
+.runner-hud b{font-weight:500;color:#bcefd1;margin-left:4px}.runner-hud .runner-lives{color:#e79b9b;flex:1;white-space:nowrap;min-width:54px}
+.runner-hud button{border:0;padding:3px;background:transparent;color:#8fac9c;font-size:10px;letter-spacing:0;white-space:nowrap}.runner-hud button:hover{color:#e4ffef}.runner-hud button[aria-pressed=true]{color:#a7edc3}
+.runner-screen{flex:1;min-height:0;position:relative;overflow:hidden;background:#0b1110}
+.runner-screen canvas{display:block;width:100%;height:100%;outline:none;touch-action:none}
+.runner-screen canvas:focus-visible{outline:1px solid #8ee6b43a;outline-offset:-3px}
+.runner-overlay{position:absolute;inset:0;display:grid;place-items:center;background:#07100bd9;padding:24px;text-align:center}
+.runner-overlay>div{max-width:620px}.runner-overlay small{color:#648d75;font-size:10px;letter-spacing:1.6px}
+.terminal-playground .runner-overlay h1{color:#bcf1cf;font-size:clamp(24px,4vw,44px);font-weight:500;letter-spacing:-1.2px;line-height:1.25;margin:17px 0 15px;text-shadow:0 0 24px #8ee6b426}
+.terminal-playground .runner-overlay p{font-size:12px;color:#86ad96;line-height:1.8;max-width:470px;margin:0 auto 24px}
+.runner-overlay .runner-start{display:inline-flex;align-items:center;justify-content:space-between;gap:28px;padding:12px 17px;background:#a5ecc2;color:#0b2114;border:1px solid #c5f8d7;border-radius:5px;font-size:12px;font-weight:600;box-shadow:0 3px 15px #0003}
+.runner-start:hover{filter:brightness(1.08)}.runner-start:active{transform:translateY(1px)}
+.runner-project{display:block;margin:14px auto 0;color:#8ee6b4;background:transparent;font-size:12px}
+.runner-key-hints{display:flex;justify-content:center;gap:22px;margin-top:26px;font-size:10px;color:#5f886f;flex-wrap:wrap}
+.terminal-playground kbd{display:inline-block;font:inherit;border:1px solid #8ee6b426;border-radius:3px;min-width:18px;padding:2px 4px;line-height:1.2;margin:0 2px;color:#9fcab0;background:#8ee6b406}
+.runner-footer{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:10px 17px;border-top:1px solid #8ee6b417;color:#6f9a80;font-size:10px;min-height:36px;flex:none}
+.runner-footer>span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0}.runner-footer i{display:inline-block;width:5px;height:5px;background:#8ee6b4;border-radius:50%;margin-right:8px}
+.runner-footer>button{font-size:10px;white-space:nowrap;background:transparent;color:#a2d2b3;padding:0}
+.runner-touch{display:none;padding:6px 16px 13px;gap:8px;background:#0b1110}
+.runner-touch button{touch-action:none;user-select:none;width:50px;height:34px;border:1px solid #8ee6b42e;border-radius:6px;background:#8ee6b40c;color:#bcefd1;font-size:18px}.runner-touch button:last-child{margin-left:auto;width:70px}
+.runner-shell{flex:1;min-height:0;overflow:auto;padding:23px;color:#b8ddc6;font-size:12px;line-height:1.9}
+.runner-shell pre{font:inherit;white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 14px}
+.runner-shell form{display:flex;align-items:center;gap:10px}.runner-shell label{color:#8ee6b4;white-space:nowrap}.runner-shell input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#d7f3e1;font:inherit;box-shadow:none}
+.terminal-playground button:focus-visible{outline:2px solid #a5ecc2;outline-offset:3px}
+body[data-controls=right] .react-terminal .runner-toolbar{padding-left:16px;padding-right:106px}
+@container application (max-width:700px){.react-terminal>.window-body{padding-top:0!important}.react-terminal>.window-titlebar{width:95px!important;background:transparent!important}.runner-hud{gap:12px;padding:10px 12px}.runner-toolbar b{display:none}.runner-overlay{padding:16px}.runner-overlay small{font-size:8px}.runner-overlay .runner-key-hints{gap:10px}.runner-footer{padding-inline:12px}.runner-hud>span:nth-child(2){display:none}}
+@container application (max-width:480px){.runner-toolbar>span{display:none}.react-terminal .runner-toolbar{justify-content:flex-end}.runner-hud{gap:7px;font-size:9px}.runner-hud b{margin-left:1px}.runner-hud .runner-lives{min-width:32px}.runner-hud button{font-size:9px}.runner-footer>button{font-size:9px}.runner-overlay p{font-size:11px}.runner-key-hints>span:last-child{display:none}}
+@media(any-pointer:coarse){.runner-touch{display:flex}.runner-hud{gap:9px}}

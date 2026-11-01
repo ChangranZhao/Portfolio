@@ -157,3 +157,6 @@ body:has(.case-window.case-immersive:not([hidden]):not(.closing):not(.minimizing
 .potato-story{width:100%;box-sizing:border-box}.potato-story h2{font-size:clamp(26px,3vw,42px);line-height:1.2}.potato-stills,.potato-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px;margin-top:32px}.potato-stills figure{margin:0;min-width:0}.potato-stills button{display:block;width:100%;padding:0;border:0;background:#171717;cursor:zoom-in}.potato-stills img{display:block;width:100%;height:auto}.potato-stills figcaption{font-size:13px;line-height:1.5;padding-top:10px}.potato-steps>div{border-top:1px solid #aaa;padding-top:12px}.potato-steps h3{font-size:18px}.potato-steps p{font-size:15px!important}@media(max-width:650px){.potato-stills,.potato-steps{grid-template-columns:1fr;gap:22px}}
 
 .path-paper-viewer{width:100%}.path-paper-viewer iframe{height:85vh!important;border-radius:0!important}.path-paper-viewer:fullscreen{background:#252525;width:100vw;height:100vh}.path-paper-viewer:fullscreen iframe{height:100vh!important;min-height:0!important;margin:0!important;border:0!important}#case-publication>.case-document{display:inline-block;margin:8px 12px 8px 0}
+
+/* Preserve native wheel response; chapter buttons navigate immediately. */
+.case-article{scroll-behavior:auto}

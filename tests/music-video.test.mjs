@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
 
-const source=(await readFile(new URL('../dist/background-music.js',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'').replaceAll('export function ','function ').replaceAll('import.meta.url',"'https://portfolio.test/background-music.js'");
+const source=(await readFile(new URL('../dist/background-music.js',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'').replaceAll('export ','').replaceAll('import.meta.url',"'https://portfolio.test/background-music.js'");
 function setup(enabled=true){
  const doc=new EventTarget(),win=new EventTarget(),players=[];let audio,mutation;
  doc.documentElement={};doc.querySelectorAll=()=>players;
  const storage=new Map([['portfolio-music-enabled',String(enabled)]]);
- vm.runInNewContext(source,{document:doc,window:win,location:{origin:'https://portfolio.test'},URL,registerTranslations(){},localStorage:{getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v)},Audio:class{constructor(){audio=this;this.paused=true;}play(){this.paused=false;return Promise.resolve();}pause(){this.paused=true;}},MutationObserver:class{constructor(fn){mutation=fn;}observe(){}}});
+ vm.runInNewContext(source,{document:doc,window:win,location:{origin:'https://portfolio.test'},URL,Event,registerTranslations(){},localStorage:{getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v)},Audio:class extends EventTarget{constructor(){super();audio=this;this.paused=true;}play(){this.paused=false;return Promise.resolve();}pause(){this.paused=true;}},MutationObserver:class{constructor(fn){mutation=fn;}observe(){}}});
  const event=(target,type,extra)=>{const e=new Event(type);Object.assign(e,extra);target.dispatchEvent(e);};
  return {audio,players,mutation:()=>mutation(),state(frame,state){event(doc,'portfolio-video-state',{detail:{frame,state}});},message(source,state,origin='https://portfolio.test'){event(win,'message',{source,origin,data:{type:'portfolio-video-state',state}});},gesture(){event(doc,'pointerdown',{});}};
 }

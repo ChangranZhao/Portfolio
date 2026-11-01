@@ -20,7 +20,7 @@ import {registerTranslations} from './localization.js';
 import {papers} from './papers.js';
 import {createExhibitOverview} from './exhibit-overview.js';
 import {createChangzhiProject,changzhiChapters} from './changzhi-project.js';
-import {createWindow,closeWindow} from './windows.js';
+import {createWindow,closeWindow,focusWindow,state} from './windows.js';
 import {archiveAssets} from './culture-assets.js';
 import {nextChapters} from './project-chapters.js';
 import {createFieldResearch} from './project-field-research.js';
@@ -38,6 +38,7 @@ registerTranslations([["Full screen ↗","全屏阅读 ↗"],["Research & Public
 const themes=[['VALUING ABILITY & ACHIEVEMENT','Skill · Merit · Creation','Craft and production offer a lens on knowledge, ability and creative achievement.'],['INCLUSIVENESS & OPENNESS','Exchange · Diversity · Connection','Ornaments, transport and urban spaces are linked through exchange and cultural diversity.'],['PRAGMATISM & ADAPTATION','Utility · Change · Innovation','Everyday objects and industrial equipment reveal changing needs and technical adaptation.'],['COMMERCE & INDUSTRY','Trade · Making · Circulation','Coins, measures and industrial archives are brought together around production and exchange.']];
 function panel(title,content){const node=el('section','case-panel');node.append(el('header','case-panel-bar','● ● ●     '+title),content);return node;}
 export function openProjectDetails(project,{openImage,openGallery,mount}){
+ if(!mount&&state.items.has('case-'+project.id)){focusWindow('case-'+project.id);return;}
  if(project.id==='p14')project={...project,introduction:"This AI-generated short film takes viewers on a whimsical journey to Mars, imagining a world where potatoes have developed consciousness and built their own civilization. Through the absurd premise of potato rule on the Red Planet, the film explores the human dream of space colonization from a fresh, non-human perspective.\n\nBlending satire with sci-fi, the film offers a humorous yet thought-provoking reflection on humanity’s quest to explore the cosmos. By reinterpreting serious themes like aerospace ambition through the lens of playful storytelling, it brings space exploration closer to everyday audiences, igniting curiosity and celebrating the spirit of human imagination and perseverance — all while making us laugh."};
  let featuredExhibitReader=null,disposeFigma=null;
  const id='case-'+project.id,root=el('div','case-reader'),toolbar=el('div','case-browser-toolbar');
@@ -55,7 +56,7 @@ export function openProjectDetails(project,{openImage,openGallery,mount}){
   video.append(createYouTubeFacade(frame,{poster:project.images[0]?.preview||project.images[0]?.src}));article.append(video);
  }
 
- const jump=(target)=>article.querySelector('#'+target)?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches||document.body.classList.contains('reduce-motion')?'instant':'smooth',block:'start'});
+ const jump=(target)=>article.querySelector('#'+target)?.scrollIntoView({behavior:'instant',block:'start'});
  const chapterList=project.id==='p7'?mimesisChapters:project.id==='p12'?blueChapters:project.id==='p9'?neuroChapters:project.id==='p6'?changzhiChapters:hasFigmaDetails(project.id)?figmaChapters(project.id):project.id==='p1'?[['Overview','case-overview'],['Family Factors','case-family'],['Cultural Research','case-culture'],...nextChapters.map(c=>[c.nav,c.id])]:[['Overview','case-overview'],['Project Images','case-images']];
  for(const [label,target] of chapterList)chapters.append(btn(label,()=>jump(target)));
  chapters.append(btn('Project Photos ↗',()=>openGallery(project.id),'case-photos'));

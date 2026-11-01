@@ -1,0 +1,9 @@
+/* Cover-only layout: reserve the title band before the image / reading columns. */
+[data-node-id="928:857"]{left:72px!important;top:40px!important;width:1720px!important;height:310px!important;font-size:110px!important;line-height:1.03!important}
+[data-node-id="928:857"]>p:first-child{width:1250px;max-width:100%;margin:0!important;font-size:110px;line-height:1.03!important}
+[data-node-id="928:857"]>p:nth-child(2){width:1720px;margin:18px 0 0!important;font-size:52px;line-height:1.1!important}
+[data-node-id="928:857"]>p:nth-child(2)>span{font-size:inherit;line-height:inherit!important}
+[data-node-id="928:859"]{left:72px!important;top:430px!important;width:840px!important;height:462px!important}
+[data-node-id="928:861"]{left:1040px!important;top:430px!important;width:730px!important;overflow:visible!important}
+[data-node-id="928:864"]{left:1040px!important;top:725px!important;width:730px!important;overflow:visible!important}
+[data-node-id="928:861"] p,[data-node-id="928:864"] p{margin:0!important;max-width:100%;line-height:1.4!important}

@@ -1,3 +1,4 @@
+import {projectCopy} from './project-copy.js';
 import {createTaskQueue} from './runtime-scheduling.js';
 import {traditional} from './chinese-traditional.js';
 import {projects} from './data.js';
@@ -77,13 +78,13 @@ Find a project|查找项目
 Spotlight — Projects|搜索项目
 Search projects / 搜索作品|搜索作品
 No matching projects / 没有匹配的作品|没有匹配的作品
-CHANGRAN ZHAO|赵畅然
-Changran Zhao|赵畅然
+CHANGRAN ZHAO|赵昶然
+Changran Zhao|赵昶然
 Active|当前使用中
 Digital Media Art|数字媒体艺术
 Lead of Atavism FZ Studio|返祖现象工作室负责人
 Digital Creation and Interaction|数字创作与交互
-Studio’s Work|工作室作品
+My works|我的作品
 THU Design Intern|清华大学设计研究实习
 Lumen Prize Finalist 2025|2025 流明奖入围
 Muse Creative Awards Golden|缪斯创意奖 · 金奖
@@ -307,20 +308,22 @@ export const zhText=new Map(entries.trim().split('\n').map(row=>row.split('|')))
 const norm=s=>s.replace(/\s+/g,' ').trim();
 // Stable source keys keep a language switch reversible, including already-open windows.
 const dictionary=new Map([...zhText].map(([a,b])=>[norm(a),b]));
-export function registerTranslations(pairs){for(const [a,b] of pairs)dictionary.set(norm(a),b);replacements=null;translationCache.clear();}
+const englishSources=new Map([...dictionary].map(([en,zh])=>[norm(zh),en]));
+export function registerTranslations(pairs){for(const [a,b] of pairs){dictionary.set(norm(a),b);englishSources.set(norm(b),a);}replacements=null;englishReplacements=null;translationCache.clear();}
 const translationCache=new Map();
-let replacements;let lang='zh';const originals=new WeakMap();const attrOriginals=new WeakMap();let observer;
-export function localizeText(value){if(lang==='en')return value;const cacheKey=lang+'\0'+value;if(translationCache.has(cacheKey))return translationCache.get(cacheKey);const key=norm(value);let translated=dictionary.get(key);if(translated===undefined){translated=key;for(const [a,b] of (replacements??=[...dictionary].filter(([a])=>a.length>5).sort((a,b)=>b[0].length-a[0].length))){if(translated.includes(a))translated=translated.replaceAll(a,b)}translated=translated.replace(/\b(\d+) projects\b/g,'$1 个项目').replace(/\b(\d+) images\b/g,'$1 张图片').replace(/\b(\d+) pages\b/g,'$1 页').replace(/\bNext \/ /g,'下一章 / ').replace(/\bpage[ _]?(\d+)/gi,'页面 $1').replace(/\bexhibit photo[ _]?(\d+)/gi,'展览照片 $1');}
+let replacements,englishReplacements;let lang='zh';const originals=new WeakMap();const attrOriginals=new WeakMap();let observer;
+export function localizeText(value){if(lang==='en'){if(!/[\u3400-\u9fff]/.test(value))return value;englishReplacements??=[...englishSources].filter(([zh,en])=>!/[\u3400-\u9fff]/.test(en)&&/[\u3400-\u9fff]/.test(zh)).sort((a,b)=>b[0].length-a[0].length);const exact=englishReplacements.find(([zh])=>zh===norm(value));if(exact)return value.replace(value.trim(),exact[1]);let out=value;for(const [zh,en] of englishReplacements)if(zh.length>=2&&out.includes(zh))out=out.replaceAll(zh,en);return out;}const cacheKey=lang+'\0'+value;if(translationCache.has(cacheKey))return translationCache.get(cacheKey);const key=norm(value);let translated=dictionary.get(key);if(translated===undefined){translated=key;for(const [a,b] of (replacements??=[...dictionary].filter(([a])=>a.length>5).sort((a,b)=>b[0].length-a[0].length))){if(translated.includes(a))translated=translated.replaceAll(a,b)}translated=translated.replace(/\b(\d+) projects\b/g,'$1 个项目').replace(/\b(\d+) images\b/g,'$1 张图片').replace(/\b(\d+) pages\b/g,'$1 页').replace(/\bNext \/ /g,'下一章 / ').replace(/\bpage[ _]?(\d+)/gi,'页面 $1').replace(/\bexhibit photo[ _]?(\d+)/gi,'展览照片 $1');}
 const result=translated===key?value:translated;const output=lang==='zh-Hant'?[...result].map(c=>traditional[c]||c).join(''):result;if(translationCache.size>=3000)translationCache.clear();translationCache.set(cacheKey,output);return output;}
+export function setLocalizedAttribute(el,attr,source){const next=localizeText(source),record=attrOriginals.get(el)||{};record[attr]={source,last:next};attrOriginals.set(el,record);el.setAttribute(attr,next);}
 function translateNode(node){const current=node.nodeValue;const record=originals.get(node);const source=record&&current===record.last?record.source:current;const translated=localizeText(source);if(current!==translated)node.nodeValue=translated;originals.set(node,{source,last:translated});node.parentElement?.classList.toggle('contains-chinese',[...node.parentElement.childNodes].some(n=>n.nodeType===3&&/[\u3400-\u9fff]/.test(n.nodeValue)));}
 function* translationSteps(root){
  if(root.nodeType===3){if(!root.parentElement?.closest('script,style,pre,code,textarea,select,[data-no-localize]'))translateNode(root);return;}
  if(root.nodeType!==1||root.closest('script,style,pre,code,textarea,select,[data-no-localize]'))return;
  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let node;
  while((node=walker.nextNode())){if(!root.isConnected)return;if(!node.parentElement.closest('script,style,pre,code,textarea,select,[data-no-localize]'))translateNode(node);yield;}
- for(const el of [root,...root.querySelectorAll('[title],[aria-label],[placeholder],[data-label]')]){
+ for(const el of [root,...root.querySelectorAll('[title],[alt],[aria-label],[placeholder],[data-label]')]){
   if(!root.isConnected)return;const record=attrOriginals.get(el)||{};
-  for(const attr of ['title','aria-label','placeholder','data-label']){if(!el.hasAttribute(attr))continue;const current=el.getAttribute(attr),old=record[attr],source=old&&old.last===current?old.source:current;const next=localizeText(source);if(next!==current)el.setAttribute(attr,next);record[attr]={source,last:next};}
+  for(const attr of ['title','alt','aria-label','placeholder','data-label']){if(!el.hasAttribute(attr))continue;const current=el.getAttribute(attr),old=record[attr],source=old&&old.last===current?old.source:current;const next=localizeText(source);if(next!==current)el.setAttribute(attr,next);record[attr]={source,last:next};}
   attrOriginals.set(el,record);yield;
  }
 }
@@ -557,3 +560,7 @@ registerTranslations([["This installation combines artificial intelligence and f
 
 // MIMESIS introduction; Traditional Chinese uses the global conversion.
 registerTranslations([["The question 'Do Androids Dream of Electric Sheep?' has always been a conundrum in the scientific community. What does AI really look like? Does AI possess autonomous consciousness like humans? Since the advent of artificial intelligence, humanity has been inundated with inquiries about it. With the advancement of technology, AI has gradually increased in computational power. The development of generative artificial intelligence has led AI to permeate into every aspect of human life, becoming a 'tool' for humans. In many science fiction works, artificial intelligence is often depicted with stereotypical traits such as 'mechanical,' 'digital,' or 'metallic.' So, what is the true form of AI? Is AI more than just a tool? In this age of intelligence, should we reconsider the relationship between humans and artificial intelligence?","“仿生人会梦见电子羊吗？”这一问题始终是科学界的一道谜题。AI 究竟是什么样子？AI 是否像人类一样拥有自主意识？自人工智能诞生以来，人类对它的追问便从未停止。随着技术的进步，AI 的计算能力逐步提升。生成式人工智能的发展，让 AI 渗透到人类生活的方方面面，成为人类的“工具”。在许多科幻作品中，人工智能常被赋予“机械”“数字”或“金属”等刻板印象。那么，AI 的真实形态究竟是什么？AI 是否不仅仅是一种工具？在这个智能时代，我们是否应该重新思考人类与人工智能之间的关系？"],["This work aims to explore these questions by portraying the image of AI in an unconventional manner, emphasizing 'anti-mechanical' and 'vitality.' We envision AI as a form of attire worn by humans, liberated from its mechanical shell, no longer serving as a mere 'tool' for humans, but reshaping itself into a new existence. In this symbiotic relationship, we and AI coexist.","本作品试图以非常规的方式描绘 AI 的形象，强调“反机械”与“生命力”，以此探索上述问题。我们将 AI 想象为人类穿戴的一种服饰：它摆脱机械的外壳，不再仅仅作为人类的“工具”，而是重塑自身，成为一种新的存在。在这种共生关系中，我们与 AI 共同存在。"],["'Flourishing growth' symbolizes the sprouting of life, the passage of time — perhaps we have never associated AI with life, but with the emergence of generative artificial intelligence, AI gradually acquires the ability for autonomous creation, reshaping the relationship between humans and artificial intelligence. If smartphones are indispensable accessories in the age of smart media, even perceived as an 'organ,' then artificial intelligence represents the 'external' aspect of humanity, a virtual embodiment of humans in the digital society, much like a mask or a garment draped over our outward appearance. As AI becomes more prevalent and widely used, the relationship between humans and artificial intelligence is evolving, thereby influencing the developmental trends of future media eras.","“蓬勃生长”象征着生命的萌发与时间的流逝——或许我们从未将 AI 与生命联系起来，但随着生成式人工智能的出现，AI 逐渐获得自主创作的能力，也重塑着人类与人工智能之间的关系。如果说智能手机是智能媒体时代不可或缺的配饰，甚至被视为一种“器官”，那么人工智能则代表着人类的“外在”，是人类在数字社会中的虚拟化身，如同覆盖于外表的面具或披在身上的衣服。随着 AI 日益普及并被广泛使用，人类与人工智能的关系正在演变，并由此影响未来媒体时代的发展趋势。"]]);
+
+registerTranslations([["Back cover","封底"],["Design background","设计背景"],["Color guidelines","颜色规范"],["Floor plan","平面图"],["source file","源文件"],["Qi Culture Classics Center floor plan 1","齐文化典籍中心平面图1"],["Qi Culture Classics Center floor plan 2","齐文化典籍中心平面图2"]]);
+
+registerTranslations(Object.values(projectCopy).flat());

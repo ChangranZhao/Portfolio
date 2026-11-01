@@ -6,8 +6,9 @@ export function setupDesktopDrift(desktop){
     const angle=.7+i*2.39996,speed=19+(i%6)*2;
     return {el,i,x:0,y:0,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed};
   });
-  let timer,frame=0,running=false,last=0,measureFrame=0,hovered=false;
-  const disabled=()=>hovered||innerWidth<=700||reduced.matches||document.body.classList.contains('reduce-motion')||document.hidden||document.body.classList.contains('guide-open')||document.body.classList.contains('tour-active')||[...state.items.values()].some(w=>!w.minimized);
+  let timer,frame=0,running=false,last=0,measureFrame=0,hovered=false,booting=!!document.getElementById('startup-screen');
+  const overlayOpen=()=>!!document.querySelector('.system-control-center:not([hidden]),.dropdown:not([hidden]),dialog[open]');
+  const disabled=()=>booting||hovered||innerWidth<=700||reduced.matches||document.body.classList.contains('reduce-motion')||document.hidden||document.body.classList.contains('guide-open')||document.body.classList.contains('tour-active')||overlayOpen()||[...state.items.values()].some(w=>!w.minimized);
   function paint(p){
     // A single transform owns positioning; no competing filled translate animation.
     if(innerWidth<=700){p.el.style.removeProperty('transform');return;}
@@ -51,12 +52,16 @@ export function setupDesktopDrift(desktop){
     if(!disabled())timer=setTimeout(start,2000);
   }
   for(const event of ['pointerdown','click','keydown','wheel'])document.addEventListener(event,pause,{passive:true,capture:true});
+  window.addEventListener('creativeos-startup-finished',()=>{booting=false;pause();},{once:true});
   document.addEventListener('portfolio-windows-changed',pause);
   document.addEventListener('visibilitychange',pause);
   function scheduleMeasure(){if(measureFrame)return;measureFrame=requestAnimationFrame(()=>{measureFrame=0;pause();measure()});}
   window.addEventListener('resize',scheduleMeasure);
   reduced.addEventListener('change',pause);
   new MutationObserver(pause).observe(document.body,{attributes:true,attributeFilter:['class']});
+  // Popovers are not managed windows. Keep their backdrop stable for the whole
+  // interaction, including openings by hover/keyboard and switches between menus.
+  new MutationObserver(records=>{if(records.some(record=>record.target.matches('.system-control-center,.dropdown,dialog')))pause();}).observe(document.body,{subtree:true,attributes:true,attributeFilter:['hidden','open']});
   for(const p of icons){p.el.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){hovered=true;pause();}});p.el.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'){hovered=false;pause();}});paint(p);const img=p.el.querySelector('img');if(img&&!img.complete)img.addEventListener('load',scheduleMeasure,{once:true});}
   pause();
 }

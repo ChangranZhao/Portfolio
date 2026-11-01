@@ -2,29 +2,29 @@
   font-family: 'Arimo';
   font-style: normal;
   font-weight: 400;
-  src: url('assets/figma-fonts/Arimo-400.ttf') format('truetype');
-}
+  src: url('assets/figma-fonts/Arimo-400.woff2') format('woff2');
+font-display:swap;}
 @font-face {
   font-family: 'Arimo';
   font-style: normal;
   font-weight: 700;
-  src: url('assets/figma-fonts/Arimo-700.ttf') format('truetype');
-}
+  src: url('assets/figma-fonts/Arimo-700.woff2') format('woff2');
+font-display:swap;}
 @font-face {
   font-family: 'IBM Plex Mono';
   font-style: normal;
   font-weight: 400;
-  src: url('assets/figma-fonts/IBMPlexMono-400.ttf') format('truetype');
-}
+  src: url('assets/figma-fonts/IBMPlexMono-400.woff2') format('woff2');
+font-display:swap;}
 @font-face {
   font-family: 'IBM Plex Mono';
   font-style: normal;
   font-weight: 700;
-  src: url('assets/figma-fonts/IBMPlexMono-700.ttf') format('truetype');
-}
+  src: url('assets/figma-fonts/IBMPlexMono-700.woff2') format('woff2');
+font-display:swap;}
 
 @font-face{font-family:Inter;font-style:normal;font-weight:100 900;font-display:swap;src:url('assets/inter-latin.woff2') format('woff2')}
-@font-face{font-family:Anton;font-style:normal;font-weight:400;font-display:swap;src:url('assets/figma-fonts/Anton-Regular.ttf') format('truetype')}
+@font-face{font-family:Anton;font-style:normal;font-weight:400;font-display:swap;src:url('assets/figma-fonts/Anton-Regular.woff2') format('woff2')}
 /* The original editorial boards have fixed collage geometry; the reader scales
    each live HTML board as a whole, preserving its designed crops and type. */
 *{box-sizing:border-box;border-width:0;border-style:solid;border-color:currentColor}

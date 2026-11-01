@@ -1,10 +1,13 @@
-import {readFile,writeFile,readdir,mkdir,rm,cp,stat} from 'node:fs/promises';
+import {readFile,writeFile,readdir,mkdir,rm,cp} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {optimizeImage} from './image-optimization.mjs';
 import {bundleSite} from './bundle-site.mjs';
 import sharp from 'sharp';
+import {buildReact} from './build-react.mjs';
+import {pagesHeaders} from './pages-headers.mjs';
+await buildReact();
 const root=fileURLToPath(new URL('../',import.meta.url));
 const source=path.join(root,'dist'),output=path.join(root,'site');
 // Only the dedicated generated output directory is cleaned.
@@ -61,22 +64,8 @@ await emit('cultural-digitalization.html');await emit('changzhi.html');await emi
 for(const directory of runtimeDirectories)await cp(path.join(source,directory),path.join(output,directory),{recursive:true});
 await bundleSite(output,manifest);
 await writeFile(path.join(output,'.nojekyll'),'');
-await writeFile(path.join(output,'_headers'),'/*\n  Cache-Control: public, max-age=0, must-revalidate\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n');
+await writeFile(path.join(output,'_headers'),pagesHeaders());
 await writeFile(path.join(output,'asset-manifest.json'),JSON.stringify(manifest,null,2));
-// Cloudflare Pages rejects the entire deployment if any output file exceeds 25 MiB.
-const maxAssetBytes=25*1024*1024;
-const oversized=[];
-async function checkOutputSizes(directory){
-  for(const entry of await readdir(directory,{withFileTypes:true})){
-    const file=path.join(directory,entry.name);
-    if(entry.isDirectory())await checkOutputSizes(file);
-    else if(entry.isFile()){
-      const {size}=await stat(file);
-      if(size>maxAssetBytes)oversized.push(`${path.relative(output,file)} (${(size/1024/1024).toFixed(2)} MiB)`);
-    }
-  }
-}
-await checkOutputSizes(output);
-if(oversized.length)throw new Error('Cloudflare Pages file limit exceeded (25 MiB). Compress these assets before deploying:\n'+oversized.join('\n'));
+// npm postbuild runs the shared deployment verifier (sizes, counts and references).
 console.log(`Built ${Object.keys(manifest).length} referenced files into site/ with content-hashed URLs.`);
 console.log(`Optimized ${optimizedImages} images: ${(imageBytesBefore/1048576).toFixed(1)} → ${(imageBytesAfter/1048576).toFixed(1)} MiB; source images preserved.`);

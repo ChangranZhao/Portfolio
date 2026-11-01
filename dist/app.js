@@ -1,9 +1,13 @@
-import {addMusicSettings} from './background-music.js';
+import {setupDockMotion} from './dock-motion.js';
 import {localizeText} from './localization.js';
-import {initGuide,addGuideSettings} from './user-guide.js';
+import {initGuide} from './user-guide.js';
 import {projects,dockIcons} from './data.js';
-import {createWindow,focusWindow,closeWindow,minimizeWindow,hideAll,restoreAll,setWindowChange,makeDraggable,state} from './windows.js';
-import {createProfileWorkspace} from './profile.js';
+import {systemDockIcons} from './system-apps.js';
+import {createWindow,focusWindow,closeWindow,minimizeWindow,hideAll,setWindowChange,makeDraggable,updateWindowMetadata,state} from './windows.js';
+import {openReactApplication,warmReactApplications,setupLiquidGlass} from './react-bridge.js';
+import {decorateWindowControls} from './window-controls.js';
+import {setupApplicationMenus} from './app-menus.js';
+import {setupControlCenter} from './control-center.js';
 import {setupDesktopDrift} from './desktop-motion.js';
 
 const $=(s,root=document)=>root.querySelector(s);
@@ -27,7 +31,7 @@ function setImageSource(img,src,sizes){
 function image(src,alt,cls=''){const im=element('img',cls);im.alt=alt;im.decoding='async';im.loading='lazy';setImageSource(im,src);return im;}
 function findImage(p,match){return Math.max(0,p.images.findIndex(im=>im.path.toLowerCase().includes(match.toLowerCase())));}
 function cover(p){const match={p1:'Tianqiyuan',p3:'3654b331',p5:'exhibit_photo5',p6:'RenderProcess_In_Unity1'}[p.id];return p.images[match?findImage(p,match):0];}
-const profileWorkspace=createProfileWorkspace({projects,cover,openProject,openPhotos,openCollection});
+const reactActions={openProject:id=>openProject(id,0,true),openDetails:id=>openDetails(byId(id)),openImage:openLightbox,openApp:openTool,closeApp:name=>closeWindow(({Settings:'settings',About:'settings',Terminal:'terminal',Photos:'photos',Projects:'projects',VSCode:'vscode'})[name]||'tool-'+name)};
 const menuOwnership=new Map();
 
 // Coordinates follow the supplied 16:9 desktop. Repeated entries open specific views of a project.
@@ -119,8 +123,10 @@ function openProject(pid,index=0,galleryOnly=false,reuseId=null){
   else overview.append(element('p','','Browse the exhibition photographs, visual studies and project pages in the gallery. / 项目图像与过程资料请见 Gallery。'));
   if(p.documents.length){for(const doc of p.documents){const a=element('a','doc-link','↗ '+doc.name);a.href=doc.src;a.target='_blank';a.rel='noopener';overview.append(a);}}
   content.append(toolbar,gallery,overview);layout.append(sidebar,content);
-  const win=createWindow({id:reuseId||pid,title:p.title,content:layout,width:1050,height:710});
-  if(reuseId){win.el.querySelector('.window-body').replaceChildren(layout);win.el.querySelector('.window-title').textContent=p.title;win.el.setAttribute('aria-label',p.title);}
+  const win=createWindow({id:reuseId||pid,title:p.title,content:layout,width:1050,height:710,className:'gallery-window'});
+  if(reuseId)win.el.querySelector('.window-body').replaceChildren(layout);
+  const bar=win.el.querySelector('.window-titlebar');bar.querySelector('.project-toolbar')?.remove();bar.append(toolbar);
+  updateWindowMetadata(reuseId||pid,p.title,cover(p).thumb);
   let current=0;
   function setImage(i){current=(i+p.images.length)%p.images.length;const im=p.images[current];setImageSource(mainImage,im.src);mainImage.loading='eager';mainImage.alt=p.title+' — '+im.name;counter.textContent=`${String(current+1).padStart(2,'0')} / ${String(p.images.length).padStart(2,'0')}`;captionName.textContent=im.name;thumbs.forEach((b,j)=>{b.classList.toggle('active',j===current);b.setAttribute('aria-pressed',j===current?'true':'false');});const t=thumbs[current];filmstrip.scrollTo({left:Math.max(0,t.offsetLeft-filmstrip.offsetLeft-filmstrip.clientWidth/2+t.clientWidth/2),behavior:'smooth'});}
   projectViews.set(reuseId||pid,{showImage:i=>{showMode('gallery');setImage(i);}});setImage(index);
@@ -138,59 +144,23 @@ $('#zoom-image').onclick=()=>{const zoomed=$('.lightbox-image-wrap').classList.t
 lightbox.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){e.preventDefault();stepLightbox(1);}if(e.key==='ArrowLeft'){e.preventDefault();stepLightbox(-1);}});
 lightbox.addEventListener('click',e=>{if(e.target===lightbox)lightbox.close();});
 
-function projectCard(p){const b=button('',()=>openProject(p.id),'project-card');const im=image(cover(p).thumb,p.title);im.loading='lazy';b.append(im,element('strong','',p.title),element('small','',p.category));return b;}
-function openCollection(search=false){
-  const root=element('div','collection');const head=element('div','collection-header');head.append(element('h1','',search?'Find a project':'Selected works'),element('span','',`${projects.length} projects · ${projects.reduce((s,p)=>s+p.images.length,0)} images`));root.append(head);
-  const grid=element('div','project-grid');
-  if(search){const input=element('input','search-box');input.type='search';input.placeholder='Search projects / 搜索作品';input.setAttribute('aria-label','Search portfolio projects');root.append(input);input.oninput=()=>render(input.value);}
-  root.append(grid);
-  function render(q=''){grid.replaceChildren();const matches=projects.filter(p=>(p.title+' '+p.category+' '+p.introduction+' '+localizeText(p.title)+' '+localizeText(p.category)).toLowerCase().includes(q.toLowerCase()));for(const p of matches)grid.append(projectCard(p));if(!matches.length)grid.append(element('p','empty-message','No matching projects / 没有匹配的作品'));}
-  render();const result=createWindow({id:search?'search':'projects',title:search?'Spotlight — Projects':'Portfolio — Selected works',content:root,width:900,height:680});if(search&&!result.existing)$('input',result.el).focus();
-}
+function openCollection(search=false){openReactApplication('Projects',reactActions,{search});}
 
 function infoWindow(id,title,build,width=550,height=570){const page=element('div','info-page');build(page);return createWindow({id,title,content:page,width,height});}
 function openAbout(section='about'){
-  if(section==='about')profileWorkspace.openWorkspace();else profileWorkspace.openSection(section);
+ const sections={about:'overview',education:'experience',experience:'experience',studio:'commercial',awards:'awards',research:'research','research-poster':'research'};
+ openReactApplication('About',reactActions,{section:sections[section]||'overview'});
 }
-
-const toolDescriptions={
- Figma:['Interface & experience design','Explore interface studies and interactive experiences.',['p10','p13']],
- Illustrator:['Visual communication','Explore graphic compositions, exhibition identity and portfolio pages.',['p1','p10','p14']],
- Cursor:['Creative coding','Browse the projects and their development material.',['p2','p8']],
- ChatGPT:['Concept & dialogue','Browse interactive projects and conceptual explorations.',['p2','p3']],
- Unity:['Real-time worlds','Explore digital reconstruction assets, rendering processes and immersive environments.',['p6','p1']],
- UnrealEngine:['Immersive environments','Explore spatial and immersive work in the portfolio.',['p1','p9']],
- TouchDesigner:['Interactive media','Explore installation imagery and interaction experiments.',['p4','p5','p8']],
- Notion:['Project notebook','Read project introductions and explore the complete archive.',[]]
-};
 function openTool(name){
-  if(name==='Photos'){openPhotos();return;}if(name==='Terminal'){openTerminal();return;}if(name==='Trash'){openTrash();return;}if(name==='VSCode'){openCode();return;}
-  const [heading,desc,ids]=toolDescriptions[name]||[name,'',[]];
-  infoWindow('tool-'+name,name,page=>{
-    page.append(image(dockIcons.find(i=>i.name===name).src,name,'tool-icon'),element('div','eyebrow','CREATIVE TOOLBOX'),element('h1','',name==='UnrealEngine'?'Unreal Engine':name),element('h2','',heading),element('p','',desc));
-    const actions=element('div','tool-actions');(ids.length?ids:projects.map(p=>p.id)).forEach(id=>actions.append(button(byId(id).title,()=>openProject(id))));page.append(actions);
-    page.append(element('p','muted-note','Explore the portfolio through this tool’s creative field. / 按创作领域浏览作品。'));
-  },540,550);
+ if(name==='Terminal'){openTerminal();return;}if(name==='Trash'){openTrash();return;}
+ openReactApplication(name,reactActions);
 }
-function openPhotos(){
-  const page=element('div','collection'),head=element('div','collection-header');head.append(element('h1','','Photo Library'),element('span','',projects.reduce((s,p)=>s+p.images.length,0)+' images'));page.append(head);
-  const grid=element('div','photo-grid');for(const p of projects)for(const [i,im] of p.images.entries()){const b=button('',()=>openLightbox(p.images,i,p.title));b.setAttribute('aria-label',p.title+' — '+im.name);const pic=image(im.thumb,p.title+' — '+im.name);pic.loading='lazy';b.append(pic);grid.append(b);}page.append(grid);
-  createWindow({id:'photos',title:'Photos — All projects',content:page,width:850,height:690});
-}
-function openTerminal(){
-  const terminal=element('div','terminal'),output=element('div','terminal-output','Changran’s portfolio\nType help for available commands.\n\n');
-  const prompt=element('form','terminal-prompt'),input=element('input','terminal-input');input.setAttribute('aria-label','Terminal command');input.autocomplete='off';input.spellcheck=false;prompt.append(element('span','','visitor ~ %'),input);terminal.append(output,prompt);
-  prompt.onsubmit=e=>{e.preventDefault();const raw=input.value.trim(),cmd=raw.toLowerCase();input.value='';output.textContent+='visitor ~ % '+raw+'\n';
-    if(cmd==='help')output.textContent+='help             Available commands\nls               List all projects\nopen <ID>        Open a project (use ls for IDs)\nabout            About Changran\nclear            Clear this window\n\n';
-    else if(cmd==='ls')output.textContent+=projects.map(p=>p.id.padEnd(5)+p.title).join('\n')+'\n\n';
-    else if(cmd==='about'){openAbout();output.textContent+='Opened About Me.\n\n';}
-    else if(cmd==='clear')output.textContent='';
-    else if(cmd.startsWith('open ')){const id=cmd.slice(5).trim();if(byId(id)){openProject(id);output.textContent+='Opened '+byId(id).title+'\n\n';}else output.textContent+='Unknown project. Type ls to view project IDs.\n\n';}
-    else if(cmd)output.textContent+='Command not found. Type help.\n\n';terminal.scrollTop=terminal.scrollHeight;
-  };const win=createWindow({id:'terminal',title:'Terminal — portfolio',content:terminal,width:650,height:430});if(!win.existing)input.focus();
-}
+function openPhotos(){openReactApplication('Photos',reactActions);}
+
+function openTerminal(){openReactApplication('Terminal',reactActions);}
+
 function openTrash(){infoWindow('trash','Trash',page=>{page.append(image(dockIcons.find(i=>i.name==='Trash').src,'','tool-icon'),element('h1','','The Trash is empty'),element('p','','All good ideas are still on the desktop.'),button('Back to the desktop',()=>{hideAll();},'action-button secondary-button'));},430,350);}
-function openCode(){infoWindow('vscode','Portfolio — Project index',page=>{page.append(image(dockIcons.find(i=>i.name==='VSCode').src,'Visual Studio Code','tool-icon'),element('h1','','Project index'),element('pre','code-view',JSON.stringify(projects.map(p=>({name:p.title,images:p.images.length})),null,2)),button('Open selected works',()=>openCollection(),'action-button'));},580,620);}
+function openCode(){openReactApplication('VSCode',reactActions);}
 
 const desktopSizeControls=[
   ['Desktop icon size','--desktop-icon-scale',70,140],
@@ -200,38 +170,21 @@ const desktopSizeControls=[
 const desktopSizes={};
 try{const saved=JSON.parse(localStorage.getItem('portfolio-desktop-sizes')||'{}');for(const [,key,min,max] of desktopSizeControls){const n=Number(saved[key]);desktopSizes[key]=Number.isFinite(n)?Math.max(min,Math.min(max,n)):100;}}catch{}
 for(const [,key] of desktopSizeControls){desktopSizes[key]??=100;document.documentElement.style.setProperty(key,desktopSizes[key]/100);}
-function setDesktopSize(key,value){
-  desktopSizes[key]=Number(value);document.documentElement.style.setProperty(key,Number(value)/100);
-  try{localStorage.setItem('portfolio-desktop-sizes',JSON.stringify(desktopSizes));}catch{}
-  if(key==='--dock-scale')requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
-}
-function openSettings(){
-  infoWindow('settings','Control Center',page=>{
-    page.append(element('div','eyebrow','DESKTOP'),element('h1','','Make yourself at home'));addGuideSettings(page);addMusicSettings(page);
-    for(const [label,key,min,max,value] of [['Wallpaper brightness','--wall-brightness',.5,1.2,1],['Wallpaper blur','--wall-blur',0,12,0]]){
-      const row=element('div','settings-row'),lab=element('label','',label),input=element('input');input.type='range';input.min=min;input.max=max;input.step=key==='--wall-blur'?'1':'.05';input.value=parseFloat(document.documentElement.style.getPropertyValue(key))||value;input.setAttribute('aria-label',label);input.oninput=()=>document.documentElement.style.setProperty(key,input.value+(key==='--wall-blur'?'px':''));row.append(lab,input);page.append(row);
-    }
-    for(const [text,key,min,max] of desktopSizeControls){
-      const row=element('div','settings-row'),label=element('label','',text),output=element('output','',desktopSizes[key]+'%'),input=element('input');
-      input.id='setting'+key;input.type='range';input.min=min;input.max=max;input.step=5;input.value=desktopSizes[key];input.setAttribute('aria-label',text);label.htmlFor=input.id;
-      input.oninput=()=>{setDesktopSize(key,input.value);output.value=input.value+'%';};label.append(output);row.append(label,input);page.append(row);
-    }
-    page.append(button('Show desktop',()=>{hideAll();},'action-button'),button('Restore windows',()=>restoreAll(),'action-button secondary-button'));
-    page.append(button('Restore title window',()=>{$('#title-window').hidden=false;toast('Portfolio title restored');},'action-button secondary-button'));
-  },470,740);
-}
+function openSettings(){openReactApplication('Settings',reactActions);}
 function openCalendar(){
   let month=new Date();const page=element('div','info-page'),head=element('div','calendar-title'),title=element('h2'),grid=element('div','calendar-grid');
   const render=()=>{title.textContent=month.toLocaleDateString(document.documentElement.lang,{month:'long',year:'numeric'});grid.replaceChildren();for(const d of ['S','M','T','W','T','F','S'])grid.append(element('span','weekday',d));const first=new Date(month.getFullYear(),month.getMonth(),1).getDay(),days=new Date(month.getFullYear(),month.getMonth()+1,0).getDate();for(let i=0;i<first;i++)grid.append(element('span'));const today=new Date();for(let d=1;d<=days;d++)grid.append(element('span',d===today.getDate()&&month.getMonth()===today.getMonth()&&month.getFullYear()===today.getFullYear()?'today':'',d));};
   const prev=button('‹',()=>{month=new Date(month.getFullYear(),month.getMonth()-1,1);render();});prev.setAttribute('aria-label','Previous month');const next=button('›',()=>{month=new Date(month.getFullYear(),month.getMonth()+1,1);render();});next.setAttribute('aria-label','Next month');head.append(prev,title,next);page.append(head,grid);render();createWindow({id:'calendar',title:'Calendar',content:page,width:375,height:405});
 }
 
-const dock=$('#dock'),dockOrder=['Figma','Illustrator','Cursor','ChatGPT','Unity','UnrealEngine','TouchDesigner','Notion','Photos','Terminal','VSCode','Trash'];
+const dock=$('#dock'),dockOrder=['Finder','Launchpad','Safari','Figma','Illustrator','Cursor','ChatGPT','Unity','UnrealEngine','TouchDesigner','Notion','Photos','Music','Terminal','VSCode','GitHub','AppStore','Settings','Trash'];
+const allDockIcons=[...systemDockIcons,...dockIcons];
 for(const name of dockOrder){
   if(name==='Notion'||name==='Trash')dock.append(element('span','dock-separator'));
-  const icon=dockIcons.find(i=>i.name===name);if(!icon)continue;
-  const b=button('',()=>{b.classList.remove('bounce');void b.offsetWidth;b.classList.add('bounce');openTool(name);},'dock-item');b.dataset.windowId=({Photos:'photos',Terminal:'terminal',Trash:'trash',VSCode:'vscode'})[name]||'tool-'+name;b.dataset.label=name==='UnrealEngine'?'Unreal Engine':name;b.setAttribute('aria-label','Open '+b.dataset.label);b.append(image(icon.src,''));dock.append(b);
+  const icon=allDockIcons.find(i=>i.name===name);if(!icon)continue;
+  const b=button('',()=>{if(!matchMedia('(prefers-reduced-motion:reduce)').matches&&!document.body.classList.contains('reduce-motion')){const icon=b.querySelector('.dock-icon-surface');icon?.getAnimations().forEach(a=>a.cancel());icon?.animate([{translate:'0 0'},{translate:`0 ${-Math.min(8,b.offsetWidth*.15)}px`,offset:.5},{translate:'0 0'}],{duration:300,easing:'ease-out'});}openTool(name);},'dock-item');b.dataset.windowId=({Photos:'photos',Terminal:'terminal',Trash:'trash',VSCode:'vscode'})[name]||'tool-'+name;b.dataset.label=name==='UnrealEngine'?'Unreal Engine':name;b.dataset.app=name;b.setAttribute('aria-label','Open '+b.dataset.label);const surface=element('span','dock-icon-surface');surface.append(image(icon.src,''));b.append(surface);dock.append(b);
 }
+for(const icon of systemDockIcons){const item=dock.querySelector(`[data-app="${icon.name}"]`);if(item){item.classList.add('reference-icon');if(icon.name==='Settings')item.dataset.windowId='settings';if(icon.name==='AppStore'){item.dataset.label='App Store';item.setAttribute('aria-label','Open App Store');}}}
 const restores=element('div','dock-restores');dock.append(restores);
 const mobileNav=element('nav','mobile-bottom-nav');mobileNav.setAttribute('aria-label','Mobile portfolio navigation');
 for(const [label,key,action] of [['AboutMe','about',()=>openAbout()],['Project Content','projects',()=>openCollection()],['Gallery','gallery',()=>{}],['Exhibition&Papers','research',()=>openAbout('research')]]){
@@ -240,29 +193,38 @@ for(const [label,key,action] of [['AboutMe','about',()=>openAbout()],['Project C
 }
 document.body.append(mobileNav);
 function updateMobileNavigation(){
-  const id=state.active,key=id==='projects'?'projects':id==='profile-research'?'research':['profile-about','about-label'].includes(id)?'about':'gallery';
+  const id=state.active,key=id==='projects'?'projects':id==='profile-research'?'research':['settings','profile-about','about-label'].includes(id)?'about':'gallery';
   for(const b of mobileNav.children)b.setAttribute('aria-pressed',String(b.dataset.section===key));
 }
-function fitDock(){requestAnimationFrame(()=>dock.classList.toggle('is-overflowing',dock.scrollWidth>dock.clientWidth));}
+function fitDock(){requestAnimationFrame(()=>{dock.dispatchEvent(new Event('dock-items-changed'));});}
 function updateMenuSelection(){const active=state.active;for(const id of menuOwnership.keys())if(!state.items.has(id))menuOwnership.delete(id);const owner=menuOwnership.get(active);document.querySelectorAll('.menubar [data-action]').forEach(b=>{const a=b.dataset.action;const selected=owner?owner===b:(a==='about'&&['profile-about','profile-research','about-label','content-label'].includes(active))||(a==='research'&&active==='profile-research')||(a==='projects'&&active==='projects')||(a==='search'&&active==='search')||(a==='settings'&&active==='settings')||(a==='calendar'&&active==='calendar')||(a==='network'&&active==='network');b.setAttribute('aria-pressed',String(selected));});}
-setWindowChange(items=>{for(const b of dock.querySelectorAll('.dock-item[data-window-id]'))b.classList.toggle('running',items.some(item=>item.id===b.dataset.windowId));restores.replaceChildren();const hidden=items.filter(i=>i.minimized);if(hidden.length)restores.append(element('span','dock-separator'));for(const item of hidden){const b=button('',()=>focusWindow(item.id),'dock-item');b.dataset.label=item.title;b.setAttribute('aria-label','Restore '+item.title);const mini=element('div','dock-minimized');mini.append(element('span','',item.title));b.append(mini);restores.append(b);}fitDock();updateMenuSelection();updateMobileNavigation();});
-window.addEventListener('resize',fitDock);fitDock();
+setWindowChange(items=>{for(const b of dock.querySelectorAll('.dock-item[data-window-id]'))b.classList.toggle('running',items.some(item=>item.id===b.dataset.windowId));restores.replaceChildren();const hidden=items.filter(i=>i.minimized);if(hidden.length)restores.append(element('span','dock-separator'));for(const item of hidden){const b=button('',()=>focusWindow(item.id),'dock-item');b.dataset.restoreId=item.id;b.dataset.label=item.title;b.setAttribute('aria-label','Restore '+item.title);const mini=element('div','dock-minimized');if(item.thumbnail){const preview=image(item.thumbnail,'');preview.loading='eager';mini.append(preview);}else mini.append(element('span','',item.title));b.append(mini);restores.append(b);}fitDock();updateMenuSelection();updateMobileNavigation();});
+setupDockMotion(dock);window.addEventListener('resize',fitDock);fitDock();
+dock.addEventListener('pointerenter',warmReactApplications,{once:true});dock.addEventListener('focusin',warmReactApplications,{once:true});
+document.querySelector('.menu-left').addEventListener('pointerenter',warmReactApplications,{once:true});
 
 let toastTimer;function toast(text){$('#toast').textContent=text;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),2600);}
 const actions={about:()=>openAbout(),education:()=>openAbout('education'),studio:()=>openAbout('studio'),experience:()=>openAbout('experience'),awards:()=>openAbout('awards'),research:()=>openAbout('research'),projects:()=>openCollection(),search:()=>openCollection(true),settings:openSettings,calendar:openCalendar,network:()=>infoWindow('network','About this website',page=>{page.append(element('div','eyebrow','CHANGRAN DESIGN'),element('h1','','A desktop of ideas.'),element('p','','Digital media art, installations and spatial experiences.\n\nExplore the desktop, open a project, and take a closer look.'),button('Explore projects',()=>openCollection(),'action-button'));},440,360)};
-actions['research-poster']=()=>profileWorkspace.openSection('research-poster');
+actions['research-poster']=()=>openAbout('research-poster');
 document.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>{actions[b.dataset.action]?.();if(state.active){if(b.closest('.menubar'))menuOwnership.set(state.active,b);else menuOwnership.delete(state.active);}updateMenuSelection();closeMenu();}));
 const menu=$('#main-menu'),menuButton=$('#brand-menu');
-if(matchMedia('(max-width:700px)').matches){menu.hidden=true;menuButton.setAttribute('aria-expanded','false');}
+menu.hidden=true;menuButton.setAttribute('aria-expanded','false');
 function closeMenu(){menu.hidden=true;menuButton.setAttribute('aria-expanded','false');}
-menuButton.onclick=()=>{menu.hidden=!menu.hidden;menuButton.setAttribute('aria-expanded',String(!menu.hidden));};
+const showBrandMenu=()=>{document.dispatchEvent(new Event('portfolio-popover-opening'));menu.hidden=false;menuButton.setAttribute('aria-expanded','true');};
+menuButton.onclick=()=>{if(menu.hidden)showBrandMenu();else closeMenu();};
+menuButton.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch'&&innerWidth>700)showBrandMenu();});
+document.addEventListener('portfolio-popover-opening',closeMenu);
+menuButton.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();menu.hidden=false;menuButton.setAttribute('aria-expanded','true');menu.querySelector('button')?.focus();}});
 document.addEventListener('pointerdown',e=>{if(!menu.contains(e.target)&&!menuButton.contains(e.target))closeMenu();});
 menu.addEventListener('keydown',e=>{if(!['ArrowDown','ArrowUp'].includes(e.key))return;e.preventDefault();const options=[...menu.querySelectorAll('button')],index=options.indexOf(document.activeElement);options[(index+(e.key==='ArrowDown'?1:-1)+options.length)%options.length].focus();});
 const titleWindow=$('#title-window');$('.close',titleWindow).onclick=()=>{titleWindow.hidden=true;};$('.minimize',titleWindow).onclick=()=>{titleWindow.hidden=true;toast('Title hidden · Restore it in Control Center');};$('.maximize',titleWindow).onclick=()=>openCollection();makeDraggable(titleWindow,$('.title-grip',titleWindow));
+decorateWindowControls(titleWindow);
+setupApplicationMenus({...actions,photos:openPhotos,figma:()=>openTool('Figma')});
+setupControlCenter(document.querySelector('#control-center-trigger'),{...actions,photos:openPhotos,figma:()=>openTool('Figma'),desktop:hideAll});
 function updateClock(){const date=new Date();$('#clock').textContent=matchMedia('(max-width:700px)').matches?date.toLocaleTimeString(document.documentElement.lang,{hour:'numeric',minute:'2-digit'}):date.toLocaleDateString(document.documentElement.lang,{month:'short',day:'2-digit'})+'  '+date.toLocaleTimeString(document.documentElement.lang,{hour:'numeric',minute:'2-digit'});}updateClock();setInterval(updateClock,30000);document.addEventListener('portfolio-preferences',updateClock);
 document.addEventListener('keydown',e=>{
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openCollection(true);}
-  if(e.key==='Escape'&&!lightbox.open)closeMenu();
+  if(e.key==='Escape'&&!lightbox.open&&!menu.hidden){closeMenu();menuButton.focus({preventScroll:true});}
 });
 desktop.addEventListener('click',e=>{if(e.target===desktop){document.querySelectorAll('.desktop-icon.selected').forEach(el=>el.classList.remove('selected'));}});
 setupDesktopDrift(desktop);
@@ -270,4 +232,5 @@ const linkedProject=byId(new URLSearchParams(location.hash.slice(1)).get('projec
 
 initGuide({collection:()=>openCollection(),about:()=>openAbout(),research:()=>openAbout("research"),project:()=>openProject("p1"),details:()=>openDetails(byId("p1"))});
 window.creativeOSReady=true;
+setupLiquidGlass();
 window.dispatchEvent(new Event('creativeos-ready'));

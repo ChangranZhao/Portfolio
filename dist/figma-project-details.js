@@ -22,7 +22,7 @@ const labels={
  p2:['Overview','Language & perception','Distance & connection','World building','Planetary environments','Writing system','Visual development','Comparative alphabet','Interaction narrative','Development','Exhibition','Reflection']
 };
 const pagesFor=id=>id==='p8'?gaiaPages:figmaPages.filter(p=>p.name.startsWith(groups[id]+'_'));
-const labelFor=(id,page)=>page.label||labels[id][Number(page.name.split('page')[1])-1];
+const labelFor=(id,page)=>page.label||(id==='p8'&&page.name==='gaia_page0'?'Cover':labels[id][Number(page.name.split('page')[1])-1]);
 registerTranslations([['Concept film','概念短片'],['Prototype demonstration','原型演示'],['App demonstration','应用演示']]);
 export const hasFigmaDetails=id=>Object.hasOwn(groups,id);
 export const figmaChapters=id=>pagesFor(id).map((p,i)=>[id==='p8'?(i===0?'Cover':`${String(i).padStart(2,'0')} / ${labelFor(id,p)}`):`${String(i+1).padStart(2,'0')} / ${labelFor(id,p)}`,`figma-${p.id.replace(':','-')}`]);
@@ -75,9 +75,10 @@ export function createFigmaDetails(article,project,{openImage}){
    video.append(createYouTubeFacade(player,{poster:project.images[0]?.preview||project.images[0]?.src}));article.append(video);
   }
  }
- const resize=()=>{for(const {rail,stage,frame} of boards){const width=rail.clientWidth;if(!width)continue;const scale=width/1920;stage.style.width=width+'px';stage.style.height=1080*scale+'px';frame.style.transform=`scale(${scale})`;}};
- const observer=new ResizeObserver(resize);observer.observe(article);
+ let lastWidth=0;
+ const resize=width=>{if(!width||width===lastWidth)return;lastWidth=width;const transform=`scale(${width/1920})`;for(const {frame} of boards)frame.style.transform=transform;};
+ const observer=new ResizeObserver(entries=>resize(entries[0].contentRect.width));observer.observe(article);
  const dispose=()=>{cancelAnimationFrame(scheduled);observer.disconnect();reveal.disconnect();scheduler.dispose();controller.abort();};
- const scheduled=requestAnimationFrame(()=>{resize();article.closest('.window')?.addEventListener('window-closing',dispose,{once:true});});
+ const scheduled=requestAnimationFrame(()=>{resize(article.clientWidth);article.closest('.window')?.addEventListener('window-closing',dispose,{once:true});});
  return dispose;
 }

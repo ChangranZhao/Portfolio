@@ -2,6 +2,7 @@ import {build} from 'esbuild';
 import {readFile,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
+import {gzipSync} from 'node:zlib';
 
 export async function bundleSite(output,manifest){
  const index=path.join(output,'index.html');let html=await readFile(index,'utf8');
@@ -34,5 +35,16 @@ export async function bundleSite(output,manifest){
   const name=path.basename(filename);html=html.replace(`src="${manifest[entry]}"`,`src="${name}"`);manifest[entry]=name;
  }
  await writeFile(index,html);
+ const outputs=result.metafile.outputs;
+ const byPath=new Map(Object.entries(outputs).map(([file,info])=>[path.resolve(file),{file,info}]));
+ const initial=new Set();
+ function visit(file){const record=byPath.get(path.resolve(file));if(!record||initial.has(record.file))return;initial.add(record.file);for(const dependency of record.info.imports)if(dependency.kind!=='dynamic-import'&&!dependency.external)visit(dependency.path);}
+ for(const [file,info] of Object.entries(outputs))if(info.entryPoint&&entryNames.some(name=>path.resolve(info.entryPoint)===path.join(output,manifest[name])||path.basename(file)===manifest[name]))visit(file);
+ const reactOutputs=Object.entries(outputs).filter(([,info])=>Object.keys(info.inputs).some(input=>path.basename(input)===manifest['react-apps.js']));
+ if(!initial.size||!reactOutputs.length||reactOutputs.some(([file])=>initial.has(file)))throw Error('React applications must remain outside the startup dependency graph');
+ const reactBytes=reactOutputs.reduce((n,[,info])=>n+info.bytes,0);
+ const reactGzipBytes=(await Promise.all(reactOutputs.map(async([file])=>gzipSync(await readFile(file)).length))).reduce((a,b)=>a+b,0);
+ await writeFile(path.join(output,'build-report.json'),JSON.stringify({initialScripts:[...initial].map(file=>path.basename(file)),reactDeferred:true,reactBytes,reactGzipBytes},null,2));
  console.log(`Bundled ${styles.length} page stylesheets into one; application code minified with deferred project chunks.`);
+ console.log(`Deferred React application transfer: ${(reactGzipBytes/1024).toFixed(1)} KiB gzip.`);
 }

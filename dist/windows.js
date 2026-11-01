@@ -1,5 +1,8 @@
+import {animateWindow,animateWindowLayout,cancelWindowMotion} from './shell-motion.js';
 import {WindowState,clampPosition} from './state.mjs';
 import {createFrameBatch} from './runtime-scheduling.js';
+import {setLocalizedAttribute} from './localization.js';
+import {decorateWindowControls} from './window-controls.js';
 export const state=new WindowState();
 const container=document.querySelector('#windows');
 const windows=new Map();
@@ -7,15 +10,23 @@ let onChange=()=>{};
 export function setWindowChange(fn){onChange=fn;}
 function sync(){
   for(const [id,win] of windows){const item=state.items.get(id);win.el.classList.toggle('inactive',state.active!==id);win.el.dataset.suspended=String(item.minimized||state.active!==id);win.el.style.zIndex=item.z;}
-  onChange([...state.items.values()].map(s=>({...s,title:windows.get(s.id).title})));
+  onChange([...state.items.values()].map(s=>({...s,title:windows.get(s.id).title,thumbnail:windows.get(s.id).thumbnail})));
   document.dispatchEvent(new Event('portfolio-windows-changed'));
 }
-export function focusWindow(id){state.focus(id);const w=windows.get(id);if(w){clearTimeout(w.minimizeTimer);w.el.hidden=false;w.el.classList.remove('minimizing');}sync();w?.el.focus({preventScroll:true});}
-export function closeWindow(id){const win=windows.get(id);if(!win)return;if(document.fullscreenElement===win.el){document.exitFullscreen().then(()=>closeWindow(id));return;}win.el.dispatchEvent(new Event('window-closing'));clearTimeout(win.minimizeTimer);win.el.classList.add('closing');setTimeout(()=>win.el.remove(),150);windows.delete(id);state.close(id);sync();win.trigger?.focus({preventScroll:true});}
-export function minimizeWindow(id){const win=windows.get(id);if(!win)return;if(document.fullscreenElement===win.el){document.exitFullscreen().then(()=>minimizeWindow(id));return;}win.el.classList.remove('case-fullscreen','case-immersive','case-controls-visible');state.minimize(id);win.el.classList.add('minimizing');const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches||document.body.classList.contains('reduce-motion');win.minimizeTimer=setTimeout(()=>{if(state.items.get(id)?.minimized)win.el.hidden=true;},reduced?0:180);sync();}
+const reducedMotion=()=>matchMedia('(prefers-reduced-motion:reduce)').matches||document.body.classList.contains('reduce-motion');
+export function updateWindowMetadata(id,title,thumbnail){
+ const win=windows.get(id);if(!win)return;win.title=title;win.thumbnail=thumbnail;
+ setLocalizedAttribute(win.el,'aria-label',title);const text=win.el.querySelector('.window-title');if(text)text.textContent=title;
+ for(const [type,label] of [['close','Close'],['minimize','Minimize'],['maximize',win.el.classList.contains('maximized')?'Restore':'Maximize']])setLocalizedAttribute(win.el.querySelector('.light.'+type),'aria-label',label+' '+title);
+ sync();
+}
+function dockTarget(id){const entries=[...document.querySelectorAll('#dock .dock-item')],el=entries.find(b=>b.dataset.windowId===id)||entries.find(b=>b.dataset.restoreId===id);const r=el?.getBoundingClientRect();return r?.width?r:null;}
+export function focusWindow(id){const w=windows.get(id),restoring=state.items.get(id)?.minimized,target=restoring?dockTarget(id):null;state.focus(id);if(w){clearTimeout(w.minimizeTimer);w.el.hidden=false;w.el.classList.remove('minimizing');}sync();if(w&&restoring)animateWindow(w.el,'restore',target,{reduced:reducedMotion()});w?.el.focus({preventScroll:true});}
+export function closeWindow(id){const win=windows.get(id);if(!win)return;if(document.fullscreenElement===win.el){document.exitFullscreen().then(()=>closeWindow(id));return;}win.el.dispatchEvent(new Event('window-closing'));clearTimeout(win.minimizeTimer);win.el.classList.remove('opening','minimizing');win.el.classList.add('closing');animateWindow(win.el,'close',null,{reduced:reducedMotion()||win.el.hidden,onFinish:()=>win.el.remove()});windows.delete(id);state.close(id);sync();win.trigger?.focus({preventScroll:true});if(win.trigger?.closest('#dock'))win.trigger.dispatchEvent(new Event('dock-focus-restored',{bubbles:true}));}
+export function minimizeWindow(id){const win=windows.get(id);if(!win||state.items.get(id)?.minimized)return;if(document.fullscreenElement===win.el){document.exitFullscreen().then(()=>minimizeWindow(id));return;}win.el.classList.remove('opening','case-fullscreen','case-immersive','case-controls-visible');state.minimize(id);win.el.classList.add('minimizing');sync();animateWindow(win.el,'minimize',dockTarget(id),{reduced:reducedMotion(),onFinish:()=>{if(state.items.get(id)?.minimized)win.el.hidden=true;}});}
 export function restoreAll(){for(const id of windows.keys())focusWindow(id);}
 export function hideAll(){for(const id of windows.keys())minimizeWindow(id);}
-export function createWindow({id,title,content,width=950,height=650,className='',bounds,onMaximize}){
+export function createWindow({id,title,content,width=950,height=650,className='',bounds,onMaximize,deferOpen=false}){
   if(windows.has(id)){focusWindow(id);return {el:windows.get(id).el,existing:true};}
   const el=document.createElement('section');el.className='window opening '+className;el.setAttribute('role','dialog');el.setAttribute('aria-label',title);el.dataset.windowId=id;el.tabIndex=-1;
   el.addEventListener('animationend',e=>{if(e.target===el&&e.animationName==='window-appear')el.classList.remove('opening');});
@@ -23,29 +34,33 @@ export function createWindow({id,title,content,width=950,height=650,className=''
   const lights=document.createElement('div');lights.className='traffic-lights';
   for(const [type,label,mark] of [['close','Close','×'],['minimize','Minimize','−'],['maximize','Maximize','+']]){
     const b=document.createElement('button');b.className='light '+type;b.setAttribute('aria-label',label+' '+title);b.textContent=mark;
-    b.addEventListener('click',()=>{if(type==='close')closeWindow(id);else if(type==='minimize')minimizeWindow(id);else if(onMaximize)onMaximize(el);else toggleMax();});lights.append(b);
+    b.addEventListener('click',()=>{if(type==='close')closeWindow(id);else if(type==='minimize'){if(el.classList.contains('maximized'))toggleMax();else minimizeWindow(id);}else if(onMaximize)onMaximize(el);else toggleMax();});lights.append(b);
   }
   const titleEl=document.createElement('span');titleEl.className='window-title';titleEl.textContent=title;bar.append(lights,titleEl);
   const body=document.createElement('div');body.className='window-body';body.append(content);el.append(bar,body);
+  decorateWindowControls(el);
   const n=windows.size;const w=Math.min(bounds?.width??width,innerWidth-32),h=Math.min(bounds?.height??height,innerHeight-150);
   const pos=clampPosition(bounds?.x??((innerWidth-w)/2+n%4*22),bounds?.y??((innerHeight-h)/2-15+n%4*20),w,h,innerWidth,innerHeight);
   Object.assign(el.style,{width:w+'px',height:h+'px',left:pos.x+'px',top:pos.y+'px'});
   const win={el,title,trigger:document.activeElement,normal:{width:bounds?.width??width,height:bounds?.height??height,x:pos.x,y:pos.y}};windows.set(id,win);state.open(id);container.append(el);fitWindow(el);
-  function toggleMax(){el.classList.toggle('maximized');fitWindow(el);const maximized=el.classList.contains('maximized');lights.querySelector('.maximize').setAttribute('aria-label',(maximized?'Restore ':'Maximize ')+title);lights.querySelector('.maximize').setAttribute('aria-pressed',String(maximized));}
+  function toggleMax(){el.classList.remove('opening');animateWindowLayout(el,()=>{el.classList.toggle('maximized');fitWindow(el);},{reduced:reducedMotion()});const maximized=el.classList.contains('maximized');setLocalizedAttribute(lights.querySelector('.maximize'),'aria-label',(maximized?'Restore ':'Maximize ')+win.title);lights.querySelector('.maximize').setAttribute('aria-pressed',String(maximized));}
   el.addEventListener('pointerdown',()=>{if(state.active!==id){state.focus(id);sync();}});
   el.addEventListener('focusin',()=>{if(state.active!==id){state.focus(id);sync();}});
   bar.addEventListener('dblclick',e=>{if(!e.target.closest('button'))toggleMax();});
   makeDraggable(el,bar,()=>el.classList.contains('maximized')||el.classList.contains('case-fullscreen'));
   makeResizable(win);
   el.addEventListener('window-moved',()=>{win.normal.x=parseFloat(el.style.left);win.normal.y=parseFloat(el.style.top);});
-  sync();el.focus({preventScroll:true});document.dispatchEvent(new Event('portfolio-window-opened'));return {el,body,existing:false};
+  let revealed=false;
+  const reveal=()=>{if(revealed||!windows.has(id))return;revealed=true;el.style.removeProperty('visibility');if(state.active===id&&!el.contains(document.activeElement))el.focus({preventScroll:true});if(!state.items.get(id)?.minimized)animateWindow(el,'open',null,{reduced:reducedMotion(),onFinish:()=>el.classList.remove('opening')});};
+  if(deferOpen)el.style.visibility='hidden';else reveal();
+  sync();el.focus({preventScroll:true});document.dispatchEvent(new Event('portfolio-window-opened'));return {el,body,reveal,existing:false};
 }
 export function makeDraggable(el,handle,disabled=()=>false){
   let drag;
-  const move=createFrameBatch(point=>{if(!drag)return;const pos=clampPosition(drag.left+point.x-drag.x,drag.top+point.y-drag.y,drag.width,drag.height,innerWidth,innerHeight);drag.position=pos;el.style.translate=`${pos.x-drag.left}px ${pos.y-drag.top}px`;});
+  const move=createFrameBatch(point=>{if(!drag)return;if(!drag.started){if(Math.hypot(point.x-drag.x,point.y-drag.y)<3)return;drag.started=true;cancelWindowMotion(el);el.classList.remove('opening');el.classList.add('dragging');}const pos=clampPosition(drag.left+point.x-drag.x,drag.top+point.y-drag.y,drag.width,drag.height,innerWidth,innerHeight);drag.position=pos;el.style.translate=`${pos.x-drag.left}px ${pos.y-drag.top}px`;});
   handle.addEventListener('pointerdown',e=>{
-    if(e.button!==0||e.target.closest('button')||disabled()||matchMedia('(max-width:700px)').matches)return;
-    const rect=el.getBoundingClientRect();drag={x:e.clientX,y:e.clientY,left:rect.left,top:rect.top,width:rect.width,height:rect.height,translate:el.style.translate};handle.setPointerCapture(e.pointerId);el.classList.add('dragging');e.preventDefault();
+    if(e.button!==0||e.target.closest('button,input,select,textarea,a,label')||disabled()||matchMedia('(max-width:700px)').matches)return;
+    const rect=el.getBoundingClientRect();drag={x:e.clientX,y:e.clientY,left:rect.left,top:rect.top,width:rect.width,height:rect.height,translate:el.style.translate};handle.setPointerCapture(e.pointerId);e.preventDefault();
   });
   handle.addEventListener('pointermove',e=>{if(drag)move.push({x:e.clientX,y:e.clientY});});
   const end=()=>{if(!drag)return;move.flush();if(drag.position){el.style.left=drag.position.x+'px';el.style.top=drag.position.y+'px';el.style.right='auto';}el.style.translate=drag.translate;drag=null;el.classList.remove('dragging');el.dispatchEvent(new Event('window-moved'));};
@@ -58,7 +73,7 @@ function makeResizable(win){
     let drag;
     handle.addEventListener('pointerdown',e=>{
       if(e.button!==0||el.classList.contains('maximized')||innerWidth<=700)return;
-      const r=el.getBoundingClientRect();drag={x:e.clientX,y:e.clientY,left:r.left,top:r.top,right:r.right,bottom:r.bottom,area:desktopArea(),minW:Math.min(el.classList.contains('workspace-sticker')?180:320,innerWidth-16)};
+      cancelWindowMotion(el);el.classList.remove('opening');const r=el.getBoundingClientRect();drag={x:e.clientX,y:e.clientY,left:r.left,top:r.top,right:r.right,bottom:r.bottom,area:desktopArea(),minW:Math.min(el.classList.contains('workspace-sticker')?180:320,innerWidth-16)};
       handle.setPointerCapture(e.pointerId);el.classList.add('resizing');e.preventDefault();
     });
     const resize=createFrameBatch(e=>{

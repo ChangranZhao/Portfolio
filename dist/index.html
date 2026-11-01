@@ -6,7 +6,10 @@
   <meta name="theme-color" content="#b6bbc5">
   <meta name="description" content="Changran Zhao’s selected works in digital media art, interactive installations and spatial experiences. Explore an interactive desktop portfolio.">
   <title>Changran Zhao — Portfolio</title>
+  <script src="shell-theme.js"></script>
+  <script src="glass-settings.js"></script>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="license" href="assets/licenses/liquid-glass-react.txt">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="startup.css">
   <link rel="stylesheet" href="user-guide.css">
@@ -30,36 +33,71 @@
   <link rel="stylesheet" href="project-construction.css">
   <link rel="preload" href="assets/background.webp" as="image" media="(min-width:701px)">
   <link rel="stylesheet" href="chinese-fonts.css">
+  <link rel="stylesheet" href="desktop-shell.css">
+  <link rel="stylesheet" href="react-apps.css">
+  <link rel="stylesheet" href="figma-workspace.css">
+  <link rel="stylesheet" href="chat-app.css">
+  <link rel="stylesheet" href="cursor-workspace.css">
+  <link rel="stylesheet" href="museum.css">
+  <link rel="stylesheet" href="ue-gallery.css">
+  <link rel="stylesheet" href="touchdesigner.css">
+  <link rel="stylesheet" href="system-apps.css">
+  <link rel="stylesheet" href="liquid-glass.css">
+<link rel="stylesheet" href="music-app.css">
+<link rel="stylesheet" href="terminal-runner.css">
 </head>
 <body>
-  <div id="startup-screen" aria-label="正在启动CREATIVEOS系统…"><div class="startup-panel"><div class="startup-brand">CREATIVEOS</div><div class="startup-label">正在启动CREATIVEOS系统…</div><div class="startup-track" role="progressbar" aria-label="首屏资源加载进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="startup-fill"></div></div><output id="startup-percent">0%</output></div></div>
+  <div id="startup-screen" aria-label="正在启动 Creative OS…" data-no-localize>
+    <div class="startup-panel">
+      <svg class="startup-hello" viewBox="35 10 430 205" role="img" aria-label="hello">
+        <defs>
+          <linearGradient id="hello-rim" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a4b8e0"/><stop offset=".24" stop-color="#ffffff"/><stop offset=".48" stop-color="#d6b7d6"/><stop offset=".73" stop-color="#b5cde3"/><stop offset="1" stop-color="#fff1dc"/></linearGradient>
+          <linearGradient id="hello-glass" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff" stop-opacity=".28"/><stop offset=".24" stop-color="#e8f3ff" stop-opacity=".1"/><stop offset=".5" stop-color="#ffffff" stop-opacity=".025"/><stop offset=".73" stop-color="#ffffff" stop-opacity=".16"/><stop offset="1" stop-color="#d3e3ef" stop-opacity=".08"/></linearGradient>
+          <linearGradient id="hello-light"><stop stop-color="#fff" stop-opacity=".15"/><stop offset=".45" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity=".35"/></linearGradient>
+          <path id="hello-script" pathLength="1" d="M70 174 C88 136 113 72 104 45 C96 23 75 87 75 141 L76 178 C89 129 121 109 131 133 C139 151 116 181 141 181 C163 182 193 153 183 135 C174 117 149 142 152 165 C155 191 190 189 215 164 C242 136 280 53 268 39 C251 21 224 97 218 150 C213 184 232 198 255 173 C284 142 319 56 306 40 C289 22 267 97 261 152 C257 187 279 195 301 172 C318 151 330 134 347 138 C369 142 370 168 351 182 C331 196 312 181 321 159 C329 139 346 132 358 145 C367 155 376 172 392 171 C405 170 416 161 428 148"/>
+          <mask id="hello-shell" maskUnits="userSpaceOnUse" x="20" y="0" width="460" height="230"><use href="#hello-script" fill="none" stroke="white" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/><use href="#hello-script" fill="none" stroke="black" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/></mask>
+        </defs>
+        <use href="#hello-script" class="hello-shadow"/>
+        <use href="#hello-script" class="hello-rim"/>
+        <use href="#hello-script" class="hello-glass"/>
+        <use href="#hello-script" class="hello-light"/>
+      </svg>
+      <div class="startup-brand">Creative OS <span>by Changran Zhao</span></div>
+      <div class="startup-label">正在为你准备 Creative OS…</div>
+      <div class="startup-loading"><div class="startup-track" role="progressbar" aria-label="资源预加载进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="startup-fill"></div></div><output id="startup-percent">0%</output></div>
+      <div class="startup-phase-row"><span id="startup-phase">Preparing your workspace</span><span id="startup-count" class="startup-sr-only">0</span></div>
+      <button id="startup-skip" type="button">直接进入 ↗</button>
+    </div>
+  </div>
   <script>
-    // Independent of module/image loading: even a failed request cannot trap visitors.
-    window.finishCreativeOSStartup=function(){document.getElementById('startup-screen')?.remove();window.dispatchEvent(new Event('creativeos-startup-finished'));};
-    setTimeout(window.finishCreativeOSStartup,5000);
+    // Deadline and skip stay independent of module, image and font requests.
+    window.creativeOSBootStarted=Date.now();
+    document.querySelector('.hello-light')?.addEventListener('animationend',()=>document.getElementById('startup-screen')?.setAttribute('data-hello-ready','true'),{once:true});
+    if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)document.getElementById('startup-screen')?.setAttribute('data-hello-ready','true');
+    (()=>{let closing=false,done=false,deadline;const complete=()=>{if(done)return;done=true;clearTimeout(deadline);document.getElementById('startup-screen')?.remove();window.dispatchEvent(new Event('creativeos-startup-finished'));};window.finishCreativeOSStartup=function(immediate){if(immediate===true){complete();return}if(done||closing)return;closing=true;const screen=document.getElementById('startup-screen');if(!screen){complete();return}screen.classList.add('startup-leaving');setTimeout(complete,700);};document.getElementById('startup-skip')?.addEventListener('click',window.finishCreativeOSStartup);deadline=setTimeout(()=>window.finishCreativeOSStartup(true),8000);})();
   </script>
   <div class="wallpaper" aria-hidden="true"></div>
   <header class="menubar">
     <nav class="menu-left" aria-label="Main navigation">
-      <button id="brand-menu" class="monogram menu-trigger" aria-label="Open portfolio menu" aria-expanded="true"><img src="assets/personal-logo.svg" alt="Changran Zhao"></button>
+      <button id="brand-menu" class="monogram menu-trigger" aria-label="Open portfolio menu" aria-expanded="false"><img src="assets/personal-logo.svg" alt="Changran Zhao"></button>
       <button class="brand-name" data-action="about">ABOUT ME</button>
       <button class="menu-secondary" data-action="projects">Project Content</button>
       <button class="menu-research" data-action="research">Exhibition&amp;Paper</button>
     </nav>
     <nav class="menu-right" aria-label="Desktop controls">
       <button class="status-button battery" data-action="settings" aria-label="Display settings"><svg viewBox="0 0 28 18"><rect x="1" y="3" width="22" height="12" rx="3"/><rect x="4" y="6" width="16" height="6" rx="1" fill="currentColor"/><path d="M26 7v4"/></svg></button>
-      <button class="status-button" data-action="settings" aria-label="Control Center"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="7" rx="3.5"/><circle cx="8" cy="6.5" r="2" fill="currentColor"/><rect x="3" y="14" width="18" height="7" rx="3.5"/><circle cx="16" cy="17.5" r="2" fill="currentColor"/></svg></button>
+      <button id="control-center-trigger" class="status-button" aria-label="Control Center"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="7" rx="3.5"/><circle cx="8" cy="6.5" r="2" fill="currentColor"/><rect x="3" y="14" width="18" height="7" rx="3.5"/><circle cx="16" cy="17.5" r="2" fill="currentColor"/></svg></button>
       <button class="status-button" data-action="search" aria-label="Search projects"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
-      <button class="status-button wifi" data-action="network" aria-label="About this website"><svg viewBox="0 0 24 24"><path d="M2 8a16 16 0 0 1 20 0M5 12a11 11 0 0 1 14 0M8 16a6 6 0 0 1 8 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg></button>
+      <button class="status-button wifi" data-action="network" aria-label="About this website"><svg viewBox="0 0 24 24"><path d="M2 9a16 12.5 0 0 1 20 0M5 12a11 8.6 0 0 1 14 0M8 15a6 4.7 0 0 1 8 0"/><circle cx="12" cy="18" r="1" fill="currentColor"/></svg></button>
       <button id="clock" data-action="calendar" aria-label="Open calendar"></button>
     </nav>
   </header>
-  <div id="main-menu" class="dropdown main-menu" role="menu" aria-label="Portfolio menu">
+  <div id="main-menu" hidden class="dropdown main-menu" role="menu" aria-label="Portfolio menu">
     <button role="menuitem" data-action="about">About Me</button>
     <div class="menu-divider"></div>
     <button role="menuitem" data-action="studio">Lead of Atavism FZ Studio<br><span>Digital Creation and Interaction</span></button>
     <div class="menu-divider"></div>
-    <button role="menuitem" data-action="projects">Studio’s Work <span class="shortcut">›</span></button>
+    <button role="menuitem" data-action="projects">My works <span class="shortcut">›</span></button>
     <div class="menu-divider"></div>
     <button role="menuitem" data-action="experience">THU Design Intern <span class="shortcut">⌥⇧⌘</span></button>
     <div class="menu-divider"></div>

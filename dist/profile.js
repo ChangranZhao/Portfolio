@@ -3,47 +3,7 @@ import {papers as paperLibrary} from './papers.js';
 import {createWindow,focusWindow,hideAll,state} from './windows.js';
 
 // Transcribed from the user's second desktop reference. No external links were supplied.
-const roles=[
- 'Communication University of China',
- 'Digital Media Arts (Network and Intelligent Media Design)',
- 'Lead of Digital Art Studio “Atavism”',
- 'Research Intern at the Design Futures Research Group, Tsinghua University',
- 'Previously worked at the Digital Human Lab and the Intelligent Media Design Lab, Communication University of China'
-];
-const awards=[
- ['Lumen Prize Finalist 2025','2025.8.15'],
- ['London Design Awards Golden',''],
- ['Muse Creative Awards Golden Prize — Mobile APP','2025.3.27'],
- ['Muse Creative Awards Silver Prize — Experiential & Immersive','2025.3.25'],
- ['Muse Creative Awards Silver Prize — Experiential & Immersive','2024.12.5'],
- ['16th Paris Chinese Film Festival — Best Innovation Award','2025.6.13'],
- ['AIGC Section, 15th Beijing International Film Festival — Best Technology Award','2025.4.25']
-];
-const commercial=[
- ['Wind Blows from the East Digital Art Exhibition (Qi Culture Classical Museum)','2025.9 – 2026.7','Zibo, Shandong Province, China','p1'],
- ['Digital Media Part in Shanxi Changzhi Museum','2025.6 – 2025.12','Changzhi, Shanxi Province, China','p6'],
- ['Digital Media Part in Wuqiao Acrobatics Museum','2025.9 – 2025.10','Wuqiao, Cangzhou, Hebei, China'],
- ['Five Elements Multimedia Dance “Water Part” (collaboration with Tianjin College of Media & Arts)','2024.11 – 2025.4','Tianjin, China'],
- ['Closing Ceremony of the AIGC Section at the Beijing International Film Festival','2025.4','Beijing, China'],
- ['Miyun Great Wall Castle Digital Smart Exhibition Hall','2025.5 – 2025.7','Beijing, China'],
- ['Electronic Music Stage Visuals, E-Sound Night, Communication University of China','2025.3 – 2025.6','Beijing, China'],
- ['Exhibition in Illuminarium Phaotom Space','2025.3 – 2025.4','Macau, China'],
- ['Echo-Space Interactive Live Performance Series','2024.3 – 2025.3','Beijing, China · London, UK','p4']
-];
-const exhibitions=[
- ['ICME AI Art Gallery 2025','2025','Nantes, France'],
- ['Emerging Artists Digital Co-Creation Program: Special Exhibition at the National Stadium','2025','National Stadium (Bird’s Nest), Beijing, China'],
- ['Below the Surface, Above the Flows','2025','Cafa Museum, Beijing, China'],
- ['Beijing Design Week 2024','2024','Fangzhuang, Beijing, China'],
- ['What is Visible — Digital Art Exhibition','2024','Hangzhou, Zhejiang, China'],
- ['ChineseCHI Art Gallery 2024','2024','Shenzhen, Guangdong, China']
-];
-const publications=[
- ['Bodystorming through Disruption: AI-assisted Design Improvisation Pedagogy','DRS 2026'],
- ['Path of Light: Interactive Narrative Design Based on Mix Reality for Silk Road Cultural Perception','UIST Adjunct 2025'],
- ['Echo-Space: Inclusive Orchestral Performance Space with Visual Media','HCII 2025'],
- ['HISTORICAL-IMMERSION — Immersive Memory Re-production System Based on 3D Scanning and Multi-modal Interaction','HCII 2025']
-];
+import {roles,awards,commercial,exhibitions,publications} from './profile-data.js';
 
 function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;}
 function btn(text,action,cls=''){const b=el('button',cls,text);b.onclick=action;return b;}

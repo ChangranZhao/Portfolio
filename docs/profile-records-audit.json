@@ -1,0 +1,245 @@
+{
+  "date": "2026-10-31",
+  "sources": [
+    "赵昶然_奖项填写清单_展览优先版.docx",
+    "AAA_IME首批递交材料/07获奖经历/获奖",
+    "AAA_IME首批递交材料/07获奖经历/Awards_Research_可编辑双语.html"
+  ],
+  "records": [
+    {
+      "id": "lumen",
+      "sourceEntry": "01  流明奖 文学与诗歌 决赛入围",
+      "sourceDate": "08/2025",
+      "reviewNote": "核对说明：月份来自入围通知邮件；Finalist 不等同于获奖冠军。 详情 388 / 500字符"
+    },
+    {
+      "id": "chinavis",
+      "sourceEntry": "02  ChinaVIS艺术展 入选",
+      "sourceDate": "07/2026",
+      "reviewNote": "核对说明：日期为截图中的展期，入选通知月份未见；非获奖证书。 On merit 为据展览入选性质的建议匹配，具体评审流程仍应以征集通知为准。 详情 390 / 500字符"
+    },
+    {
+      "id": "chinesechi",
+      "sourceEntry": "03  ChineseCHI艺术展 参展",
+      "sourceDate": "11/2024",
+      "reviewNote": "核对说明：参展证书，不是竞赛获奖；优先填展览或其他成果栏目。 详情 407 / 500字符"
+    },
+    {
+      "id": "muse-echo",
+      "sourceEntry": "04  缪斯创意奖 金奖 Echo-Space",
+      "sourceDate": "待核实月份 / 2025",
+      "reviewNote": "核对说明：证书仅载年份；不要以证书图片保存时间代替获奖月份。 详情 433 / 500字符"
+    },
+    {
+      "id": "muse-home",
+      "sourceEntry": "05  缪斯创意奖 金奖 Homeward Memories",
+      "sourceDate": "待核实月份 / 2025",
+      "reviewNote": "核对说明：证书仅载年份；不要以证书图片保存时间代替获奖月份。 详情 434 / 500字符"
+    },
+    {
+      "id": "muse-gaia",
+      "sourceEntry": "06  缪斯创意奖 银奖 GAIA HYPOTHESIS",
+      "sourceDate": "待核实月份 / 2025",
+      "reviewNote": "核对说明：证书仅载年份；不要以证书图片保存时间代替获奖月份。 详情 390 / 500字符"
+    },
+    {
+      "id": "london",
+      "sourceEntry": "07  伦敦设计奖 金奖",
+      "sourceDate": "待核实月份 / 2024",
+      "reviewNote": "核对说明： 详情 384 / 500字符"
+    },
+    {
+      "id": "french",
+      "sourceEntry": "08  法国设计奖 银奖",
+      "sourceDate": "待核实月份 / 2024",
+      "reviewNote": "核对说明： 详情 365 / 500字符"
+    },
+    {
+      "id": "supercreation",
+      "sourceEntry": "09  AI超创邀请赛 星穹创世奖",
+      "sourceDate": "03/2025",
+      "reviewNote": "核对说明：证书原名：星穹创世奖／全场综合卓越。英文奖名为工作译名；另有中央广播电视总台超高清视音频制播呈现国家重点实验室、中国国防科技工业文化交流协会共同盖章。 详情 427 / 500字符"
+    },
+    {
+      "id": "bjiff-tech",
+      "sourceEntry": "10  北京国际电影节 最佳科技",
+      "sourceDate": "04/2025",
+      "reviewNote": "核对说明：证书1；国际电影节单元荣誉，非主竞赛天坛奖。 详情 418 / 500字符"
+    },
+    {
+      "id": "bjiff-film",
+      "sourceEntry": "11  北京国际电影节 优秀影片",
+      "sourceDate": "04/2025",
+      "reviewNote": "核对说明：证书2；与最佳科技属于不同作品，分别填写。 详情 409 / 500字符"
+    },
+    {
+      "id": "paris",
+      "sourceEntry": "12  巴黎中国电影节 最佳创新奖提名",
+      "sourceDate": "06/2025",
+      "reviewNote": "核对说明：证书日期15 June 2025，明确写 nominated，故仅填提名。 评选方式按竞赛评审填写；获奖结果为 nomination，不代表通过提名机制产生。 详情 392 / 500字符"
+    },
+    {
+      "id": "metaverse",
+      "sourceEntry": "13  元创未来 元宇宙设计创意大赛 一等奖",
+      "sourceDate": "待核实年月",
+      "reviewNote": "核对说明：证书未列清晰日期；英文作品名为工作译名。赛事组委会为工作译名，主办机构及赛区范围需核对赛事通知。 本人将“暑光”说明为土豆系列能源篇；末日薯光与暮光是否同一版本尚待确认，未合并条目。 详情 333 / 500字符"
+    },
+    {
+      "id": "creative-19",
+      "sourceEntry": "14  中国好创意 第十九届 国赛二等奖",
+      "sourceDate": "08/2025",
+      "reviewNote": "核对说明：证书日期25 August 2025；作品名应为“震颤的答案”，非“晨曦的答案”。 作品集英文名为 Tremulant Oracles。 详情 427 / 500字符"
+    },
+    {
+      "id": "aigc-design",
+      "sourceEntry": "15  首届高校AIGC数字艺术设计大赛 三等奖",
+      "sourceDate": "07/2025",
+      "reviewNote": "核对说明：颁奖机构：中国照明学会数字艺术专业委员会；英文为工作译名。 作品集英文名为 Tremulant Oracles。 详情 405 / 500字符"
+    },
+    {
+      "id": "aaia",
+      "sourceEntry": "16  大学生AI艺术季 AAIA 入围三等奖",
+      "sourceDate": "待核实月份 / 2025",
+      "reviewNote": "核对说明：现有整理截图写“入围（三等奖）”；补充正式证书或完整公告后再提交等级、机构和日期。 作品集英文名为 Tremulant Oracles。 详情 404 / 500字符"
+    },
+    {
+      "id": "icad-5",
+      "sourceEntry": "17  第五届ICAD 银奖",
+      "sourceDate": "08/2025",
+      "reviewNote": "核对说明：机构为证书组委会工作译名；赛事名包含International，主办地区及实际赛制范围仍待核。 作品集英文名为 Tremulant Oracles。 详情 416 / 500字符"
+    },
+    {
+      "id": "milan",
+      "sourceEntry": "18  米兰设计周 北京赛区三等奖",
+      "sourceDate": "05/2025",
+      "reviewNote": "核对说明：证书全称为米兰设计周中国高校设计学科师生优秀作品展；北京赛区，不填写Italy或国际奖。 详情 439 / 500字符"
+    },
+    {
+      "id": "creative-18",
+      "sourceEntry": "19  中国好创意 第十八届 北京二等奖",
+      "sourceDate": "08/2024",
+      "reviewNote": "核对说明：证书日期20 August 2024；中文作品名：鎏金山海——数字影像展馆设计。 作品介绍目前限于证书主题，尚无完整项目说明。 详情 372 / 500字符"
+    },
+    {
+      "id": "ecommerce",
+      "sourceEntry": "20  第十四届三创赛 北京特等奖",
+      "sourceDate": "08/2024",
+      "reviewNote": "核对说明：证书日期13 August 2024；团队名“快乐就行队”。 详情 438 / 500字符"
+    },
+    {
+      "id": "yda",
+      "sourceEntry": "21  香港青年设计奖 二等奖",
+      "sourceDate": "12/2024",
+      "reviewNote": "核对说明：证书日期20 December 2024；未标明全球或地区赛级别，不能仅凭“香港”确定International。 详情 457 / 500字符"
+    },
+    {
+      "id": "fa",
+      "sourceEntry": "22  FA艺术设计大赛 中国赛区银奖",
+      "sourceDate": "06/2024",
+      "reviewNote": "核对说明：证书日期24 June 2024，明确为中国赛区；另有法国设计业联合会共同盖章。 详情 404 / 500字符"
+    },
+    {
+      "id": "icad-nine",
+      "sourceEntry": "23  第四届ICAD 优秀奖 关于九重天与新太空的未来设计",
+      "sourceDate": "08/2024",
+      "reviewNote": "核对说明：作品英文为工作译名；对应证书1。赛事地区与国际级别待核。 作品介绍目前限于证书主题，尚无完整项目说明。 详情 335 / 500字符"
+    },
+    {
+      "id": "icad-mimetic",
+      "sourceEntry": "24  第四届ICAD 优秀奖 拟态造物——基于未来太空主义的AI和解畅想",
+      "sourceDate": "08/2024",
+      "reviewNote": "核对说明：作品英文为工作译名；对应证书2。赛事地区与国际级别待核。 尚未据完整项目材料确认与 MIMESIS 是否为同一作品。 详情 357 / 500字符"
+    },
+    {
+      "id": "icad-tree",
+      "sourceEntry": "25  第四届ICAD 铜奖 树语心境——与自己和解的“植愈”系统",
+      "sourceDate": "08/2024",
+      "reviewNote": "核对说明：作品英文为工作译名；对应证书1。赛事地区与国际级别待核。 详情 388 / 500字符"
+    },
+    {
+      "id": "icad-echo",
+      "sourceEntry": "26  第四届ICAD 铜奖 映音空间——基于AIGC的新媒体空间演绎设计",
+      "sourceDate": "08/2024",
+      "reviewNote": "核对说明：作品英文为工作译名；对应证书2。赛事地区与国际级别待核。 详情 395 / 500字符"
+    },
+    {
+      "id": "ag",
+      "sourceEntry": "27  芬兰AG设计奖 金奖",
+      "sourceDate": "06/2024",
+      "reviewNote": "核对说明：证书日期Kesakuu 2024，即2024年6月；中文作品名：映音空间。 详情 345 / 500字符"
+    },
+    {
+      "id": "usda",
+      "sourceEntry": "28  USDA美国新概念设计奖 全球总决赛一等奖",
+      "sourceDate": "03/2024",
+      "reviewNote": "核对说明：按证书：作品为自在之物MecHabolism，非MIMESIS；日期March 2024。 尚缺 MecHabolism 项目说明，未据标题推断机制；本条需补充后再提交。 详情 188 / 500字符"
+    },
+    {
+      "id": "imaging",
+      "sourceEntry": "29  中国创新影像大赛 光影景观一等奖",
+      "sourceDate": "12/2024",
+      "reviewNote": "核对说明：中文作品名：映音空间；赛道为“光影景观”；机构为赛事组委会工作译名。 详情 413 / 500字符"
+    },
+    {
+      "id": "jingcai-emotion",
+      "sourceEntry": "30  情感解码 京彩大创校赛二等奖",
+      "sourceDate": "05/2025",
+      "reviewNote": "核对说明：证书2日期2025年5月23日；中文项目名：情鉴艺境——AI+文旅演出多模态受众分析情感探索系统。 详情 428 / 500字符"
+    },
+    {
+      "id": "jingcai-museum",
+      "sourceEntry": "31  掌上博物馆 京彩大创校赛三等奖",
+      "sourceDate": "06/2024",
+      "reviewNote": "核对说明：证书日期13 June 2024；虽位于“2025”文件夹，获奖日期应按证书填写2024年。 详情 404 / 500字符"
+    },
+    {
+      "id": "icme",
+      "sourceEntry": "32  ICME AI Art Gallery 参展",
+      "sourceDate": "待核实月份 / 2025",
+      "reviewNote": "核对说明：证书未载举办国家或月份；仅证明参展。 详情 425 / 500字符"
+    },
+    {
+      "id": "innovation-emotion",
+      "sourceEntry": "33  情感解码 国家级创新训练项目结题",
+      "sourceDate": "05/2026",
+      "reviewNote": "核对说明：证书1；校赛二等奖已另列。 属于项目结题，不作为竞赛获奖。 结项证明为经历完成类，并非竞赛奖项；此选项不表示已取得课程学分。 详情 394 / 500字符"
+    },
+    {
+      "id": "innovation-echo",
+      "sourceEntry": "34  Echo-Space 国家级创新训练项目结题",
+      "sourceDate": "05/2026",
+      "reviewNote": "核对说明：证书载明项目负责人，结题成绩优秀。 属于项目结题，不作为竞赛获奖。 结项证明为经历完成类，并非竞赛奖项；此选项不表示已取得课程学分。 详情 423 / 500字符"
+    },
+    {
+      "id": "innovation-listening",
+      "sourceEntry": "35  倾听空间 国家级创新训练项目结题",
+      "sourceDate": "05/2025",
+      "reviewNote": "核对说明：结题成绩良好。 属于项目结题，不作为竞赛获奖。 结项证明为经历完成类，并非竞赛奖项；此选项不表示已取得课程学分。 详情 434 / 500字符"
+    },
+    {
+      "id": "innovation-museum",
+      "sourceEntry": "36  掌上博物馆 国家级创新训练项目结题",
+      "sourceDate": "待核实月份 / 2025",
+      "reviewNote": "核对说明：来源为2024至2025结项名单，具体月份待核；2024校赛三等奖已另列。 属于项目结题，不作为竞赛获奖。 结项证明为经历完成类，并非竞赛奖项；此选项不表示已取得课程学分。 详情 406 / 500字符"
+    }
+  ],
+  "corrections": [
+    "巴黎证书实际写13.06.25；DOCX备注15 June有误。网页仅显示已确认的2025.06。",
+    "AAIA按截图保留入围（三等奖），附正式证书待补提示。",
+    "证书只有年份的不使用旧网站月日；元创未来未注明日期。",
+    "旧档案USDA误写MIMESIS，证书明确为自在之物MecHabolism。",
+    "旧档案多处震颤的答案误写晨曦的答案；按原证书和新清单更正。"
+  ],
+  "retainedExhibitions": "原网站6条参展记录中ICME与ChineseCHI用证明补充；其余4条沿用原网站资料。风从东方来、澳门展览、Echo-Space演出由已有商业经历交叉收录。新增ChinaVIS作品入选，不推断额外个人出席。",
+  "publication": "补入既有双语档案中的Homeward Memories HCII2025论文；其余论文沿用原网站。",
+  "detailPages": {
+    "order": "奖项按Word清单中的相对先后顺序排列；展览与创新训练仍在各自栏目。",
+    "certificates": "assets/awards/*.webp，由原证书或公示完整生成网页预览。",
+    "logos": [
+      "https://frenchdesignawards.com/images/logo.png",
+      "https://thelondondesignawards.com/images/LDA-logo.png"
+    ],
+    "otherIdentities": "从现有证书展示官方图形或名称区域；无独立logo的标注为证书标识。",
+    "correction": "27_ICAD铜奖目录证书1对应映音空间，证书2对应树语心境；已匹配详情页。"
+  }
+}

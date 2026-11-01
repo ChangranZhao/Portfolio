@@ -1,4 +1,4 @@
-@font-face{font-family:Cinzel;src:url('assets/figma-fonts/Cinzel.ttf') format('truetype');font-weight:100 900;font-display:swap}
+@font-face{font-family:Cinzel;src:url('assets/figma-fonts/Cinzel.woff2') format('woff2');font-weight:100 900;font-display:swap}
 html,body,.figma-canvas{width:2880px;height:1080px}html,body{background:white}.figma-canvas p{white-space:normal}.figma-canvas{overflow:hidden}
 .figma-canvas [style*="background-clip:text"]{background-clip:text!important;-webkit-background-clip:text!important;color:transparent!important}
 /* Chinese typography follows its own metrics; English keeps Figma's original styles. */

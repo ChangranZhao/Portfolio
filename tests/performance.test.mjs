@@ -24,13 +24,13 @@ test('medium images are optimized and tall diagrams keep their aspect ratio',asy
   const meta=await sharp(await optimizeImage(tall,'diagram.png')).metadata();
   assert.equal(meta.width,1000);assert.equal(meta.height,7000);
 });
-test('startup releases the screen in five seconds even if app modules never load',async()=>{
+test('startup releases the screen in eight seconds even if app modules never load',async()=>{
   const html=await readFile(new URL('../dist/index.html',import.meta.url),'utf8');
-  const guard=html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const guard=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).find(s=>s.includes('window.creativeOSBootStarted='));
   let removed=false,delay,callback;
   const window={dispatchEvent(){}};
-  vm.runInNewContext(guard,{window,document:{getElementById:()=>({remove(){removed=true;}})},Event,setTimeout(fn,ms){callback=fn;delay=ms;}});
-  assert.equal(delay,5000);assert.equal(removed,false);callback();assert.equal(removed,true);
+  vm.runInNewContext(guard,{window,document:{querySelector:()=>null,getElementById:()=>({addEventListener(){},remove(){removed=true;}})},Date,clearTimeout(){},Event,setTimeout(fn,ms){callback=fn;delay=ms;}});
+  assert.equal(delay,8000);assert.equal(removed,false);callback();assert.equal(removed,true);
 });
 test('distant boards wait for proximity and offscreen animations pause and resume',async()=>{
  const previousDocument=globalThis.document,previousObserver=globalThis.IntersectionObserver,observers=[];
@@ -61,3 +61,20 @@ test('distant boards wait for proximity and offscreen animations pause and resum
   scheduler.dispose();assert.ok(observers.every(observer=>observer.disconnected));
  }finally{globalThis.document=previousDocument;globalThis.IntersectionObserver=previousObserver;}
 });
+
+test('nearby boards initialize at most two at once and retain their URLs after leaving view',async()=>{
+ const oldDoc=globalThis.document,oldIO=globalThis.IntersectionObserver,observers=[];
+ globalThis.document=new EventTarget();document.hidden=false;
+ globalThis.IntersectionObserver=class{constructor(cb){this.cb=cb;observers.push(this);}observe(){}unobserve(){}disconnect(){}};
+ const root=new EventTarget(),frames=Array.from({length:4},()=>new EventTarget()),sections=frames.map(()=>({}));
+ const scheduler=createBoardScheduler(root);
+ try{
+  frames.forEach((f,i)=>scheduler.observe(f,sections[i],'page'+i+'.html'));
+  observers[0].cb(sections.map(target=>({target,isIntersecting:true})));
+  await new Promise(r=>setTimeout(r,150));assert.equal(frames.filter(f=>f.src).length,2);
+  frames[0].dispatchEvent(new Event('load'));assert.equal(frames.filter(f=>f.src).length,3);
+  observers[0].cb(sections.map(target=>({target,isIntersecting:false})));
+  frames[1].dispatchEvent(new Event('load'));assert.equal(frames.filter(f=>f.src).length,3);assert.equal(frames[0].src,'page0.html');
+ }finally{scheduler.dispose();globalThis.document=oldDoc;globalThis.IntersectionObserver=oldIO;}
+});
+test('responsive image variants have independent cache policies and smaller decoded sizes',async()=>{const image=await sharp({create:{width:2400,height:1600,channels:3,background:'#558877'}}).png({compressionLevel:0}).toBuffer();const small=await sharp(await optimizeImage(image,'assets/p1-000-small.webp')).metadata(),preview=await sharp(await optimizeImage(image,'assets/p1-000-preview.webp')).metadata();assert.equal(small.width,320);assert.equal(preview.width,1280)});

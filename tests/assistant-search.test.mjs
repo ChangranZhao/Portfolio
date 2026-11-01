@@ -1,0 +1,6 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {searchWorks,retrieveAnswer} from '../src/react-apps/assistant-search.mjs';
+const projects=[{id:'p8',title:'GAIA HYPOTHESIS',category:'Installation',summary:'Forest data and ecological feedback'},{id:'p14',title:'What if Potatoes Ruled Mars',category:'Speculative design'}];
+test('Chinese project aliases retrieve the real project identity',()=>{assert.equal(searchWorks(projects,'介绍一下盖亚假说')[0].id,'p8');assert.equal(searchWorks(projects,'土豆')[0].id,'p14');assert.deepEqual(searchWorks(projects,'unrecorded nonsense'),[])});
+test('retrieval quotes documented content and never invents project descriptions',()=>{const a=retrieveAnswer(projects,{roles:[]},'土豆',true);assert.equal(a.text,'What if Potatoes Ruled Mars\nSpeculative design');assert.deepEqual(a.projectIds,['p14'])});
+test('personal questions use the profile, award claims use actual records',()=>{const profile={roles:['Documented role'],awardRecords:[{title:{en:'Award A',zh:'奖A'},result:{en:'Finalist',zh:'入围'},work:{en:'Work',zh:'作品'},projectId:'p8'}]};assert.match(retrieveAnswer(projects,profile,'who are you').text,/Documented role/);const a=retrieveAnswer(projects,profile,'awards');assert.match(a.text,/Finalist/);assert.deepEqual(a.projectIds,['p8'])});

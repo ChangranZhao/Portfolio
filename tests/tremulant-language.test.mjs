@@ -1,7 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {projects} from '../dist/data.js';
-import {localizeText,setGlobalLanguage} from '../dist/localization.js';
+import {localizeText,setGlobalLanguage,setLocalizedAttribute} from '../dist/localization.js';
+
+test('dynamic window attributes immediately follow the current language',async()=>{
+ globalThis.document={documentElement:{},body:{nodeType:0}};
+ const attrs=new Map(),el={setAttribute:(k,v)=>attrs.set(k,v)};
+ setGlobalLanguage('zh');setLocalizedAttribute(el,'aria-label','GAIA HYPOTHESIS');assert.equal(attrs.get('aria-label'),'盖亚假说');
+ setGlobalLanguage('en');setLocalizedAttribute(el,'aria-label','GAIA HYPOTHESIS');assert.equal(attrs.get('aria-label'),'GAIA HYPOTHESIS');
+ await new Promise(resolve=>setTimeout(resolve,0));delete globalThis.document;
+});
 
 test('Tremulant introduction follows English, simplified and traditional language settings',async()=>{
  globalThis.document={documentElement:{},body:{nodeType:0}};

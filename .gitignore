@@ -8,6 +8,11 @@ __pycache__/
 problem/
 
 site/
+dist/react-apps.js
+dist/assets/creativeos-source.json
 .env
 .env.*
 *.log
+
+# Generated Three.js bundle (rebuilt by npm run build)
+dist/ue-gallery.js

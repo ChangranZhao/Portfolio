@@ -203,3 +203,48 @@ export const translations={
   "全馆关联 / 23 个展项": "Museum atlas / 23 exhibits",
   "长治博物馆 / 文化内容 → 展项 → 数字方法": "Changzhi Museum / Cultural content → Exhibits → Digital methods"
 };
+
+Object.assign(translations,{
+  "项目概览": "Overview",
+  "全馆关联图谱": "Museum atlas",
+  "龙门寺": "Longmen Temple",
+  "观音堂悬塑": "Guanyin Hall sculptures",
+  "观音堂": "Guanyin Hall",
+  "法华罐": "Fahua Jar",
+  "良候店石窟": "Lianghoudian Grottoes",
+  "全馆展项图谱": "Museum exhibit atlas",
+  "全馆展项关联图谱": "Museum exhibit connections",
+  "多路径采集": "Multiple capture methods",
+  "龙门寺现场档案": "Longmen Temple field records",
+  "从摄影到点云": "From photographs to point clouds",
+  "高斯泼溅重建": "Gaussian splatting reconstruction",
+  "表面采集与空间记录": "Surface capture and spatial records",
+  "从形态到意义": "From form to meaning",
+  "让影像进入空间": "Bringing imagery into space",
+  "法华罐的数字重建": "Digital reconstruction of the Fahua Jar",
+  "扫描、修补与纹样重绘": "Scanning, repair and pattern reconstruction",
+  "良候店石窟：粒子重建": "Lianghoudian Grottoes: particle reconstruction",
+  "从历史资料到粒子转场": "From historical records to particle transitions",
+  "保留图板中的文化主题、展项图像和原始连线。选择一个展项，查看它所关联的数字方法。": "The atlas preserves cultural themes, exhibit images and their original connections. Select an exhibit to explore its digital methods.",
+  "放大展项图像 ↗": "Enlarge exhibit image ↗",
+  "阅读案例 ↓": "Read case study ↓",
+  "采集整体空间与建筑细部，在现场与模型之间反复核对，逐步建立完整的数字表达。": "Capture the overall space and architectural details, cross-checking the site and model to build a complete digital representation.",
+  "记录悬塑的细节与殿堂中的关系，再通过光、动态影像和半透明屏幕重新组织观看。": "Record the suspended sculptures and their relationship to the hall, then reframe the encounter through light, moving images and translucent screens.",
+  "从影像扫描、几何修补到纹样重绘，沿着器物的结构与装饰展开数字重建。": "Reconstruct the vessel through image scanning, geometry repair and pattern redrawing, following its structure and ornament.",
+  "将现场观察与历史资料连接起来，以粒子系统研究形态的生成与转场。": "Connect field observations with historical records, exploring the emergence and transition of forms through particle systems.",
+  "高亮连线保留原图板的对应关系；其余展项淡出，便于追踪内容如何转化为数字表达。": "Highlighted connections preserve the relationships in the original board; other exhibits fade to reveal how cultural content becomes digital expression.",
+  "关联的数字方法：": "Related digital methods: ",
+  "全馆关联": "Museum atlas",
+  "个展项": "exhibits",
+  "原始设计图板": "Original design board",
+  "关闭图片": "Close image",
+  "阅读": "Read ",
+  "案例 ↓": " case study ↓"
+});
+
+Object.assign(translations,{"从现场到数字证据":"From fieldwork to digital evidence","与悬塑近距离相遇":"A closer encounter with suspended sculptures"});
+
+for(const key of Object.keys(translations))translations[key]=translations[key].replaceAll("&amp;","&");
+
+for(const [zh,en] of Object.entries(translations)){if(/^\d{2} /.test(zh))translations[zh.replace(/^\d{2} /,'')]=en.replace(/^\d{2}\s+/,'');}
+Object.assign(translations,{"玉戚 · 透明屏":"Jade Qi / Transparent Screen","：查看数字方法关联":": explore digital methods"});

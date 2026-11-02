@@ -45,6 +45,8 @@
   <link rel="stylesheet" href="liquid-glass.css">
 <link rel="stylesheet" href="music-app.css">
 <link rel="stylesheet" href="terminal-runner.css">
+<link rel="stylesheet" href="guide-onboarding.css">
+<link rel="stylesheet" href="project-loading.css">
 </head>
 <body>
   <div id="startup-screen" aria-label="正在启动 Creative OS…" data-no-localize>
@@ -56,11 +58,14 @@
           <linearGradient id="hello-light"><stop stop-color="#fff" stop-opacity=".15"/><stop offset=".45" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity=".35"/></linearGradient>
           <path id="hello-script" pathLength="1" d="M70 174 C88 136 113 72 104 45 C96 23 75 87 75 141 L76 178 C89 129 121 109 131 133 C139 151 116 181 141 181 C163 182 193 153 183 135 C174 117 149 142 152 165 C155 191 190 189 215 164 C242 136 280 53 268 39 C251 21 224 97 218 150 C213 184 232 198 255 173 C284 142 319 56 306 40 C289 22 267 97 261 152 C257 187 279 195 301 172 C318 151 330 134 347 138 C369 142 370 168 351 182 C331 196 312 181 321 159 C329 139 346 132 358 145 C367 155 376 172 392 171 C405 170 416 161 428 148"/>
           <mask id="hello-shell" maskUnits="userSpaceOnUse" x="20" y="0" width="460" height="230"><use href="#hello-script" fill="none" stroke="white" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/><use href="#hello-script" fill="none" stroke="black" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/></mask>
+          <mask id="hello-write-mask" maskUnits="userSpaceOnUse" x="20" y="0" width="460" height="230"><use href="#hello-script" class="hello-write-path" fill="none" stroke="white" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/></mask>
         </defs>
+        <g mask="url(#hello-write-mask)">
         <use href="#hello-script" class="hello-shadow"/>
         <use href="#hello-script" class="hello-rim"/>
         <use href="#hello-script" class="hello-glass"/>
         <use href="#hello-script" class="hello-light"/>
+        </g>
       </svg>
       <div class="startup-brand">Creative OS <span>by Changran Zhao</span></div>
       <div class="startup-label">正在为你准备 Creative OS…</div>
@@ -72,7 +77,7 @@
   <script>
     // Deadline and skip stay independent of module, image and font requests.
     window.creativeOSBootStarted=Date.now();
-    document.querySelector('.hello-light')?.addEventListener('animationend',()=>document.getElementById('startup-screen')?.setAttribute('data-hello-ready','true'),{once:true});
+    document.querySelector('.hello-write-path')?.addEventListener('animationend',()=>document.getElementById('startup-screen')?.setAttribute('data-hello-ready','true'),{once:true});
     if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)document.getElementById('startup-screen')?.setAttribute('data-hello-ready','true');
     (()=>{let closing=false,done=false,deadline;const complete=()=>{if(done)return;done=true;clearTimeout(deadline);document.getElementById('startup-screen')?.remove();window.dispatchEvent(new Event('creativeos-startup-finished'));};window.finishCreativeOSStartup=function(immediate){if(immediate===true){complete();return}if(done||closing)return;closing=true;const screen=document.getElementById('startup-screen');if(!screen){complete();return}screen.classList.add('startup-leaving');setTimeout(complete,700);};document.getElementById('startup-skip')?.addEventListener('click',window.finishCreativeOSStartup);deadline=setTimeout(()=>window.finishCreativeOSStartup(true),8000);})();
   </script>

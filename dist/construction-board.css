@@ -25,6 +25,12 @@
 .ct-footprints{fill:none;stroke:#aaa;stroke-width:.6;stroke-opacity:.25;stroke-dasharray:3 4}
 .ct-rail{fill:none;stroke:#dedede;stroke-width:1}.ct-rail-secondary{stroke-opacity:.35;stroke-dasharray:4 5}
 .ct-person{pointer-events:none}.ct-person ellipse{fill:#eee;opacity:.18}.ct-person image{opacity:.88}
+.ct-walker{animation:ct-grid-walk var(--walk-duration) linear var(--walk-phase) infinite}
+.ct-walker-facing{animation:ct-walk-facing var(--walk-duration) step-end var(--walk-phase) infinite;transform-origin:0 0}
+@keyframes ct-grid-walk{0%,100%{transform:translate(0,0)}25%{transform:translate(var(--walk-a0),var(--walk-a1))}50%{transform:translate(var(--walk-b0),var(--walk-b1))}75%{transform:translate(var(--walk-c0),var(--walk-c1))}}
+@keyframes ct-walk-facing{0%{transform:scaleX(var(--walk-face-a))}25%{transform:scaleX(var(--walk-face-b))}50%{transform:scaleX(var(--walk-face-c))}75%{transform:scaleX(var(--walk-face-d))}}
+@media(prefers-reduced-motion:reduce){.ct-walker,.ct-walker-facing{animation:none}}
+.reduce-motion .ct-walker,.reduce-motion .ct-walker-facing,.project-suspended .ct-walker,.project-suspended .ct-walker-facing{animation-play-state:paused}
 .ct-depth-back .ct-photo image{opacity:.86}.ct-depth-back .ct-photo-border{stroke:#a9a9a6;stroke-width:.7}
 .ct-depth-front .ct-photo-border{stroke:#f6f6f2;stroke-width:1.3}
 .ct-contact{fill:#fff;fill-opacity:.025;stroke:#a8a8a8;stroke-opacity:.35;stroke-width:.65;stroke-dasharray:3 5}

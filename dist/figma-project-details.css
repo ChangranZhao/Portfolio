@@ -9,3 +9,4 @@
 @keyframes figma-page-reveal{from{opacity:.65}to{opacity:1}}
 body.reduce-motion .figma-page-frame{animation:none}
 @media(prefers-reduced-motion:reduce){.figma-page.is-visible .figma-page-frame{animation:none}}
+.echo-article .figma-page.is-visible .figma-page-frame{animation:none}

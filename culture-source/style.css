@@ -53,3 +53,4 @@
 .photo-card .face-left,.photo-card .face-right,.photo-card .face-top,.photo-card .face-bottom,.photo-card .face-back{background:#000}
 
 .photo-card.story-photo img,.photo-card.story-photo:hover img,.archive-node.story-node image{filter:saturate(.18)}
+.culture-host-paused *,.culture-host-paused *::before,.culture-host-paused *::after{animation-play-state:paused!important}

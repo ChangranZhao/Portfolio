@@ -1,14 +1,18 @@
 import {createMimesis,mimesisChapters} from './mimesis-project.js';
+import {showProjectLoading} from './project-loading.js';
+import {manageProjectActivity} from './project-activity.js';
+import {optimizeZiboReading} from './zibo-reading.js';
+import {createTremulantProject,tremulantChapters} from './tremulant-project.js';
 
 // Let scrolling use the compositor without competing with the 3D archive.
-function pauseCultureWhileScrolling(frame,signal){
+function pauseCultureWhileScrolling(frame,signal,scrollRoot){
  if(!frame)return;
  let timer=0,scrolling=false;
  const notify=value=>frame.contentWindow?.postMessage({type:'portfolio-culture-scrolling',scrolling:value},location.origin);
- window.addEventListener('scroll',()=>{
+ scrollRoot.addEventListener('scroll',()=>{
   if(!scrolling){scrolling=true;notify(true);}
   clearTimeout(timer);timer=setTimeout(()=>{scrolling=false;notify(false);},180);
- },{capture:true,passive:true,signal});
+ },{passive:true,signal});
  frame.addEventListener('load',()=>notify(scrolling),{signal});
  signal.addEventListener('abort',()=>clearTimeout(timer),{once:true});
 }
@@ -42,6 +46,7 @@ export function openProjectDetails(project,{openImage,openGallery,mount}){
  if(project.id==='p14')project={...project,introduction:"This AI-generated short film takes viewers on a whimsical journey to Mars, imagining a world where potatoes have developed consciousness and built their own civilization. Through the absurd premise of potato rule on the Red Planet, the film explores the human dream of space colonization from a fresh, non-human perspective.\n\nBlending satire with sci-fi, the film offers a humorous yet thought-provoking reflection on humanity’s quest to explore the cosmos. By reinterpreting serious themes like aerospace ambition through the lens of playful storytelling, it brings space exploration closer to everyday audiences, igniting curiosity and celebrating the spirit of human imagination and perseverance — all while making us laugh."};
  let featuredExhibitReader=null,disposeFigma=null;
  const id='case-'+project.id,root=el('div','case-reader'),toolbar=el('div','case-browser-toolbar');
+ if(!mount)root.classList.add('case-preparing');
  const back=btn('‹',()=>{closeWindow(id);history.replaceState(null,'',location.pathname+location.search);},'case-back');back.setAttribute('aria-label','Back to project gallery');
  const address=el('span','case-address','▣  '+project.title+' / Project details');
  const status=el('span','case-status');status.setAttribute('role','status');toolbar.append(back,address);
@@ -58,6 +63,7 @@ export function openProjectDetails(project,{openImage,openGallery,mount}){
 
  const jump=(target)=>article.querySelector('#'+target)?.scrollIntoView({behavior:'instant',block:'start'});
  const chapterList=project.id==='p7'?mimesisChapters:project.id==='p12'?blueChapters:project.id==='p9'?neuroChapters:project.id==='p6'?changzhiChapters:hasFigmaDetails(project.id)?figmaChapters(project.id):project.id==='p1'?[['Overview','case-overview'],['Family Factors','case-family'],['Cultural Research','case-culture'],...nextChapters.map(c=>[c.nav,c.id])]:[['Overview','case-overview'],['Project Images','case-images']];
+ if(project.id==='p5')chapterList.splice(0,chapterList.length,...tremulantChapters);
  for(const [label,target] of chapterList)chapters.append(btn(label,()=>jump(target)));
  chapters.append(btn('Project Photos ↗',()=>openGallery(project.id),'case-photos'));
  root.append(toolbar,chapters,status,article);
@@ -66,6 +72,16 @@ export function openProjectDetails(project,{openImage,openGallery,mount}){
   createBlueCalico(article,project,openImage);
  }else if(project.id==='p9'){
   createNeuroProject(article,{openImage});
+ }else if(project.id==='p5'){
+  createTremulantProject(article,project,openImage);
+ }else if(project.id==='p10'){
+  chapters.firstElementChild?.remove();
+  const images=el('section','case-image-story homeward-image-stack');images.id='case-images';
+  for(const [index,im] of project.images.entries()){
+   const button=btn('',()=>openImage(project.images,index,project.title)),image=photo(im.preview||im.src,im.name);
+   button.setAttribute('aria-label',im.name);image.width=im.width;image.height=im.height;button.append(image);images.append(button);
+  }
+  article.append(images);
  }else if(project.id==='p6'){
   disposeFigma=createChangzhiProject(article,{openImage});
  }else if(hasFigmaDetails(project.id)){
@@ -154,11 +170,12 @@ const slot=el('section','case-material-slot');slot.append(el('span','case-slot-n
   if(project.id==='p11'){const paper=papers.find(p=>p.id==='path-of-light');const section=el('section','case-generic');section.id='case-publication';section.style.cssText='max-width:none;width:100%;box-sizing:border-box;padding:40px clamp(16px,3vw,48px)';section.append(el('span','case-kicker','UIST Adjunct 2025'),el('h2','','Research & Publication'),el('h3','',paper.title),el('p','',"Published at UIST Adjunct 2025, the paper documents the design process, system prototype and a pilot study with 10 participants aged 19–52. Initial interview feedback suggests increased interest in Silk Road mythology and cross-cultural connections; larger studies are needed to evaluate the impact more rigorously."));const link=el('a','case-document','Read paper ↗');link.href=paper.pdf;link.target='_blank';link.rel='noopener';const download=el('a','case-document','Download PDF');download.href=paper.pdf;download.download='Path-of-Light-UIST-2025.pdf';section.append(link,document.createTextNode(' · '),download);const frame=el('iframe');frame.src=paper.pdf+'#view=FitH&pagemode=none';frame.title=paper.title;frame.loading='lazy';frame.style.cssText='display:block;width:100%;height: min(80vh, 900px);min-height:420px;border:1px solid #ddd;margin-top:24px;border-radius:8px;background:white';const full=btn('Full screen ↗',async()=>{if(document.fullscreenElement){await document.exitFullscreen();return;}if(viewer.requestFullscreen){try{await viewer.requestFullscreen();}catch{window.open(paper.pdf,'_blank','noopener');}}else window.open(paper.pdf,'_blank','noopener');},'case-document');section.insertBefore(full,link);const viewer=el('div','path-paper-viewer');viewer.append(frame);section.append(viewer);article.append(section);chapters.append(btn('Research & Publication',()=>jump('case-publication')));}
 
  }
+ if(project.id==='p1')optimizeZiboReading(article);
  if(mount){
   toolbar.remove();mount.append(root);
   const embedded=root.querySelector('.culture-embed');let visible=false;
   const controller=new AbortController();
-  pauseCultureWhileScrolling(embedded,controller.signal);
+  pauseCultureWhileScrolling(embedded,controller.signal,article);
   const notify=()=>{embedded?.contentWindow?.postMessage({type:'portfolio-preferences',lang:'zh',motion:document.body.classList.contains('reduce-motion')},location.origin);embedded?.contentWindow?.postMessage({type:'portfolio-culture-active',active:visible&&!document.hidden&&!document.body.classList.contains('project-suspended')},location.origin);};
   const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;notify();});
   if(embedded){observer.observe(embedded);embedded.addEventListener('load',notify,{signal:controller.signal});}
@@ -172,14 +189,19 @@ const slot=el('section','case-material-slot');slot.append(el('span','case-slot-n
  bar.querySelector('.window-title').remove();bar.classList.add('case-unified-bar');bar.append(back,address);toolbar.remove();
  const edge=el('div','case-fullscreen-edge');edge.setAttribute('aria-hidden','true');shell.append(edge);
  const controller=new AbortController();let hideTimer;
+ manageProjectActivity(article,controller.signal);
  const cultureFrame=shell.querySelector('.culture-embed');
- pauseCultureWhileScrolling(cultureFrame,controller.signal);
+ pauseCultureWhileScrolling(cultureFrame,controller.signal,article);
  let frameVisible=false;
- const notifyCulture=()=>cultureFrame?.contentWindow?.postMessage({type:'portfolio-culture-active',active:frameVisible&&!shell.hidden&&!shell.classList.contains('inactive')&&!shell.classList.contains('minimizing')&&!document.hidden},location.origin);
+ const notifyCulture=()=>cultureFrame?.contentWindow?.postMessage({type:'portfolio-culture-active',active:frameVisible&&!root.classList.contains('case-preparing')&&!shell.hidden&&!shell.classList.contains('inactive')&&!shell.classList.contains('minimizing')&&!document.hidden},location.origin);
+ window.addEventListener('message',event=>{if(event.origin===location.origin&&event.source===cultureFrame?.contentWindow&&event.data?.type==='portfolio-culture-ready')notifyCulture();},{signal:controller.signal});
  const frameObserver=cultureFrame?new IntersectionObserver(([entry])=>{frameVisible=entry.isIntersecting;notifyCulture();},{threshold:0}):null;
  if(cultureFrame){frameObserver.observe(cultureFrame);cultureFrame.addEventListener('load',()=>{notifyCulture();cultureFrame.contentWindow?.postMessage({type:'portfolio-preferences',lang:document.documentElement.lang==='zh-CN'?'zh':document.documentElement.lang,motion:document.body.classList.contains('reduce-motion')},location.origin);});}
  document.addEventListener('portfolio-windows-changed',notifyCulture,{signal:controller.signal});
  document.addEventListener('visibilitychange',notifyCulture,{signal:controller.signal});
+ article.addEventListener('portfolio-project-ready',notifyCulture,{signal:controller.signal});
+ const disposeLoading=showProjectLoading(root,project);
+ shell.addEventListener('window-closing',disposeLoading,{once:true});
 
  const update=()=>{const active=document.fullscreenElement===shell||shell.classList.contains('case-fullscreen');shell.classList.toggle('case-immersive',active);green.setAttribute('aria-label',(active?'Exit full screen ':'Enter full screen ')+project.title);green.setAttribute('aria-pressed',String(active));shell.classList.remove('case-controls-visible');};
  async function toggleFullscreen(target){

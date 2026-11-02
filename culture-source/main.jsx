@@ -1,4 +1,5 @@
 import {useThemeCycle} from './use-theme-cycle.js';
+import {hostActivity} from './host-activity.js';
 import {cultureLanguage,cultureText} from './language.js';
 import React, {useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
@@ -19,7 +20,7 @@ function CultureSphere({playing,depth,reset,onSelect,selectedCategory,frozen,pur
  useEffect(()=>{rotation.current={x:-9,y:18};velocity.current={x:0,y:0}},[reset]);
  const wake=useRef(()=>{});
  useEffect(()=>{
-  let frame=0,timer=0,last=0,visible=false,hostActive=true,dirty=true,scrolling=false,scrollTimer=0;
+  let frame=0,timer=0,last=0,visible=false,hostActive=hostActivity.active,dirty=true,scrolling=hostActivity.scrolling,scrollTimer=0;
   const paint=()=>{globe.current.style.transform=`rotateX(${rotation.current.x}deg) rotateY(${rotation.current.y}deg)`;};
   const stop=()=>{cancelAnimationFrame(frame);clearTimeout(timer);frame=timer=0;last=0;};
   const active=()=>visible&&hostActive&&!scrolling&&!document.hidden;

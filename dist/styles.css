@@ -24,6 +24,4 @@ img{height:auto}
 
 .desktop-icon .icon-image.square{width:100%!important;height:auto!important;max-height:none;aspect-ratio:1 / 1;object-fit:cover}
 
-/* Center the SPACE CHRONICLES glass array within its shared display crop. */
-img[src*='assets/p2-000']{object-view-box:inset(0 0 0 14.47%);object-position:50% 50%}
 

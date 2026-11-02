@@ -1,5 +1,6 @@
 import {registerTranslations} from './localization.js';
 import {constructionPhotos} from './construction-assets.js';
+import {constructionWalk} from './construction-walk.js';
 
 const stages=[['SITE SURVEY','初步勘探','2025.12 — 2026.01'],['INITIAL BUILD','初步搭建','2026.01 — 2026.03'],['DETAILING','细化搭建','2026.03 — 2026.04']];
 const captions=[
@@ -72,8 +73,9 @@ function frame(u,v,w,d,h){
  return `<g class="ct-frame"><polygon points="${corners.map(xy).join(' ')}"/><polygon points="${roof.map(xy).join(' ')}"/>${corners.map((p,i)=>line(p,roof[i])).join('')}</g>`;
 }
 function person(x,y,s=1,index=0){
- const height=52*s;
- return `<g class="ct-person" aria-hidden="true" transform="translate(${x*1.22+18} ${y*1.24+55})"><ellipse cx="4" cy="-1" rx="${height*.16}" ry="2"/><image href="${people[index%2]}" x="${-height/3}" y="${-height}" width="${height*2/3}" height="${height}"/></g>`;
+ const height=52*s,anchor=[x*1.22+18,y*1.24+55],walk=constructionWalk(index,...anchor),[a,b,c]=walk.points.slice(1,4);
+ const variables=[...a.map((v,i)=>`--walk-a${i}:${v}px`),...b.map((v,i)=>`--walk-b${i}:${v}px`),...c.map((v,i)=>`--walk-c${i}:${v}px`),`--walk-duration:${walk.duration}s`,`--walk-phase:${walk.phase}s`,`--walk-face-a:${Math.sign(a[0])}`,`--walk-face-b:${Math.sign(c[0])}`,`--walk-face-c:${-Math.sign(a[0])}`,`--walk-face-d:${-Math.sign(c[0])}`].join(';');
+ return `<g class="ct-person" aria-hidden="true" transform="translate(${anchor.join(' ')})"><g class="ct-walker" style="${variables}"><ellipse cx="4" cy="-1" rx="${height*.16}" ry="2"/><g class="ct-walker-facing"><image href="${people[1]}" x="${-height/3}" y="${-height}" width="${height*2/3}" height="${height}"/></g></g></g>`;
 }
 function photoPanel(photo,index){
  const {x,y,maxW,maxH,flat,depth,slope}=layout(index);

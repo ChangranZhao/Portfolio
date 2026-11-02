@@ -1,6 +1,8 @@
 import {createActivityClock} from './runtime-scheduling.js';
 import {setupEnvironmentMotion} from './space-environment-motion.js';
 import {setupCaptionTypewriter} from './space-caption-typewriter.js';
+import {setupAlphabetMotion,setupCompleteAlphabetMotion} from './space-alphabet-motion.js';
+import {setupInteractionMotion} from './space-interaction-motion.js';
 // Photographs are interactive; exported paths, icons and connectors are decoration.
 export function spaceImageIsContent(img){
  return !/\.svg(?:[?#]|$)/i.test(img.src)&&!img.closest('.space-planet');
@@ -10,6 +12,9 @@ export function setupSpaceMotion(doc,section,article,signal,reduced){
  doc.body.classList.add('space-motion');
  setupEnvironmentMotion(doc,section,article,signal,reduced);
  setupCaptionTypewriter(doc,section,article,signal,reduced);
+ setupAlphabetMotion(doc,section,article,signal,reduced);
+ setupCompleteAlphabetMotion(doc,section,article,signal,reduced);
+ setupInteractionMotion(doc,section,article,signal,reduced);
  const earth=new URL('./assets/space-planets/earth.png',import.meta.url).href;
  const strip=new URL('./assets/space-planets/planet-strip.png',import.meta.url).href;
  const style=doc.createElement('style');

@@ -8,9 +8,12 @@ import {localizeFigmaBoard} from './figma-board-language.js';
 import {registerTranslations} from './localization.js';
 import {setupSpectralAssembly} from './spectral-assembly-motion.js';
 import {setupSpectralSystem} from './spectral-system-motion.js';
+import {setupSpectralIntensity,setupSpectralOutputWaves} from './spectral-intensity-motion.js';
+import {setupSpectralPrinciples,setupSpectralPosition,setupSpectralForm,setupSpectralResearch,setupSpectralOutput,setupSpectralJourney} from './spectral-principles-motion.js';
 import {setupSpectralWireflow} from './spectral-wireflow-motion.js';
 import {setupSpectralMockups} from './spectral-mockup-motion.js';
 import {createBoardScheduler} from './board-performance.js';
+import {setupEchoMotion} from './echo-motion.js';
 const chapterTranslations={Overview:'项目概览','Product concept':'产品概念',TeleAbsence:'远距缺席','Design position':'设计立场','Material & form':'材料与形态','Function & structure':'功能与结构',Interaction:'交互',System:'系统','App wireflows':'应用线框流程','App design':'应用设计','Functional prototype':'功能原型',Enclosure:'外壳',Interviews:'访谈',Projection:'投影','Product prototype':'产品原型','Technical details':'技术细节','Everyday journey':'日常旅程',Lifecycle:'生命周期',Encounters:'相遇','Performance directions':'演出方向','A room of light':'光构成的房间','Visual language':'视觉语言',Making:'制作','Live system':'现场系统','Inside the image':'置身影像',Audience:'观众','Open sky':'开阔天空','Doubled image':'重叠影像','Open enclosure':'打开围合','Return to volume':'回归空间',Reflection:'反思','Language & perception':'语言与感知',Exhibition:'展览','World building':'世界构建','Planetary environments':'行星环境','Writing system':'书写系统','Visual development':'视觉开发','Comparative alphabet':'比较字母表','Interaction narrative':'交互叙事',Development:'开发','Distance & connection':'距离与连接'};
 registerTranslations(Object.entries(chapterTranslations));
 registerTranslations([['Cover','封面'],['Memory & background','记忆与背景'],['Project context','项目背景'],['Research & data','数据研究'],['Interaction design','交互设计'],['Technical system','技术实现'],['Narrative','叙事与视觉转译'],['Final work','最终呈现']]);
@@ -29,6 +32,7 @@ export const figmaChapters=id=>pagesFor(id).map((p,i)=>[id==='p8'?(i===0?'Cover'
 export function createFigmaDetails(article,project,{openImage}){
  const localize=project.id==='p8'?localizeGaia:localizeFigmaBoard;
  article.classList.add('figma-article');
+ if(project.id==='p4')article.classList.add('echo-article');
  article.parentElement?.classList.add('figma-reader');
  const boards=[],controller=new AbortController(),scheduler=createBoardScheduler(article);
  const language=()=>document.documentElement.lang==='zh-CN'?'zh':document.documentElement.lang;
@@ -46,6 +50,7 @@ export function createFigmaDetails(article,project,{openImage}){
   frame.addEventListener('load',()=>{
    const doc=frame.contentDocument;if(!doc||!frame.getAttribute('src')||doc.URL==='about:blank')return;doc.body.classList.toggle('reduce-motion',reduced());
    localize(doc,language());
+   if(project.id==='p4')setupEchoMotion(doc,section,article,controller.signal,reduced);
    if(project.id==='p2')setupSpaceMotion(doc,section,article,controller.signal,reduced);
    const images=[...doc.images].filter(img=>!img.closest('.video-facade')&&(project.id==='p8'?/\.(?:png|webp)(?:$|[?#])/.test(img.src):project.id!=='p2'||spaceImageIsContent(img)));
    const items=images.map((img,n)=>({src:img.currentSrc||img.src,name:img.closest('[data-name]')?.dataset.name||`${label} · ${n+1}`}));
@@ -57,6 +62,14 @@ export function createFigmaDetails(article,project,{openImage}){
    if(project.id==='p2')setupSpaceCrosshair(doc,article,controller.signal);
    if(project.id==='p3'&&p.id==='33:3153')setupSpectralAssembly(doc,section,article,controller.signal,reduced);
    if(project.id==='p3'&&p.id==='33:3570')setupSpectralSystem(doc,section,article,controller.signal,reduced);
+   if(project.id==='p3'&&p.id==='33:3433')setupSpectralPrinciples(doc,section,article,controller.signal,reduced);
+   if(project.id==='p3'&&p.id==='33:2539')setupSpectralPosition(doc,section,article,controller.signal,reduced);
+   if(project.id==='p3'&&p.id==='33:3012')setupSpectralForm(doc,section,article,controller.signal,reduced);
+   if(project.id==='p3'&&p.id==='33:3310')setupSpectralIntensity(doc,section,article,controller.signal,reduced);
+   if(project.id==='p3'&&p.id==='33:2859')setupSpectralResearch(doc,section,article,controller.signal,reduced);
+   if(project.id==='p3'&&p.id==='33:2945')setupSpectralOutput(doc,section,article,controller.signal,reduced);
+   if(project.id==='p3'&&p.id==='33:2945')setupSpectralOutputWaves(doc,section,article,controller.signal,reduced);
+   if(project.id==='p3'&&p.id==='38:6650')setupSpectralJourney(doc,section,article,controller.signal,reduced);
    if(project.id==='p3'&&p.id==='36:5538')setupSpectralWireflow(doc,section,article,controller.signal,reduced);
    if(project.id==='p3'&&p.id==='33:3665')setupSpectralMockups(doc,section,article,controller.signal,reduced);
    // Captions and transparent collage layers may sit above the photograph.
@@ -69,6 +82,13 @@ export function createFigmaDetails(article,project,{openImage}){
   stage.append(frame);rail.append(stage);section.append(rail);article.append(section);boards.push({rail,stage,frame});
   scheduler.observe(frame,section,p.page,i===0);
   reveal.observe(section);
+  if(project.id==='p4'&&i===0){
+   const video=document.createElement('section');video.className='mimesis-project-video';video.id='echo-project-video';video.setAttribute('aria-label','Echo Space — Project Video');
+   const player=document.createElement('iframe');player.src='https://www.youtube-nocookie.com/embed/LdEnsF15ipw';player.title='Echo Space — Project Video';player.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen';player.allowFullscreen=true;player.referrerPolicy='strict-origin-when-cross-origin';
+   const preview=createYouTubeFacade(player,{poster:project.images[0]?.preview||project.images[0]?.src});
+   preview.addEventListener('click',()=>{video.requestFullscreen?.().catch(()=>{});},{once:true});
+   video.append(preview);article.append(video);
+  }
   if(project.id==='p8'&&p.id==='2009:2'){
    const video=document.createElement('section');video.className='mimesis-project-video';video.id='gaia-project-video';
    const player=document.createElement('iframe');player.src='https://www.youtube-nocookie.com/embed/arpZAWx3yNw';player.title='GAIA HYPOTHESIS — Project Video';player.loading='lazy';player.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';player.allowFullscreen=true;player.referrerPolicy='strict-origin-when-cross-origin';

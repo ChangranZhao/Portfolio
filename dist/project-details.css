@@ -1,3 +1,4 @@
+@import url("tremulant-project.css");
 @import url("exhibit-overview.css");
 /* Project case studies use live text and individual images, inside a Safari-style window. */
 /* Size this project against its reader window, including floating desktop windows. */
@@ -159,4 +160,8 @@ body:has(.case-window.case-immersive:not([hidden]):not(.closing):not(.minimizing
 .path-paper-viewer{width:100%}.path-paper-viewer iframe{height:85vh!important;border-radius:0!important}.path-paper-viewer:fullscreen{background:#252525;width:100vw;height:100vh}.path-paper-viewer:fullscreen iframe{height:100vh!important;min-height:0!important;margin:0!important;border:0!important}#case-publication>.case-document{display:inline-block;margin:8px 12px 8px 0}
 
 /* Preserve native wheel response; chapter buttons navigate immediately. */
+
 .case-article{scroll-behavior:auto}
+.case-image-story.homeward-image-stack{display:block;width:100%;padding:0;margin:0;gap:0}
+.homeward-image-stack>button{display:block;width:100%;padding:0;margin:0;border:0;border-radius:0;line-height:0;background:#080808;cursor:zoom-in}
+.case-image-story.homeward-image-stack img{display:block;width:100%;height:auto;max-height:none;margin:0;border-radius:0;object-fit:contain}

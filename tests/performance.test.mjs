@@ -78,3 +78,19 @@ test('nearby boards initialize at most two at once and retain their URLs after l
  }finally{scheduler.dispose();globalThis.document=oldDoc;globalThis.IntersectionObserver=oldIO;}
 });
 test('responsive image variants have independent cache policies and smaller decoded sizes',async()=>{const image=await sharp({create:{width:2400,height:1600,channels:3,background:'#558877'}}).png({compressionLevel:0}).toBuffer();const small=await sharp(await optimizeImage(image,'assets/p1-000-small.webp')).metadata(),preview=await sharp(await optimizeImage(image,'assets/p1-000-preview.webp')).metadata();assert.equal(small.width,320);assert.equal(preview.width,1280)});
+
+test('project preparation loads every retained board two at a time, without proximity',()=>{
+ const oldDoc=globalThis.document,oldIO=globalThis.IntersectionObserver;
+ globalThis.document=new EventTarget();document.hidden=false;
+ globalThis.IntersectionObserver=class{observe(){}unobserve(){}disconnect(){}};
+ const root=new EventTarget(),frames=Array.from({length:5},()=>new EventTarget());
+ const scheduler=createBoardScheduler(root);
+ try{
+  frames.forEach((f,i)=>scheduler.observe(f,{},'board'+i+'.html'));
+  root.dispatchEvent(new Event('portfolio-project-preload'));
+  assert.equal(frames.filter(f=>f.src).length,2);
+  for(const f of frames)f.dispatchEvent(new Event('load'));
+  assert.equal(frames.filter(f=>f.src).length,5);
+  assert.deepEqual(frames.map(f=>f.src),frames.map((_,i)=>'board'+i+'.html'));
+ }finally{scheduler.dispose();globalThis.document=oldDoc;globalThis.IntersectionObserver=oldIO;}
+});

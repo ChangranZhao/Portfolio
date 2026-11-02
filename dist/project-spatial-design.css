@@ -25,8 +25,14 @@
 .sp-viewer{position:fixed;inset:0;width:96vw;height:94dvh;max-width:96vw;max-height:94dvh;margin:auto;padding:0;border:1px solid #555;border-radius:8px;background:#000;color:#eee;overflow:hidden;z-index:10000}.sp-viewer[open]{display:flex;flex-direction:column}.sp-viewer::backdrop{background:#000c}.sp-viewer>header{display:flex;justify-content:space-between;align-items:center;gap:20px;border-bottom:1px solid #444;padding:12px 18px;font-size:12px}.sp-viewer>header>div{display:flex;gap:8px}.sp-viewer strong{font-weight:500;letter-spacing:1px}.sp-pan{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y}.sp-zoom-canvas{max-width:none;flex:none;aspect-ratio:auto}
 @container (max-width:760px){.sp-intro{grid-template-columns:1fr;gap:15px;padding:26px 0}.sp-masthead{font-size:9px;gap:10px;letter-spacing:1px}.sp-reading>div{grid-template-columns:1fr;gap:25px}.sp-sequence ol{grid-template-columns:repeat(2,minmax(0,1fr))}.sp-footer{flex-wrap:wrap}.sp-reading h3{font-size:20px}.sp-diagram-tools{font-size:10px;gap:8px}.sp-figure figcaption{text-align:left}.sp-intro p{font-size:13px}.sp-interaction-guide{width:100%}.sp-interaction-guide>div{display:block}.sp-interaction-guide small{display:block;margin-top:3px}}
 @media(max-width:600px){.sp-viewer>header{align-items:flex-start;flex-direction:column;gap:10px;padding:12px}.sp-viewer>header>div{width:100%;justify-content:space-between;gap:5px}.sp-viewer button{padding:9px;font-size:11px}.sp-viewer{width:98vw;max-width:98vw}}
-/* Staggered breathing highlights only the clickable exhibit markers. */
-.sp-blinking-marker{animation:sp-marker-blink 2.6s ease-in-out var(--sp-blink-delay,0s) infinite}
-@keyframes sp-marker-blink{0%,100%{opacity:1}50%{opacity:.28}}
-@media(prefers-reduced-motion:reduce){.sp-blinking-marker{animation:none}}
-.reduce-motion .sp-blinking-marker{animation:none}
+/* Explicit, static affordances remain readable without waiting for a pulse. */
+.sp-original-marker{visibility:hidden}
+.sp-hotspot-host{z-index:4}
+.sp-hotspot-host:hover,.sp-hotspot-host:focus-within{z-index:30}
+.sp-diagram .sp-point{left:calc(50% + var(--sp-point-x,0px));top:calc(50% + var(--sp-point-y,0px));width:72px;height:72px;border:3px solid #fff;background:#101010e6;color:#fff;cursor:pointer;box-shadow:0 2px 8px #0008;transition:background .16s ease,box-shadow .16s ease}
+.sp-point-symbol{display:block;font:400 48px/62px Arial,sans-serif;text-align:center}
+.sp-point-action,.sp-point-tooltip{position:absolute;left:50%;top:calc(100% + 12px);translate:-50% 0;width:max-content;border:2px solid #ffffff9c;border-radius:12px;background:#111f;color:#fff;padding:9px 17px;font:600 30px/1.25 Arial,sans-serif;white-space:nowrap;pointer-events:none}
+.sp-point-tooltip{visibility:hidden;opacity:0;max-width:650px;white-space:normal;font-size:36px;text-align:center;box-shadow:0 8px 22px #0008;transition:opacity .16s ease}
+.sp-diagram .sp-point:hover,.sp-diagram .sp-point:focus-visible{background:#fff;color:#111;box-shadow:0 0 0 9px #ffffff24}
+.sp-point-tooltip{display:none}
+@media(prefers-reduced-motion:reduce){.sp-diagram .sp-point,.sp-point-tooltip{transition:none}}

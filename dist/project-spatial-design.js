@@ -3,6 +3,7 @@ import {createSpatialDiagram2} from './spatial-diagram2.js';
 import {registerTranslations,localizeText} from './localization.js';
 import {traditional} from './chinese-traditional.js';
 import {createExhibitReader} from './project-exhibit-reader.js';
+import {layoutSpatialHotspots} from './spatial-hotspot-layout.js';
 
 const copy=[
  ['SPATIAL DESIGN','空间设计'],
@@ -81,7 +82,7 @@ registerTranslations([
  ['SELECT THE WHITE POINTS','点击白色节点'],
  ['Open each exhibit’s story and photographs.','查看对应展项的介绍与照片。']
 ]);
-function prepareDiagram(onSelect=()=>{},floor=1,onOpen=()=>{}){
+export function prepareDiagram(onSelect=()=>{},floor=1,onOpen=()=>{}){
  const drawing=floor===1?createSpatialDiagram():createSpatialDiagram2();drawing.classList.add('sp-drawing');drawing.dataset.floor=floor;
  const floorExhibits=floor===1?exhibits:secondExhibits;
  if(floor===1){const visitors=document.createElement('img');visitors.className='sp-visitor-overlay';visitors.src='assets/spatial-design/visitor-silhouettes.png';visitors.alt='';visitors.setAttribute('aria-hidden','true');visitors.loading='lazy';visitors.decoding='async';visitors.draggable=false;drawing.append(visitors);}
@@ -91,7 +92,9 @@ function prepareDiagram(onSelect=()=>{},floor=1,onOpen=()=>{}){
   const point=drawing.querySelector(`[data-node-id="${id.includes(':')?id:'272:'+id}"]`),button=document.createElement('button');
   button.type='button';button.className='sp-point';button.setAttribute('aria-pressed','false');
   const marker=point.querySelector('img');
-  if(marker){marker.classList.add('sp-blinking-marker');marker.style.setProperty('--sp-blink-delay',`${-(index*.31+floor*.17)}s`);}
+  if(marker){marker.classList.add('sp-original-marker');marker.setAttribute('aria-hidden','true');}
+  point.classList.add('sp-hotspot-host');
+  button.innerHTML='<span class="sp-point-symbol" aria-hidden="true">+</span><span class="sp-point-action" aria-hidden="true"></span><span class="sp-point-tooltip" aria-hidden="true"></span>';
   const exhibitId=floor===1?(index===0?'lobby':index===1?'preface':String(index-1).padStart(2,'0')):String(index+9).padStart(2,'0');
   button.dataset.exhibit=exhibitId;button.setAttribute('aria-haspopup','dialog');
   button.onclick=()=>{selected=[title,medium];for(const other of pointButtons)other.setAttribute('aria-pressed',String(other===button));translate();onOpen(exhibitId,button);};
@@ -109,7 +112,12 @@ function prepareDiagram(onSelect=()=>{},floor=1,onOpen=()=>{}){
   }
   for(const id of floor===1?secondaryNodes:secondSecondaryNodes)drawing.querySelector(`[data-node-id="${id}"]`)?.classList.add('sp-secondary-label');
   const display=text=>english?(diagramEnglish[text]||text):hant?[...text].map(c=>traditional[c]||c).join(''):text;
-  pointButtons.forEach((b,i)=>b.setAttribute('aria-label',display(floorExhibits[i][1])+' · '+display(floorExhibits[i][2])));
+  pointButtons.forEach((b,i)=>{
+   const title=display(floorExhibits[i][1]),medium=display(floorExhibits[i][2]),action=english?'View ↗':'查看 ↗',hint=english?'Click to view':hant?'點擊查看':'点击查看';
+   b.setAttribute('aria-label',title+' · '+medium+' · '+hint);
+   b.querySelector('.sp-point-action').textContent=action;
+   b.querySelector('.sp-point-tooltip').textContent=title+' · '+hint+' ↗';
+  });
   if(selected)onSelect(selected.map(display).join(' · '));
  }
  translate();return {drawing,translate};
@@ -129,9 +137,10 @@ export function createSpatialDesign(){
  const frame=block.querySelector('.sp-diagram'),caption=block.querySelector('.sp-exhibit-caption');let chosen=false;
  const diagram=prepareDiagram(text=>{chosen=true;caption.textContent=text;},floor,reader.open);frame.append(diagram.drawing);
  caption.textContent=localizeText('Select a white point to explore the exhibit, photographs and story.');
- const resize=new ResizeObserver(()=>{diagram.drawing.style.transform=`scale(${frame.clientWidth/3840})`;});resize.observe(frame);
+ const resize=new ResizeObserver(()=>{diagram.drawing.style.transform=`scale(${frame.clientWidth/3840})`;layoutSpatialHotspots(diagram.drawing);});resize.observe(frame);
  let viewer=null;
- const update=()=>{diagram.translate();viewer?.translate();if(!chosen)caption.textContent=localizeText('Select a white point to explore the exhibit, photographs and story.');};
+ const update=()=>{diagram.translate();layoutSpatialHotspots(diagram.drawing);viewer?.translate();if(!chosen)caption.textContent=localizeText('Select a white point to explore the exhibit, photographs and story.');};
+ document.fonts?.ready.then(()=>{if(section.isConnected)update();});
  document.addEventListener('portfolio-preferences',update);
  block.querySelector('.sp-enlarge').onclick=()=>{
   if(viewer)return;
@@ -140,11 +149,11 @@ export function createSpatialDesign(){
   const detailCaption=document.createElement('p');detailCaption.className='sp-exhibit-caption';detailCaption.setAttribute('data-no-localize','');detailCaption.setAttribute('aria-live','polite');dialog.append(detailCaption);
   const detail=prepareDiagram(text=>{detailCaption.textContent=text;},floor,reader.open),canvas=dialog.querySelector('.sp-zoom-canvas'),pan=dialog.querySelector('.sp-pan');canvas.append(detail.drawing);
   const trigger=block.querySelector('.sp-enlarge');let zoom=1;
-  function fit(){const width=pan.clientWidth*zoom;canvas.style.width=width+'px';canvas.style.height=width*2160/3840+'px';detail.drawing.style.transform=`scale(${width/3840})`;dialog.querySelector('[data-action="out"]').disabled=zoom<=1;dialog.querySelector('[data-action="in"]').disabled=zoom>=6;}
+  function fit(){const width=pan.clientWidth*zoom;canvas.style.width=width+'px';canvas.style.height=width*2160/3840+'px';detail.drawing.style.transform=`scale(${width/3840})`;layoutSpatialHotspots(detail.drawing);dialog.querySelector('[data-action="out"]').disabled=zoom<=1;dialog.querySelector('[data-action="in"]').disabled=zoom>=6;}
   function close(){observer.disconnect();dialog.close();dialog.remove();viewer=null;trigger.focus({preventScroll:true});}
   dialog.addEventListener('cancel',e=>{e.preventDefault();close();});
   dialog.querySelector('header').onclick=e=>{const action=e.target.closest('button')?.dataset.action;if(!action)return;if(action==='close')return close();zoom=action==='fit'?1:Math.min(6,Math.max(1,zoom+(action==='in'?1:-1)));fit();};
-  const observer=new ResizeObserver(fit);document.body.append(dialog);dialog.showModal();observer.observe(pan);fit();viewer={translate:detail.translate,close};
+  const observer=new ResizeObserver(fit);document.body.append(dialog);dialog.showModal();observer.observe(pan);fit();viewer={translate:()=>{detail.translate();fit();},close};
  };
  cleanups.push(()=>{resize.disconnect();document.removeEventListener('portfolio-preferences',update);viewer?.close();});
  }

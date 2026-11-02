@@ -1,0 +1,15 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import {JSDOM} from 'jsdom';import {setupSpectralIntensity} from '../dist/spectral-intensity-motion.js';
+test('timing modules reveal left to right and generate progressively faster waves, retaining originals on cleanup',()=>{
+ const dom=new JSDOM(readFileSync('dist/figma-pages/33-3310.html','utf8'),{pretendToBeVisual:true}),doc=dom.window.document;let enter,finish;dom.window.IntersectionObserver=class{constructor(cb){enter=cb}observe(){}disconnect(){}};dom.window.setTimeout=fn=>{finish=fn;return 1};dom.window.clearTimeout=()=>{};const abort=new dom.window.AbortController();
+ try{const images=doc.querySelectorAll('img').length;setupSpectralIntensity(doc,doc.body,doc.body,abort.signal,()=>false);const cards=[...doc.querySelectorAll('.spectral-intensity-card')],waves=[...doc.querySelectorAll('.spectral-fluid-wave')];assert.equal(cards.length,3);assert.deepEqual(cards.map(c=>c.style.getPropertyValue('--intensity-delay')),['0s','3s','6s']);assert.equal(waves.length,3);assert.ok(waves.every(s=>s.querySelector('path').getAttribute('d').length>500));assert.ok(parseFloat(waves[0].style.getPropertyValue('--wave-period'))>parseFloat(waves[2].style.getPropertyValue('--wave-period')));assert.ok(!doc.body.classList.contains('spectral-intensity-playing'));enter([{isIntersecting:true,intersectionRatio:1}]);assert.ok(doc.body.classList.contains('spectral-intensity-playing'));finish();assert.equal(doc.querySelectorAll('.spectral-intensity-card,.spectral-wave-drawing').length,0);assert.equal(doc.querySelectorAll('.spectral-fluid-wave').length,3);abort.abort();assert.equal(doc.querySelectorAll('.spectral-fluid-wave').length,0);assert.equal(doc.querySelectorAll('img').length,images);
+ }finally{abort.abort();dom.window.close()}
+});
+import {setupSpectralOutputWaves} from '../dist/spectral-intensity-motion.js';
+test('output gesture waves reuse the three speeds while preserving captions, poem bars and original diagrams',()=>{
+ const dom=new JSDOM(readFileSync('dist/figma-pages/33-2945.html','utf8'),{pretendToBeVisual:true}),doc=dom.window.document;let enter;dom.window.IntersectionObserver=class{constructor(cb){enter=cb}observe(){}disconnect(){}};const abort=new dom.window.AbortController();
+ const content=doc.body.textContent,bars=[13417,13424,13425,13432,13433,13434].map(id=>doc.querySelector(`[data-node-id="678:${id}"]`));
+ try{
+  setupSpectralOutputWaves(doc,doc.body,doc.body,abort.signal,()=>false);const waves=[...doc.querySelectorAll('.spectral-fluid-wave')];assert.equal(waves.length,3);assert.deepEqual(waves.map(w=>w.style.getPropertyValue('--wave-period')),['3.6s','2.2s','1.25s']);assert.ok(bars.every(b=>b.style.visibility!=='hidden'));assert.equal(doc.body.textContent,content);
+  enter([{isIntersecting:true,intersectionRatio:1}]);assert.ok(doc.body.classList.contains('spectral-output-waves-playing'));abort.abort();assert.equal(doc.querySelectorAll('.spectral-fluid-wave').length,0);assert.equal(doc.querySelector('[data-node-id="678:13416"]').style.visibility,'');
+ }finally{abort.abort();dom.window.close();}
+});

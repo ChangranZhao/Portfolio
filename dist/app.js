@@ -82,7 +82,7 @@ for(const [label,ids] of [['All',null],['Spatial',['p1','p6','p9','p11']],['Inst
 mobileIntro.append(mobileFilters);desktop.before(mobileIntro);
 entries.forEach(([pid,label,x,y,w,match,h],i)=>{
   const p=byId(pid),index=findImage(p,match),im=p.images[index];
-  const b=button('',()=>{document.querySelectorAll('.desktop-icon.selected').forEach(el=>el.classList.remove('selected'));b.classList.add('selected');openProject(pid,index);},'desktop-icon');
+  const b=button('',()=>{document.querySelectorAll('.desktop-icon.selected').forEach(el=>el.classList.remove('selected'));b.classList.add('selected');openProject(pid,index,true);},'desktop-icon');
   b.setAttribute('aria-label','Open '+label.replaceAll('\n',' '));b.dataset.project=pid;
   b.style.cssText=`--x:${x}%;--y:${y}%;--w:${w}%;--icon-width:${w};--h:${h}vh;--delay:${i*18}ms;--card-ratio:${[.72,1.12,.9,.82,1.2][i%5]}`;
   const square=pid==='p8'&&match==='photo_of_the_Installation3';
@@ -96,7 +96,6 @@ const projectViews=new Map();
 async function openDetails(project){const {openProjectDetails}=await import('./project-details.js');openProjectDetails(project,{openImage:openLightbox,openGallery:(pid,index=0)=>openProject(pid,index,true)});}
 function openProject(pid,index=0,galleryOnly=false,reuseId=null){
   const p=byId(pid);if(!p)return;
-  if(pid==='p3'&&!galleryOnly&&!reuseId){openDetails(p);return;}
   if(!reuseId&&state.items.has(pid)){projectViews.get(pid)?.showImage(index);focusWindow(pid);return;}
   const layout=element('div','project-layout');
   const sidebar=element('aside','project-sidebar');sidebar.append(element('div','sidebar-label','Selected works'));

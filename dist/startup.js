@@ -1,7 +1,7 @@
 import {projects} from './data.js';
 import {projectWarmups} from './startup-assets.js';
 import {preloadResources} from './startup-preload.js';
-import {prepareStartupScene} from './startup-scene.js';
+import {prepareStartupScene,welcomeTiming} from './startup-scene.js';
 const screen=document.getElementById('startup-screen'),controller=new AbortController();
 let finished=!screen,timer;
 const finish=()=>{finished=true;clearTimeout(timer);controller.abort();screen?.remove();};
@@ -18,6 +18,9 @@ async function preload(){
  const visibleImages=[...document.querySelectorAll('#desktop img,.menubar img,#dock img'),...(wallpaper?[backdrop]:[])];
  const ready=await prepareStartupScene({images:visibleImages,fontsReady:document.fonts?.ready,signal:controller.signal,nextFrame:()=>new Promise(resolve=>requestAnimationFrame(resolve))});
  if(!ready||finished)return;
+ const timing=welcomeTiming(Date.now()-window.creativeOSBootStarted);
+ screen.style.setProperty('--hello-duration',timing.duration+'ms');
+ if(!timing.duration)screen.setAttribute('data-hello-ready','true');
  screen.setAttribute('data-motion-ready','true');
  const motionStarted=Date.now();
  const linked=new URLSearchParams(location.hash.slice(1)).get('project');
@@ -32,6 +35,6 @@ async function preload(){
  });
  if(finished)return;
  phase.textContent=result.failed?(chinese?'部分资源将在浏览时继续加载':'Remaining resources load as you browse'):(chinese?'准备就绪，欢迎到来':'Ready. Make yourself at home.');
- timer=setTimeout(()=>window.finishCreativeOSStartup?.(),Math.max(0,5000-(Date.now()-window.creativeOSBootStarted),4500-(Date.now()-motionStarted)));
+ timer=setTimeout(()=>window.finishCreativeOSStartup?.(),Math.max(0,5000-(Date.now()-window.creativeOSBootStarted),timing.duration+timing.settle-(Date.now()-motionStarted)));
 }
 if(window.creativeOSReady)preload();else window.addEventListener('creativeos-ready',preload,{once:true});

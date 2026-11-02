@@ -236,3 +236,8 @@ html[data-theme=light]{--shell-text:#27272b;--shell-muted:#777780;--shell-line:#
  html[data-theme=dark] .guide-preferences small{color:#aaaab4}
  @container gallery-shell (max-width:650px){html[data-theme=light] .gallery-window>.window-titlebar{background:#f7f6f8}}
 }
+/* Keep the shallow system bar out of backdrop-filter damage propagation.
+   Window, Dock and popup materials retain their own live glass layers. */
+html body .menubar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;isolation:isolate;contain:paint;text-shadow:none}
+html body .menubar button{transition:none;filter:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+html body .menubar button:not([aria-expanded=true]):not(:hover){box-shadow:none}

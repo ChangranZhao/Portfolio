@@ -79,13 +79,21 @@ test('closing the loading surface cancels preparation and cannot reveal a closed
  assert.equal(ready,0);assert.equal(root.querySelector('.project-loading'),null);dom.window.close();
 });
 
-test('a failed image does not silently enter reading; retry prepares it before revealing',async()=>{
- const dom=new JSDOM('<div class="case-reader"><article class="case-article"><img src="/missing.webp"></article></div>',{url:'http://localhost'});
- const root=dom.window.document.querySelector('.case-reader'),image=root.querySelector('article img');let broken=true;
- Object.defineProperty(image,'naturalWidth',{get:()=>broken?0:500});image.decode=async()=>{if(broken)throw new Error('offline')};
- const dispose=showProjectLoading(root,{title:'Example',images:[]});
- while(root.querySelector('.project-loading-actions').hidden)await new Promise(r=>setTimeout(r,1));
- assert.equal(root.classList.contains('case-preparing'),true);broken=false;
- const completion=new Promise(resolve=>root.addEventListener('portfolio-project-ready',resolve,{once:true}));root.querySelector('.project-loading-retry').click();await completion;
- assert.equal(root.querySelector('.project-loading'),null);dispose();dom.window.close();
+test('a failed image opens the reader automatically instead of a blocking Retry screen',async()=>{
+ const dom=new JSDOM('<div class="case-reader"><article class="case-article"><img src="/missing.webp"></article></div>',{url:'http://localhost'}),root=dom.window.document.querySelector('.case-reader'),image=root.querySelector('article img');
+ Object.defineProperty(image,'naturalWidth',{value:0});image.decode=async()=>{throw Error('offline')};
+ const completion=new Promise(resolve=>root.addEventListener('portfolio-project-ready',resolve,{once:true})),dispose=showProjectLoading(root,{title:'Example',images:[]});await completion;
+ assert.equal(root.querySelector('.project-loading'),null);assert.equal(root.classList.contains('case-preparing'),false);assert.equal(root.querySelector('article img'),image);dispose();dom.window.close();
+});
+
+test('global deadline reveals even when first-board navigation never finishes',async()=>{
+ const dom=new JSDOM('<div class="case-reader"><article class="case-article"><iframe data-project-board-src="/stalled.html"></iframe></article></div>',{url:'http://localhost'}),root=dom.window.document.querySelector('.case-reader');let ready=0;
+ const completion=new Promise(resolve=>root.addEventListener('portfolio-project-ready',()=>{ready++;resolve();},{once:true}));const dispose=showProjectLoading(root,{title:'Slow project',images:[]},{maxWait:25});await completion;
+ assert.equal(ready,1);assert.equal(root.querySelector('.project-loading'),null);assert.ok(root.querySelector('iframe'));await new Promise(r=>setTimeout(r,10));assert.equal(ready,1);dispose();dom.window.close();
+});
+
+test('initial preparation does not wait for later boards or their images and fonts',async()=>{
+ const dom=new JSDOM('<article><iframe data-project-board-src="/first.html"></iframe><iframe data-project-board-src="/never.html"></iframe></article>',{url:'http://localhost'}),root=dom.window.document.querySelector('article'),first=root.querySelector('iframe');let criticalOnly=false;
+ root.addEventListener('portfolio-project-preload',event=>{criticalOnly=event.detail.criticalOnly;first.src='/first.html';const doc=first.contentDocument;doc.open();doc.write('<html><body>First page</body></html>');doc.close();Object.defineProperty(doc,'readyState',{value:'complete'});Object.defineProperty(doc,'fonts',{value:{ready:new Promise(()=>{})}});first.dispatchEvent(new dom.window.Event('load'));});
+ assert.deepEqual(await prepareProject(root,{scope:'initial',timeout:50}),[]);assert.equal(criticalOnly,true);assert.equal(root.querySelectorAll('iframe').length,2);assert.equal(root.querySelectorAll('iframe')[1].getAttribute('src'),null);dom.window.close();
 });

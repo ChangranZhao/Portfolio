@@ -62,3 +62,6 @@ test('Full Project menus read the accessible window title when the browser title
  assert.ok(menuButton('Wind from the East — Full Project'));
  closeWindow('custom-titlebar');assert.ok(menuButton('Finder'));
 });
+test('the fixed menu bar does not sample changing window compositor layers',async()=>{
+ const {readFile}=await import('node:fs/promises');const css=await readFile('dist/desktop-shell.css','utf8');assert.match(css,/html body \.menubar\{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;isolation:isolate;contain:paint/);
+});

@@ -94,3 +94,16 @@ test('project preparation loads every retained board two at a time, without prox
   assert.deepEqual(frames.map(f=>f.src),frames.map((_,i)=>'board'+i+'.html'));
  }finally{scheduler.dispose();globalThis.document=oldDoc;globalThis.IntersectionObserver=oldIO;}
 });
+test('first-screen preparation reserves initialization for the cover until the reader opens',async()=>{
+ const oldDoc=globalThis.document,oldIO=globalThis.IntersectionObserver,observers=[];globalThis.document=new EventTarget();document.hidden=false;
+ globalThis.IntersectionObserver=class{constructor(cb){this.cb=cb;observers.push(this);}observe(){}unobserve(){}disconnect(){}};
+ const root=new EventTarget(),frames=Array.from({length:4},()=>new EventTarget()),sections=frames.map(()=>({})),scheduler=createBoardScheduler(root);
+ try{
+  frames.forEach((frame,i)=>scheduler.observe(frame,sections[i],'board'+i+'.html',i===0));
+  const event=new Event('portfolio-project-preload');event.detail={criticalOnly:true};root.dispatchEvent(event);observers[0].cb(sections.slice(1).map(target=>({target,isIntersecting:true})));await new Promise(r=>setTimeout(r,150));
+  assert.equal(frames.filter(f=>f.src).length,1);root.dispatchEvent(new Event('portfolio-project-ready'));assert.equal(frames.filter(f=>f.src).length,2);
+ }finally{scheduler.dispose();globalThis.document=oldDoc;globalThis.IntersectionObserver=oldIO;}
+});
+test('published board photos use a lighter 1280 pixel profile',async()=>{
+ const input=await sharp({create:{width:2400,height:1400,channels:3,background:'#677890'}}).png({compressionLevel:0}).toBuffer();const output=await optimizeImage(input,'assets/figma-details/board/photo.png');assert.equal((await sharp(output).metadata()).width,1280);
+});

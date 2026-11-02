@@ -59,14 +59,16 @@ async function prepareImage(image,options){
  }catch(error){if(error.name!=='AbortError')image.dataset.projectImageFailed='true';throw error;}
 }
 
-export async function prepareProject(root,{signal,onProgress=()=>{},timeout=25000,retry=false}={}){
+export async function prepareProject(root,{signal,onProgress=()=>{},timeout=25000,retry=false,scope='all'}={}){
+ const initial=scope==='initial';
  const options={signal,timeout,retry},doc=root.ownerDocument,seenFrames=new Set(),seenImages=new Set(),seenDocuments=new Set(),seenBackgrounds=new Set();
  const containers=[root],failures=[];
  // Install waiters before asking the scheduler to start offscreen documents.
  let frames=[...root.querySelectorAll('iframe')].filter(htmlFrame);
+ if(initial){const bounds=root.getBoundingClientRect();frames=(bounds.height?frames.filter(frame=>{const r=frame.getBoundingClientRect();return r.top<bounds.bottom+200&&r.bottom>=bounds.top;}):frames).slice(0,1);}
  let complete=0,total=frames.length;
  onProgress({phase:'pages',done:0,total});
- const preloadEvent=()=>new doc.defaultView.CustomEvent('portfolio-project-preload',{detail:{retry}});
+ const preloadEvent=()=>new doc.defaultView.CustomEvent('portfolio-project-preload',{detail:{retry,criticalOnly:initial}});
  const pending=frames.map(frame=>{
   seenFrames.add(frame);frame.loading='eager';
   return waitFrame(frame,options).then(child=>{containers.push(child);},error=>{if(error.name==='AbortError')throw error;failures.push({url:frame.getAttribute('data-project-board-src')||frame.src,error});}).finally(()=>onProgress({phase:'pages',done:++complete,total}));
@@ -74,22 +76,28 @@ export async function prepareProject(root,{signal,onProgress=()=>{},timeout=2500
  root.dispatchEvent(preloadEvent());
  await Promise.all(pending);check(signal);
  // Nested local HTML is uncommon, but it must obey the same readiness contract.
- for(let depth=0;depth<3;depth++){
+ for(let depth=0;!initial&&depth<3;depth++){
   frames=containers.flatMap(c=>[...c.querySelectorAll('iframe')]).filter(f=>!seenFrames.has(f)&&htmlFrame(f));if(!frames.length)break;
   total+=frames.length;
   for(const frame of frames){check(signal);seenFrames.add(frame);frame.loading='eager';try{containers.push(await waitFrame(frame,options));}catch(error){if(error.name==='AbortError')throw error;failures.push({url:frame.src,error});}onProgress({phase:'pages',done:++complete,total});}
  }
- for(let pass=0;pass<3;pass++){
+ for(let pass=0;pass<(initial?1:3);pass++){
   check(signal);await nextTask();const tasks=[];
   for(const container of containers){
    const owner=container.ownerDocument||container;
-   if(!seenDocuments.has(owner)&&owner.fonts){seenDocuments.add(owner);const fontTask=()=>bounded(owner.fonts.ready,options);fontTask.url=owner.URL+'#fonts';tasks.push(fontTask);}
-   for(const image of container.querySelectorAll('img')){
+   if(!initial&&!seenDocuments.has(owner)&&owner.fonts){seenDocuments.add(owner);const fontTask=()=>bounded(owner.fonts.ready,options);fontTask.url=owner.URL+'#fonts';tasks.push(fontTask);}
+   let images=[...container.querySelectorAll('img')];
+   if(initial&&container===root){
+    const bounds=root.getBoundingClientRect();
+    images=bounds.height?images.filter(image=>{const r=image.getBoundingClientRect();return r.top<bounds.bottom+200&&r.bottom>=bounds.top;}):images.slice(0,2);
+    images=images.slice(0,8);
+   }
+   for(const image of images){
     if(seenImages.has(image)||!image.getAttribute('src')&&!image.getAttribute('srcset'))continue;seenImages.add(image);
     const task=()=>prepareImage(image,options);task.url=image.currentSrc||image.src;tasks.push(task);
    }
    // Inline background images are used in some authored visual compositions.
-   for(const element of container.querySelectorAll('[style*="url("]'))for(const match of element.style.cssText.matchAll(/url\(["']?([^"')]+)["']?\)/g)){
+   for(const element of initial&&container===root?[]:container.querySelectorAll('[style*="url("]'))for(const match of element.style.cssText.matchAll(/url\(["']?([^"')]+)["']?\)/g)){
     if(/^(?:#|%23)/i.test(match[1]))continue; // SVG gradients/masks reference a local definition.
     const url=new URL(match[1],owner.baseURI).href;if(seenBackgrounds.has(url)||url.startsWith('data:'))continue;seenBackgrounds.add(url);
     const task=async()=>{const image=new owner.defaultView.Image();image.src=url;await prepareImage(image,options);};task.url=url;tasks.push(task);

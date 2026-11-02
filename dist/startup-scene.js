@@ -1,4 +1,8 @@
 // Decode only the visible desktop, with bounded work, before the welcome moves.
+export function welcomeTiming(elapsed){
+ const available=8000-Math.max(0,elapsed)-1100;
+ return available<1100?{duration:0,settle:0}:{duration:Math.min(4100,available-200),settle:400};
+}
 export async function prepareStartupScene({images=[],fontsReady,signal,nextFrame}={}){
  let aborted=signal?.aborted||false,stop;
  const cancelled=new Promise(resolve=>{stop=resolve;});
